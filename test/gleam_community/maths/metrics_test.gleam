@@ -541,6 +541,10 @@ pub fn levenshtein_distance_test() {
   metrics.levenshtein_distance("hello", "hello")
   |> should.equal(0)
 
+  // Lower and uppercase letters are counted as different
+  metrics.levenshtein_distance("hello", "HELLO")
+  |> should.equal(5)
+
   // Requires 1 substitution to change 'a' to 'u'
   metrics.levenshtein_distance("cat", "cut")
   |> should.equal(1)
@@ -558,6 +562,111 @@ pub fn levenshtein_distance_test() {
     "This is also a much longer string",
   )
   |> should.equal(10)
+}
+
+pub fn optimal_string_alignment_distance_test() {
+  // Try different types of valid input...
+
+  // Requires 5 insertions to transform the empty string into "hello"
+  metrics.optimal_string_alignment_distance("", "hello")
+  |> should.equal(5)
+  // Requires 5 deletions to remove all characters from "hello" to match the empty string
+  metrics.optimal_string_alignment_distance("hello", "")
+  |> should.equal(5)
+
+  // Requires 2 deletions to remove two 'b's and 1 substitution to change 'b' to 'a'
+  metrics.optimal_string_alignment_distance("bbb", "a")
+  |> should.equal(3)
+  // Requires 2 insertions to add two 'b's and 1 substitution to change 'a' to 'b'
+  metrics.optimal_string_alignment_distance("a", "bbb")
+  |> should.equal(3)
+
+  // No changes needed, since the strings are identical
+  metrics.optimal_string_alignment_distance("hello", "hello")
+  |> should.equal(0)
+
+  // Lower and uppercase letters are counted as different
+  metrics.optimal_string_alignment_distance("hello", "HELLO")
+  |> should.equal(5)
+
+  // Check transpositions
+  metrics.optimal_string_alignment_distance("CA", "ABC")
+  |> should.equal(3)
+
+  // Check transpositions
+  metrics.optimal_string_alignment_distance("CA", "ABC")
+  |> should.equal(3)
+}
+
+pub fn hamming_distance_test() {
+  // Different sized lists returns an error
+  metrics.hamming_distance("", "hello")
+  |> should.be_error()
+
+  metrics.hamming_distance("hello", "")
+  |> should.be_error()
+
+  // Try different types of valid input...
+
+  // Lower and uppercase letters are counted as different
+  metrics.hamming_distance("hello", "hello")
+  |> should.equal(Ok(5))
+
+  metrics.hamming_distance("cat", "cut")
+  |> should.equal(Ok(2))
+
+  // Lower and uppercase letters are counted as different
+  metrics.hamming_distance("hello", "HELLO")
+  |> should.equal(Ok(0))
+}
+
+pub fn lcs_test() {
+  // Try different types of valid input...
+
+  metrics.lcs("hello", "hello")
+  |> should.equal("hello")
+
+  // Lower and uppercase letters are counted as different
+  metrics.lcs("hello", "HELLO")
+  |> should.equal("")
+
+  metrics.lcs("123", "123456")
+  |> should.equal("123")
+
+  metrics.lcs("This is a string", "This is a longer string")
+  |> should.equal("This is a string")
+
+  // Case where all characters match but in different orders
+  metrics.lcs("abc", "cba")
+  |> should.equal("c")
+
+  // Subsequence with special characters
+  metrics.lcs("a1!b2@c3#", "x1!y2@z3#")
+  |> should.equal("1!2@3#")
+
+  // Numerical characters mixed with letters
+  metrics.lcs("123abc", "abc123")
+  |> should.equal("abc")
+
+  // Subsequence with spaces
+  metrics.lcs("common base", "common case")
+  |> should.equal("common ase")
+
+  // Case where one string is empty
+  metrics.lcs("", "anystring")
+  |> should.equal("")
+
+  // Case with punctuation marks
+  metrics.lcs("hello, world!", "hello world")
+  |> should.equal("hello world")
+
+  // Test ignoring case sensitivity by default 
+  metrics.lcs("Case", "case")
+  |> should.equal("ase")
+
+  // Complex subsequence
+  metrics.lcs("complex example", "simple example")
+  |> should.equal("mple example")
 }
 
 pub fn canberra_distance_test() {

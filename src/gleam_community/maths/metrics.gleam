@@ -60,6 +60,7 @@ import gleam/float
 import gleam/int
 import gleam/string
 import gleam/option
+import gleam/dict
 
 /// Utility function that checks all lists have the expected length and contents
 /// The function is primarily used by all distance measures taking 'List(Float)'
@@ -1187,12 +1188,17 @@ pub fn levenshtein_distance(xstring: String, ystring: String) -> Int {
       let ystring_length = list.length(ystring_graphemes)
       let distance_list = list.range(0, ystring_length)
 
-      do_edit_distance(xstring_graphemes, ystring_graphemes, distance_list, 1)
+      do_levenshtein_distance(
+        xstring_graphemes,
+        ystring_graphemes,
+        distance_list,
+        1,
+      )
     }
   }
 }
 
-fn do_edit_distance(
+fn do_levenshtein_distance(
   xstring: List(String),
   ystring: List(String),
   distance_list: List(Int),
@@ -1207,7 +1213,12 @@ fn do_edit_distance(
     [xstring_head, ..xstring_tail] -> {
       let new_distance_list =
         distance_list_helper(ystring, distance_list, xstring_head, [step], step)
-      do_edit_distance(xstring_tail, ystring, new_distance_list, step + 1)
+      do_levenshtein_distance(
+        xstring_tail,
+        ystring,
+        new_distance_list,
+        step + 1,
+      )
     }
   }
 }
@@ -1233,8 +1244,11 @@ fn distance_list_helper(
       }
       let assert [first, ..] = distance_list_tail
       let min =
+        // Insertion
         last_distance + 1
+        // Deletion
         |> piecewise.minimum(first + 1, int.compare)
+        // Substitution
         |> piecewise.minimum(distance_list_head + difference, int.compare)
       distance_list_helper(
         ystring_tail,
@@ -1245,6 +1259,236 @@ fn distance_list_helper(
       )
     }
   }
+}
+
+pub fn optimal_string_alignment_distance(
+  xstring: String,
+  ystring: String,
+) -> Int {
+  case xstring, ystring {
+    xstring, ystring if xstring == ystring -> {
+      0
+    }
+    xstring, ystring if xstring == "" -> {
+      string.length(ystring)
+    }
+    xstring, ystring if ystring == "" -> {
+      string.length(xstring)
+    }
+    _, _ -> {
+      let xstring_graphemes = string.to_graphemes(xstring)
+      let ystring_graphemes = string.to_graphemes(ystring)
+      let ystring_length = list.length(ystring_graphemes)
+      let distance_list = list.range(0, ystring_length)
+
+      do_optimal_string_alignment_distance(
+        xstring_graphemes,
+        ystring_graphemes,
+        distance_list,
+        1,
+      )
+    }
+  }
+}
+
+fn do_optimal_string_alignment_distance(
+  xstring: List(String),
+  ystring: List(String),
+  distance_list: List(Int),
+  step: Int,
+) -> Int {
+  case xstring {
+    // Safe as 'distance_list' is never empty
+    [] -> {
+      let assert Ok(last) = list.last(distance_list)
+      last
+    }
+    [xstring_head, ..xstring_tail] -> {
+      let new_distance_list =
+        optimal_string_alignment_distance_list_helper(
+          ystring,
+          distance_list,
+          xstring_head,
+          [step],
+          step,
+          option.None,
+          option.None,
+        )
+      do_optimal_string_alignment_distance(
+        xstring_tail,
+        ystring,
+        new_distance_list,
+        step + 1,
+      )
+    }
+  }
+}
+
+/// The Optimal String Alignment (OSA) distance (also known as the restricted 
+/// Damerau-Levenshtein distance) between two strings/sequences is 
+/// the minimum cost of operations (insertions, deletions, substitutions or 
+/// transpositions) required to transform one string into another, subject to the 
+/// constraint that no substring/subsequence is edited more than once. 
+fn optimal_string_alignment_distance_list_helper(
+  ystring: List(String),
+  distance_list: List(Int),
+  grapheme: String,
+  new_distance_list: List(Int),
+  last_distance: Int,
+  previous_grapheme: option.Option(String),
+  previous_y_grapheme: option.Option(String),
+) -> List(Int) {
+  case ystring {
+    [] -> list.reverse(new_distance_list)
+    [ystring_head, ..ystring_tail] -> {
+      let assert [distance_list_head, ..distance_list_tail] = distance_list
+      let difference = case ystring_head == grapheme {
+        True -> {
+          0
+        }
+        False -> {
+          1
+        }
+      }
+      let assert [first, ..] = distance_list_tail
+      let min =
+        // Insertion
+        last_distance + 1
+        // Deletion
+        |> piecewise.minimum(first + 1, int.compare)
+        // Substitution
+        |> piecewise.minimum(distance_list_head + difference, int.compare)
+
+      // Check for transposition
+      let min = case previous_grapheme, previous_y_grapheme {
+        option.Some(prev_x), option.Some(prev_y)
+          if prev_x == ystring_head && prev_y == grapheme
+        -> {
+          piecewise.minimum(min, distance_list_head + 1, int.compare)
+        }
+        _, _ -> min
+      }
+
+      optimal_string_alignment_distance_list_helper(
+        ystring_tail,
+        distance_list_tail,
+        grapheme,
+        [min, ..new_distance_list],
+        min,
+        option.Some(grapheme),
+        option.Some(ystring_head),
+      )
+    }
+  }
+}
+
+// The LCS distance, which measures dissimilarity, can be defined as the total
+// number of deletions required to transform one string into the other, using only
+// deletions.
+fn cache_get(
+  cache: dict.Dict(#(List(String), List(String)), Int),
+  key: #(List(String), List(String)),
+) -> Result(Int, Nil) {
+  dict.get(cache, key)
+}
+
+fn cache_insert(
+  cache: dict.Dict(#(List(String), List(String)), Int),
+  key: #(List(String), List(String)),
+  value: Int,
+) -> dict.Dict(#(List(String), List(String)), Int) {
+  dict.insert(cache, key, value)
+}
+
+pub fn lcs_length(
+  s: List(String),
+  t: List(String),
+  cache: dict.Dict(#(List(String), List(String)), Int),
+) -> #(Int, dict.Dict(#(List(String), List(String)), Int)) {
+  case s, t {
+    [], _ -> #(0, cache_insert(cache, #(s, t), 0))
+    _, [] -> #(0, cache_insert(cache, #(s, t), 0))
+
+    [sh, ..st], [th, ..tt] if sh == th -> {
+      let #(l, c) = lcs_length(st, tt, cache)
+      #(l + 1, cache_insert(c, #(s, t), l + 1))
+    }
+
+    [_, ..st], [_, ..tt] -> {
+      case cache_get(cache, #(s, t)) {
+        Ok(l) -> #(l, cache)
+        Error(_) -> {
+          let #(l1, c1) = lcs_length(s, tt, cache)
+          let #(l2, c2) = lcs_length(st, t, c1)
+          let l = piecewise.maximum(l1, l2, int.compare)
+          #(l, cache_insert(c2, #(s, t), l))
+        }
+      }
+    }
+  }
+}
+
+pub fn lcs(s: String, t: String) -> String {
+  let s_graphemes = string.to_graphemes(s)
+  let t_graphemes = string.to_graphemes(t)
+  let #(_, cache) = lcs_length(s_graphemes, t_graphemes, dict.new())
+  let result = reconstruct_lcs(s_graphemes, t_graphemes, cache, [])
+  string.join(result, "")
+}
+
+fn reconstruct_lcs(
+  s: List(String),
+  t: List(String),
+  cache: dict.Dict(#(List(String), List(String)), Int),
+  acc: List(String),
+) -> List(String) {
+  case s, t {
+    [], _ | _, [] -> list.reverse(acc)
+    [sh, ..st], [th, ..tt] if sh == th ->
+      reconstruct_lcs(st, tt, cache, [sh, ..acc])
+    [_, ..st], [_, ..tt] -> {
+      case cache_get(cache, #(s, tt)), cache_get(cache, #(st, t)) {
+        Ok(value1), Ok(value2) -> {
+          case value1 > value2 {
+            True -> reconstruct_lcs(s, tt, cache, acc)
+            False -> reconstruct_lcs(st, t, cache, acc)
+          }
+        }
+        _, _ -> acc
+      }
+    }
+  }
+}
+
+// Hamming Distance: This measure is used to determine the difference between two 
+// strings of equal length by counting the number of positions at which the 
+// corresponding symbols are different. Thus, it only considers substitution
+// operations and is invalid for strings of differing lengths.
+pub fn hamming_distance(xstring: String, ystring: String) -> Result(Int, String) {
+  let xstring_graphemes = string.to_graphemes(xstring)
+  let ystring_graphemes = string.to_graphemes(ystring)
+
+  case list.length(xstring_graphemes) != list.length(ystring_graphemes) {
+    True ->
+      "Invalid input argument:  length(xstring) != length(ystring). Valid input is when the strings have the same length."
+      |> Error
+    False ->
+      do_hamming_distance(xstring_graphemes, ystring_graphemes)
+      |> Ok
+  }
+}
+
+fn do_hamming_distance(
+  xstring_graphemes: List(String),
+  ystring_graphemes: List(String),
+) -> Int {
+  list.map2(xstring_graphemes, ystring_graphemes, fn(xcharacter, ycharacter) {
+    case xcharacter == ycharacter {
+      True -> 1
+      False -> 0
+    }
+  })
+  |> arithmetics.int_sum()
 }
 
 /// <div style="text-align: right;">
