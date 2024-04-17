@@ -1,12 +1,12 @@
+import gleam/option
+import gleam/set
 import gleam_community/maths/elementary
 import gleam_community/maths/metrics
 import gleam_community/maths/predicates
 import gleeunit/should
-import gleam/set
-import gleam/option
 
 pub fn float_list_norm_test() {
-  let assert Ok(tol) = elementary.power(-10.0, -6.0)
+  let assert Ok(tol) = elementary.power(10.0, -6.0)
 
   // An empty lists returns 0.0
   []
@@ -66,7 +66,7 @@ pub fn float_list_norm_test() {
 }
 
 pub fn float_list_manhattan_test() {
-  let assert Ok(tol) = elementary.power(-10.0, -6.0)
+  let assert Ok(tol) = elementary.power(10.0, -6.0)
 
   // Empty lists returns an error
   metrics.manhattan_distance([], [], option.None)
@@ -118,7 +118,7 @@ pub fn float_list_manhattan_test() {
 }
 
 pub fn float_list_minkowski_test() {
-  let assert Ok(tol) = elementary.power(-10.0, -6.0)
+  let assert Ok(tol) = elementary.power(10.0, -6.0)
 
   // Empty lists returns an error
   metrics.minkowski_distance([], [], 1.0, option.None)
@@ -226,7 +226,7 @@ pub fn float_list_minkowski_test() {
 }
 
 pub fn float_list_euclidean_test() {
-  let assert Ok(tol) = elementary.power(-10.0, -6.0)
+  let assert Ok(tol) = elementary.power(10.0, -6.0)
 
   // Empty lists returns an error
   metrics.euclidean_distance([], [], option.None)
@@ -410,7 +410,7 @@ pub fn overlap_coefficient_test() {
 }
 
 pub fn cosine_similarity_test() {
-  let assert Ok(tol) = elementary.power(-10.0, -6.0)
+  let assert Ok(tol) = elementary.power(10.0, -6.0)
 
   // Empty lists returns an error
   metrics.cosine_similarity([], [], option.None)
@@ -610,14 +610,14 @@ pub fn hamming_distance_test() {
 
   // Lower and uppercase letters are counted as different
   metrics.hamming_distance("hello", "hello")
-  |> should.equal(Ok(5))
+  |> should.equal(Ok(0))
 
   metrics.hamming_distance("cat", "cut")
-  |> should.equal(Ok(2))
+  |> should.equal(Ok(1))
 
   // Lower and uppercase letters are counted as different
   metrics.hamming_distance("hello", "HELLO")
-  |> should.equal(Ok(0))
+  |> should.equal(Ok(5))
 }
 
 pub fn lcs_test() {

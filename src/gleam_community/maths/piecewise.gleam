@@ -52,11 +52,11 @@
 ////   * [`arg_maximum`](#arg_maximum)
 ////
 
-import gleam/option
+import gleam/int
 import gleam/list
+import gleam/option
 import gleam/order
 import gleam/pair
-import gleam/int
 import gleam_community/maths/conversion
 import gleam_community/maths/elementary
 

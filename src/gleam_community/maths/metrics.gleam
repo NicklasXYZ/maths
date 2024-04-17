@@ -26,6 +26,13 @@
 //// Metrics: A module offering functions for calculating distances and other 
 //// types of metrics.
 //// 
+//// Disclaimer: In this module, the terms "distance" and "metric" are used in
+//// a broad and practical sense rather than with strict mathematical rigor. That
+//// is, they are used to denote any difference or discrepancy between two 
+//// measurements or inputs. Consequently, they may not always align with their 
+//// precise mathematical definitions (in particular, some "distance" functions in
+//// this module do not satisfy the triangle inequality).
+//// 
 //// * **Distance measures**
 ////   * [`norm`](#norm)
 ////   * [`manhattan_distance`](#manhattan_distance)
@@ -48,19 +55,19 @@
 ////   * [`standard_deviation`](#standard_deviation)
 //// 
 
-import gleam_community/maths/elementary
-import gleam_community/maths/piecewise
-import gleam_community/maths/arithmetics
-import gleam_community/maths/predicates
-import gleam_community/maths/conversion
-import gleam/list
-import gleam/pair
-import gleam/set
+import gleam/dict
 import gleam/float
 import gleam/int
-import gleam/string
+import gleam/list
 import gleam/option
-import gleam/dict
+import gleam/pair
+import gleam/set
+import gleam/string
+import gleam_community/maths/arithmetics
+import gleam_community/maths/conversion
+import gleam_community/maths/elementary
+import gleam_community/maths/piecewise
+import gleam_community/maths/predicates
 
 /// Utility function that checks all lists have the expected length and contents
 /// The function is primarily used by all distance measures taking 'List(Float)'
@@ -1129,6 +1136,41 @@ pub fn cosine_similarity(
   }
 }
 
+pub type StringMetric {
+  Levenshtein
+  LongestCommonSubsequence
+  OptimalStringAlignment
+  Hamming
+  Jaro
+  JaroWinkler
+}
+
+/// <div style="text-align: right;">
+///     <a href="https://github.com/gleam-community/maths/issues">
+///         <small>Spot a typo? Open an issue!</small>
+///     </a>
+/// </div>
+/// 
+/// <details>
+///     <summary>Example:</summary>
+///
+///     import gleeunit/should
+///     import gleam_community/maths/metrics
+///
+///     pub fn example () {
+///     }
+/// </details>
+///
+/// <div style="text-align: right;">
+///     <a href="#">
+///         <small>Back to top ↑</small>
+///     </a>
+/// </div>
+///
+pub fn edit_distance(mode: option.Option(StringMetric)) {
+  todo
+}
+
 /// <div style="text-align: right;">
 ///     <a href="https://github.com/gleam-community/maths/issues">
 ///         <small>Spot a typo? Open an issue!</small>
@@ -1169,7 +1211,6 @@ pub fn cosine_similarity(
 ///         <small>Back to top ↑</small>
 ///     </a>
 /// </div>
-///
 ///
 pub fn levenshtein_distance(xstring: String, ystring: String) -> Int {
   case xstring, ystring {
@@ -1261,6 +1302,29 @@ fn distance_list_helper(
   }
 }
 
+/// <div style="text-align: right;">
+///     <a href="https://github.com/gleam-community/maths/issues">
+///         <small>Spot a typo? Open an issue!</small>
+///     </a>
+/// </div>
+///
+/// <details>
+///     <summary>Example:</summary>
+///
+///     import gleeunit/should
+///     import gleam/option
+///     import gleam_community/maths/metrics
+///
+///     pub fn example() {
+///     }
+/// </details>
+///
+/// <div style="text-align: right;">
+///     <a href="#">
+///         <small>Back to top ↑</small>
+///     </a>
+/// </div>
+///
 pub fn optimal_string_alignment_distance(
   xstring: String,
   ystring: String,
@@ -1428,6 +1492,29 @@ pub fn lcs_length(
   }
 }
 
+/// <div style="text-align: right;">
+///     <a href="https://github.com/gleam-community/maths/issues">
+///         <small>Spot a typo? Open an issue!</small>
+///     </a>
+/// </div>
+///
+/// <details>
+///     <summary>Example:</summary>
+///
+///     import gleeunit/should
+///     import gleam/option
+///     import gleam_community/maths/metrics
+///
+///     pub fn example() {
+///     }
+/// </details>
+///
+/// <div style="text-align: right;">
+///     <a href="#">
+///         <small>Back to top ↑</small>
+///     </a>
+/// </div>
+///
 pub fn lcs(s: String, t: String) -> String {
   let s_graphemes = string.to_graphemes(s)
   let t_graphemes = string.to_graphemes(t)
@@ -1464,6 +1551,30 @@ fn reconstruct_lcs(
 // strings of equal length by counting the number of positions at which the 
 // corresponding symbols are different. Thus, it only considers substitution
 // operations and is invalid for strings of differing lengths.
+
+/// <div style="text-align: right;">
+///     <a href="https://github.com/gleam-community/maths/issues">
+///         <small>Spot a typo? Open an issue!</small>
+///     </a>
+/// </div>
+///
+/// <details>
+///     <summary>Example:</summary>
+///
+///     import gleeunit/should
+///     import gleam/option
+///     import gleam_community/maths/metrics
+///
+///     pub fn example() {
+///     }
+/// </details>
+///
+/// <div style="text-align: right;">
+///     <a href="#">
+///         <small>Back to top ↑</small>
+///     </a>
+/// </div>
+///
 pub fn hamming_distance(xstring: String, ystring: String) -> Result(Int, String) {
   let xstring_graphemes = string.to_graphemes(xstring)
   let ystring_graphemes = string.to_graphemes(ystring)
@@ -1484,8 +1595,8 @@ fn do_hamming_distance(
 ) -> Int {
   list.map2(xstring_graphemes, ystring_graphemes, fn(xcharacter, ycharacter) {
     case xcharacter == ycharacter {
-      True -> 1
-      False -> 0
+      True -> 0
+      False -> 1
     }
   })
   |> arithmetics.int_sum()
@@ -1538,7 +1649,6 @@ fn do_hamming_distance(
 ///         <small>Back to top ↑</small>
 ///     </a>
 /// </div>
-///
 ///
 pub fn canberra_distance(
   xarr: List(Float),
