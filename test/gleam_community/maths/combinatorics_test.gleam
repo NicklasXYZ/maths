@@ -199,6 +199,27 @@ pub fn list_cartesian_product_test() {
   |> should.equal(expected_result)
 }
 
+pub fn cartesian_product_mixed_types_test() {
+  // Cartesian product of two empty sets
+  set.from_list([])
+  |> combinatorics.cartesian_product(set.from_list([]))
+  |> should.equal(set.from_list([]))
+
+  // Cartesian product of two sets with numeric values
+  set.from_list([1.0, 10.0])
+  |> combinatorics.cartesian_product(set.from_list([1.0, 2.0]))
+  |> should.equal(
+    set.from_list([#(1.0, 1.0), #(1.0, 2.0), #(10.0, 1.0), #(10.0, 2.0)]),
+  )
+
+  // Cartesian product of two sets with different types
+  set.from_list(["1", "10"])
+  |> combinatorics.cartesian_product(set.from_list([1.0, 2.0]))
+  |> should.equal(
+    set.from_list([#("1", 1.0), #("1", 2.0), #("10", 1.0), #("10", 2.0)]),
+  )
+}
+
 pub fn list_permutation_test() {
   // Invalid input: k < 0 should return an error for an empty list
   []
@@ -683,25 +704,4 @@ pub fn combination_alignment_test() {
   |> iterator.to_list()
   |> list.length()
   |> should.equal(number_of_combinations)
-}
-
-pub fn example_test() {
-  // Cartesian product of two empty sets
-  set.from_list([])
-  |> combinatorics.cartesian_product(set.from_list([]))
-  |> should.equal(set.from_list([]))
-
-  // Cartesian product of two sets with numeric values
-  set.from_list([1.0, 10.0])
-  |> combinatorics.cartesian_product(set.from_list([1.0, 2.0]))
-  |> should.equal(
-    set.from_list([#(1.0, 1.0), #(1.0, 2.0), #(10.0, 1.0), #(10.0, 2.0)]),
-  )
-
-  // Cartesian product of two sets with different types
-  set.from_list(["1", "10"])
-  |> combinatorics.cartesian_product(set.from_list([1.0, 2.0]))
-  |> should.equal(
-    set.from_list([#("1", 1.0), #("1", 2.0), #("10", 1.0), #("10", 2.0)]),
-  )
 }
