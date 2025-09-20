@@ -212,14 +212,15 @@ pub fn divisors(n: Int) -> List(Int) {
 }
 
 fn find_divisors(n: Int) -> set.Set(Int) {
-  let nabs = float.absolute_value(int.to_float(n))
+  let nabs = int.absolute_value(n)
+  let nabs_float = int.to_float(nabs)
   // Usage of let assert: 'nabs' is non-negative so no error should occur. The
   // function `float.square_root` will only return an error in case a negative
   // value is given as input.
-  let assert Ok(sqrt_result) = float.square_root(nabs)
+  let assert Ok(sqrt_result) = float.square_root(nabs_float)
   let max = float.round(sqrt_result) + 1
 
-  do_find_divisors(n, max, set.new(), 1)
+  do_find_divisors(nabs, max, set.new(), 1)
 }
 
 fn do_find_divisors(n: Int, max: Int, acc: set.Set(Int), i: Int) -> set.Set(Int) {
@@ -509,7 +510,7 @@ pub fn int_cumulative_sum(arr: List(Int)) -> List(Int) {
 /// In the formula, \\(v_j\\) is the \\(j\\)'th element in the cumulative product
 /// of \\(n\\) elements. That is, \\(n\\) is the length of the list and
 /// \\(x_i \in \mathbb{R}\\) is the value in the input list indexed by \\(i\\).
-/// The value \\(v_j\\) is thus the sum of the \\(1\\) to \\(j\\) first elements
+/// The value \\(v_j\\) is thus the product of the \\(1\\) to \\(j\\) first elements
 /// in the given list.
 ///
 /// <details>
@@ -797,9 +798,8 @@ fn do_acos(a: Float) -> Float
 /// \\]
 ///
 /// The function takes a number \\(x\\) in its domain \\(\[1, +\infty\)\\) as input
-/// and returns a numeric value \\(y\\) that lies in the range \\(\[0, +\infty\)\\)
-/// (an angle in radians). If the input value is outside the domain of the function
-/// an error is returned.
+/// and returns a numeric value \\(y\\) that lies in the range \\(\[0, +\infty\)\\).
+/// If the input value is outside the domain of the function an error is returned.
 ///
 /// <details>
 ///     <summary>Example</summary>
@@ -842,7 +842,7 @@ fn do_acosh(a: Float) -> Float
 /// The inverse sine function:
 ///
 /// \\[
-/// \forall x \in \[-1, 1\],   \\; \sin^{-1}{(x)} = y \in \(-\infty, +\infty\)
+/// \forall x \in \[-1, 1\],   \\; \sin^{-1}{(x)} = y \in \[-\frac{\pi}{2}, \frac{\pi}{2}\]
 /// \\]
 ///
 /// The function takes a number \\(x\\) in its domain \\(\[-1, 1\]\\) as input and returns a numeric
@@ -898,7 +898,7 @@ fn do_asin(a: Float) -> Float
 ///
 /// The function takes a number \\(x\\) in its domain \\(\(-\infty, +\infty\)\\)
 /// as input and returns a numeric value \\(y\\) that lies in the range
-/// \\(\(-\infty, +\infty\)\\) (an angle in radians).
+/// \\(\(-\infty, +\infty\)\\).
 ///
 /// <details>
 ///     <summary>Example</summary>
@@ -984,7 +984,7 @@ fn do_atan(a: Float) -> Float
 ///  \tan^{-1}(\frac y x) - \pi &\text{if } x < 0 \text{ and } y < 0, \\\\
 ///  +\frac{\pi}{2} &\text{if } x = 0 \text{ and } y > 0, \\\\
 ///  -\frac{\pi}{2} &\text{if } x = 0 \text{ and } y < 0, \\\\
-///  \text{undefined} &\text{if } x = 0 \text{ and } y = 0.
+///  0 &\text{if } x = 0 \text{ and } y = 0.
 /// \end{cases}
 /// \\]
 ///
@@ -1032,7 +1032,7 @@ fn do_atan2(a: Float, b: Float) -> Float
 /// \\]
 ///
 /// The function takes a number \\(x\\) in its domain \\(\(-1, 1\)\\) as input and returns
-/// a numeric value \\(y\\) that lies in the range \\(\(-\infty, \infty\)\\) (an angle in radians).
+/// a numeric value \\(y\\) that lies in the range \\(\(-\infty, \infty\)\\).
 /// If the input value is outside the domain of the function an error is returned.
 ///
 /// <details>
@@ -1213,8 +1213,8 @@ fn do_sin(a: Float) -> Float
 /// \\]
 ///
 /// The function takes a number \\(x\\) in its domain \\(\(-\infty, +\infty\)\\) as input
-/// (an angle in radians) and returns a numeric value \\(y\\) that lies in the range
-/// \\(\(-\infty, +\infty\)\\). If the input value is too large an overflow error might occur.
+/// and returns a numeric value \\(y\\) that lies in the range \\(\(-\infty, +\infty\)\\). 
+/// If the input value is too large an overflow error might occur.
 ///
 /// <details>
 ///     <summary>Example</summary>
@@ -1251,12 +1251,13 @@ fn do_sinh(a: Float) -> Float
 /// The tangent function:
 ///
 /// \\[
-/// \forall x \in \(-\infty, +\infty\),   \\; \tan{(x)} = y \in \(-\infty, +\infty\)
+/// \forall x \in \(-\infty, +\infty\) \setminus \{\frac{\pi}{2} + k\cdot\pi \mid k \in 
+/// \mathbb{Z}\}, \quad \tan(x) = y \in (-\infty, +\infty)
 /// \\]
 ///
-/// The function takes a number \\(x\\) in its domain \\(\(-\infty, +\infty\)\\) as input
-/// (an angle in radians) and returns a numeric value \\(y\\) that lies in the range
-/// \\(\(-\infty, +\infty\)\\).
+/// The function takes a number \\(x\\) (an angle in radians) as input, provided that 
+/// \\(\cos(x) \neq 0\\), since \\(\tan(x) = \frac{\sin(x)}{\cos(x)}\\). It returns
+/// a numeric value \\(y\\) that lies in the range \\(\(-\infty, +\infty\)\\).
 ///
 /// <details>
 ///     <summary>Example</summary>
@@ -1267,6 +1268,9 @@ fn do_sinh(a: Float) -> Float
 ///     pub fn example() {
 ///       maths.tan(0.0)
 ///       |> should.equal(0.0)
+/// 
+///       maths.tan(maths.pi() /. 4.0)
+///       |> should.equal(1.0)
 ///     }
 /// </details>
 ///
@@ -1755,16 +1759,16 @@ pub fn e() -> Float {
 /// <summary>Details</summary>
 ///
 ///   The rounding mode rounds \\(12.0654\\) to:
-///   - \\(12.0\\) for 0 digits after the decimal point (`digits = 0`)
-///   - \\(12.1\\) for 1 digit after the decimal point (`digits = 1`)
-///   - \\(12.07\\) for 2 digits after the decimal point (`digits = 2`)
-///   - \\(12.065\\) for 3 digits after the decimal point (`digits = 3`)
+///   - \\(12.0\\) for 0 digits after the decimal point (`p = 0`)
+///   - \\(12.1\\) for 1 digit after the decimal point (`p = 1`)
+///   - \\(12.07\\) for 2 digits after the decimal point (`p = 2`)
+///   - \\(12.065\\) for 3 digits after the decimal point (`p = 3`)
 ///
 ///   It is also possible to specify a negative number of digits. In that case, the negative
 ///   number refers to the digits before the decimal point.
-///   - \\(10.0\\) for 1 digit before the decimal point (`digits = -1`)
-///   - \\(0.0\\) for 2 digits before the decimal point (`digits = -2`)
-///   - \\(0.0\\) for 3 digits before the decimal point (`digits = -3`)
+///   - \\(10.0\\) for 1 digit before the decimal point (`p = -1`)
+///   - \\(0.0\\) for 2 digits before the decimal point (`p = -2`)
+///   - \\(0.0\\) for 3 digits before the decimal point (`p = -3`)
 ///
 /// </details>
 ///
@@ -1791,20 +1795,20 @@ pub fn round_to_nearest(x: Float, p: Int) -> Float {
   // 1. The base is negative and the exponent is fractional.
   // 2. If the base is 0 and the exponent is negative.
   // No error will occur since the base is a positive non-zero number.
-  let assert Ok(p) = float.power(10.0, int.to_float(p))
-  let xabs = float.absolute_value(x) *. p
+  let assert Ok(scale) = float.power(10.0, int.to_float(p))
+  let xabs = float.absolute_value(x) *. scale
   let xabs_truncated = truncate_float(xabs)
   let remainder = xabs -. xabs_truncated
   case remainder {
-    _ if remainder >. 0.5 -> sign(x) *. truncate_float(xabs +. 1.0) /. p
+    _ if remainder >. 0.5 -> sign(x) *. truncate_float(xabs +. 1.0) /. scale
     _ if remainder == 0.5 -> {
       let is_even = float.truncate(xabs) % 2
       case is_even == 0 {
-        True -> sign(x) *. xabs_truncated /. p
-        False -> sign(x) *. truncate_float(xabs +. 1.0) /. p
+        True -> sign(x) *. xabs_truncated /. scale
+        False -> sign(x) *. truncate_float(xabs +. 1.0) /. scale
       }
     }
-    _ -> sign(x) *. xabs_truncated /. p
+    _ -> sign(x) *. xabs_truncated /. scale
   }
 }
 
@@ -1823,16 +1827,16 @@ pub fn round_to_nearest(x: Float, p: Int) -> Float {
 /// <summary>Details</summary>
 ///
 ///   The rounding mode rounds \\(12.0654\\) to:
-///   - \\(12.0\\) for 0 digits after the decimal point (`digits = 0`)
-///   - \\(12.1\\) for 1 digit after the decimal point (`digits = 1`)
-///   - \\(12.07\\) for 2 digits after the decimal point (`digits = 2`)
-///   - \\(12.065\\) for 3 digits after the decimal point (`digits = 3`)
+///   - \\(12.0\\) for 0 digits after the decimal point (`p = 0`)
+///   - \\(12.1\\) for 1 digit after the decimal point (`p = 1`)
+///   - \\(12.07\\) for 2 digits after the decimal point (`p = 2`)
+///   - \\(12.065\\) for 3 digits after the decimal point (`p = 3`)
 ///
 ///   It is also possible to specify a negative number of digits. In that case, the negative
 ///   number refers to the digits before the decimal point.
-///   - \\(10.0\\) for 1 digit before the decimal point (`digits = -1`)
-///   - \\(0.0\\) for 2 digits before the decimal point (`digits = -2`)
-///   - \\(0.0\\) for 3 digits before the decimal point (`digits = -3`)
+///   - \\(10.0\\) for 1 digit before the decimal point (`p = -1`)
+///   - \\(0.0\\) for 2 digits before the decimal point (`p = -2`)
+///   - \\(0.0\\) for 3 digits before the decimal point (`p = -3`)
 ///
 /// </details>
 ///
@@ -1859,12 +1863,12 @@ pub fn round_ties_away(x: Float, p: Int) -> Float {
   // 1. The base is negative and the exponent is fractional.
   // 2. If the base is 0 and the exponent is negative.
   // No error will occur since the base is a positive non-zero number.
-  let assert Ok(p) = float.power(10.0, int.to_float(p))
-  let xabs = float.absolute_value(x) *. p
+  let assert Ok(scale) = float.power(10.0, int.to_float(p))
+  let xabs = float.absolute_value(x) *. scale
   let remainder = xabs -. truncate_float(xabs)
   case remainder {
-    _ if remainder >=. 0.5 -> sign(x) *. truncate_float(xabs +. 1.0) /. p
-    _ -> sign(x) *. truncate_float(xabs) /. p
+    _ if remainder >=. 0.5 -> sign(x) *. truncate_float(xabs +. 1.0) /. scale
+    _ -> sign(x) *. truncate_float(xabs) /. scale
   }
 }
 
@@ -1883,16 +1887,16 @@ pub fn round_ties_away(x: Float, p: Int) -> Float {
 /// <summary>Details</summary>
 ///
 ///   The rounding mode rounds \\(12.0654\\) to:
-///   - \\(12.0\\) for 0 digits after the decimal point (`digits = 0`)
-///   - \\(12.1\\) for 1 digits after the decimal point (`digits = 1`)
-///   - \\(12.07\\) for 2 digits after the decimal point (`digits = 2`)
-///   - \\(12.065\\) for 3 digits after the decimal point (`digits = 3`)
+///   - \\(12.0\\) for 0 digits after the decimal point (`p = 0`)
+///   - \\(12.1\\) for 1 digits after the decimal point (`p = 1`)
+///   - \\(12.07\\) for 2 digits after the decimal point (`p = 2`)
+///   - \\(12.065\\) for 3 digits after the decimal point (`p = 3`)
 ///
 ///   It is also possible to specify a negative number of digits. In that case, the negative
 ///    number refers to the digits before the decimal point.
-///   - \\(10.0\\) for 1 digit before the decimal point (`digits = -1`)
-///   - \\(0.0\\) for 2 digits before the decimal point (`digits = -2`)
-///   - \\(0.0\\) for 3 digits before the decimal point (`digits = -3`)
+///   - \\(10.0\\) for 1 digit before the decimal point (`p = -1`)
+///   - \\(0.0\\) for 2 digits before the decimal point (`p = -2`)
+///   - \\(0.0\\) for 3 digits before the decimal point (`p = -3`)
 ///
 /// </details>
 ///
@@ -1919,14 +1923,14 @@ pub fn round_ties_up(x: Float, p: Int) -> Float {
   // 1. The base is negative and the exponent is fractional.
   // 2. If the base is 0 and the exponent is negative.
   // No error will occur since the base is a positive non-zero number.
-  let assert Ok(p) = float.power(10.0, int.to_float(p))
-  let xabs = float.absolute_value(x) *. p
+  let assert Ok(scale) = float.power(10.0, int.to_float(p))
+  let xabs = float.absolute_value(x) *. scale
   let xabs_truncated = truncate_float(xabs)
   let remainder = xabs -. xabs_truncated
   case remainder {
     _ if remainder >=. 0.5 && x >=. 0.0 ->
-      sign(x) *. truncate_float(xabs +. 1.0) /. p
-    _ -> sign(x) *. xabs_truncated /. p
+      sign(x) *. truncate_float(xabs +. 1.0) /. scale
+    _ -> sign(x) *. xabs_truncated /. scale
   }
 }
 
@@ -1937,24 +1941,24 @@ pub fn round_ties_up(x: Float, p: Int) -> Float {
 /// </div>
 ///
 /// The function rounds a float to a specific number of digits (after the decimal place or before
-/// if negative). In particular, the input \\(x\\) is rounded to the nearest integer value (at the
-/// specified digit) that is less than or equal to the absolute value of the input \\(x\\). This
-/// rounding behaviour is similar to behaviour of the Gleam stdlib `truncate` function.
+/// if negative). In particular, the input \\(x\\) is cut off at the specified digit, so the result
+/// always has an absolute value less than or equal to the absolute value of \\(x\\). This rounding
+/// behaviour is similar to the behaviour of the Gleam stdlib `truncate` function.
 ///
 /// <details>
 /// <summary>Details</summary>
 ///
 ///   The rounding mode rounds \\(12.0654\\) to:
-///   - \\(12.0\\) for 0 digits after the decimal point (`digits = 0`)
-///   - \\(12.0\\) for 1 digit after the decimal point (`digits = 1`)
-///   - \\(12.06\\) for 2 digits after the decimal point (`digits = 2`)
-///   - \\(12.065\\) for 3 digits after the decimal point (`digits = 3`)
+///   - \\(12.0\\) for 0 digits after the decimal point (`p = 0`)
+///   - \\(12.0\\) for 1 digit after the decimal point (`p = 1`)
+///   - \\(12.06\\) for 2 digits after the decimal point (`p = 2`)
+///   - \\(12.065\\) for 3 digits after the decimal point (`p = 3`)
 ///
 ///   It is also possible to specify a negative number of digits. In that case, the negative
 ///   number refers to the digits before the decimal point.
-///   - \\(10.0\\) for 1 digit before the decimal point (`digits = -1`)
-///   - \\(0.0\\) for 2 digits before the decimal point (`digits = -2`)
-///   - \\(0.0\\) for 3 digits before the decimal point (`digits = -3`)
+///   - \\(10.0\\) for 1 digit before the decimal point (`p = -1`)
+///   - \\(0.0\\) for 2 digits before the decimal point (`p = -2`)
+///   - \\(0.0\\) for 3 digits before the decimal point (`p = -3`)
 ///
 /// </details>
 ///
@@ -1981,8 +1985,8 @@ pub fn round_to_zero(x: Float, p: Int) -> Float {
   // 1. The base is negative and the exponent is fractional.
   // 2. If the base is 0 and the exponent is negative.
   // No error will occur since the base is a positive non-zero number.
-  let assert Ok(p) = float.power(10.0, int.to_float(p))
-  truncate_float(x *. p) /. p
+  let assert Ok(scale) = float.power(10.0, int.to_float(p))
+  truncate_float(x *. scale) /. scale
 }
 
 fn truncate_float(x: Float) -> Float {
@@ -2008,16 +2012,16 @@ fn do_truncate_float(a: Float) -> Float
 /// <summary>Details</summary>
 ///
 ///   The rounding mode rounds \\(12.0654\\) to:
-///   - \\(12.0\\) for 0 digits after the decimal point (`digits = 0`)
-///   - \\(12.0\\) for 1 digits after the decimal point (`digits = 1`)
-///   - \\(12.06\\) for 2 digits after the decimal point (`digits = 2`)
-///   - \\(12.065\\) for 3 digits after the decimal point (`digits = 3`)
+///   - \\(12.0\\) for 0 digits after the decimal point (`p = 0`)
+///   - \\(12.0\\) for 1 digits after the decimal point (`p = 1`)
+///   - \\(12.06\\) for 2 digits after the decimal point (`p = 2`)
+///   - \\(12.065\\) for 3 digits after the decimal point (`p = 3`)
 ///
 ///   It is also possible to specify a negative number of digits. In that case, the negative
 ///   number refers to the digits before the decimal point.
-///   - \\(10.0\\) for 1 digit before the decimal point (`digits = -1`)
-///   - \\(0.0\\) for 2 digits before the decimal point (`digits = -2`)
-///   - \\(0.0\\) for 3 digits before the decimal point (`digits = -3`)
+///   - \\(10.0\\) for 1 digit before the decimal point (`p = -1`)
+///   - \\(0.0\\) for 2 digits before the decimal point (`p = -2`)
+///   - \\(0.0\\) for 3 digits before the decimal point (`p = -3`)
 ///
 /// </details>
 ///
@@ -2067,16 +2071,16 @@ fn do_floor(a: Float) -> Float
 /// <summary>Details</summary>
 ///
 ///   The rounding mode rounds \\(12.0654\\) to:
-///   - \\(13.0\\) for 0 digits after the decimal point (`digits = 0`)
-///   - \\(12.1\\) for 1 digit after the decimal point (`digits = 1`)
-///   - \\(12.07\\) for 2 digits after the decimal point (`digits = 2`)
-///   - \\(12.066\\) for 3 digits after the decimal point (`digits = 3`)
+///   - \\(13.0\\) for 0 digits after the decimal point (`p = 0`)
+///   - \\(12.1\\) for 1 digit after the decimal point (`p = 1`)
+///   - \\(12.07\\) for 2 digits after the decimal point (`p = 2`)
+///   - \\(12.066\\) for 3 digits after the decimal point (`p = 3`)
 ///
 ///   It is also possible to specify a negative number of digits. In that case, the negative
 ///   number refers to the digits before the decimal point.
-///   - \\(20.0\\) for 1 digit places before the decimal point (`digit = -1`)
-///   - \\(100.0\\) for 2 digits before the decimal point (`digits = -2`)
-///   - \\(1000.0\\) for 3 digits before the decimal point (`digits = -3`)
+///   - \\(20.0\\) for 1 digit places before the decimal point (`p = -1`)
+///   - \\(100.0\\) for 2 digits before the decimal point (`p = -2`)
+///   - \\(1000.0\\) for 3 digits before the decimal point (`p = -3`)
 ///
 /// </details>
 ///
@@ -2370,7 +2374,7 @@ pub fn int_flip_sign(x: Int) -> Int {
 ///     </a>
 /// </div>
 ///
-pub fn minmax(x: a, y: a, compare: fn(a, a) -> order.Order) {
+pub fn minmax(x: a, y: a, compare: fn(a, a) -> order.Order) -> #(a, a) {
   case compare(x, y) {
     order.Lt -> #(x, y)
     order.Eq -> #(x, y)

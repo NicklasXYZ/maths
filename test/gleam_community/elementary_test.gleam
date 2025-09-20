@@ -243,6 +243,38 @@ pub fn math_tan_test() {
   maths.tan(0.5)
   |> maths.is_close(0.546302, 0.0, tol)
   |> should.be_true()
+
+  maths.tan(maths.pi() /. 4.0)
+  |> maths.is_close(1.0, 0.0, tol)
+  |> should.be_true()
+
+  maths.tan(-1.0 *. maths.pi() /. 4.0)
+  |> maths.is_close(-1.0, 0.0, tol)
+  |> should.be_true()
+
+  // Test periodicity: tan(x) = tan(x + π)
+  maths.tan(0.5 +. maths.pi())
+  |> maths.is_close(maths.tan(0.5), 0.0, tol)
+  |> should.be_true()
+
+  // Test symmetry: tan(-x) = -tan(x)
+  maths.tan(-0.75)
+  |> maths.is_close(-1.0 *. maths.tan(0.75), 0.0, tol)
+  |> should.be_true()
+
+  // Near asymptote: pi/2 from below so the result
+  // should be large positive number
+  let assert Ok(large_number) = float.power(10.0, 6.0)
+  let assert Ok(small_number) = float.power(10.0, -6.0)
+  let result =
+    maths.tan(maths.pi() /. 2.0 -. 1.0 *. small_number) >. large_number
+  should.be_true(result)
+
+  // Near asymptote: pi/2 from above so the result 
+  // should be a large negative number 
+  let result =
+    maths.tan(maths.pi() /. 2.0 +. 1.0 *. small_number) <. -1.0 *. large_number
+  should.be_true(result)
 }
 
 pub fn math_tanh_test() {
