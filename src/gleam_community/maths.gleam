@@ -1,6 +1,6 @@
-////<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
-////<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
-////<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"></script>
+////<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css" integrity="sha384-5TcZemv2l/9On385z///+d7MSYlvIEw9FuZTIdZ14vJLqWphw7e7ZPuOiCHJcFCP" crossorigin="anonymous">
+////<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js" integrity="sha384-cMkvdD8LoxVzGF/RPUKAcvmm49FQ0oxwDF3BGKtDXcEc+T1b2N+teh/OJfpU0jr6" crossorigin="anonymous"></script>
+////<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js" integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh" crossorigin="anonymous"></script>
 ////<script>
 ////    document.addEventListener("DOMContentLoaded", function() {
 ////        renderMathInElement(document.body, {
@@ -212,14 +212,15 @@ pub fn divisors(n: Int) -> List(Int) {
 }
 
 fn find_divisors(n: Int) -> set.Set(Int) {
-  let nabs = float.absolute_value(int.to_float(n))
+  let nabs = int.absolute_value(n)
+  let nabs_float = int.to_float(nabs)
   // Usage of let assert: 'nabs' is non-negative so no error should occur. The
   // function `float.square_root` will only return an error in case a negative
   // value is given as input.
-  let assert Ok(sqrt_result) = float.square_root(nabs)
+  let assert Ok(sqrt_result) = float.square_root(nabs_float)
   let max = float.round(sqrt_result) + 1
 
-  do_find_divisors(n, max, set.new(), 1)
+  do_find_divisors(nabs, max, set.new(), 1)
 }
 
 fn do_find_divisors(n: Int, max: Int, acc: set.Set(Int), i: Int) -> set.Set(Int) {
@@ -285,7 +286,7 @@ pub fn proper_divisors(n: Int) -> List(Int) {
 /// Calculate the weighted sum of the elements in a list:
 ///
 /// \\[
-/// \sum_{i=1}^n w_i x_i
+/// \sum_{i=1}^n w_i \cdot x_i
 /// \\]
 ///
 /// In the formula, \\(n\\) is the length of the list and \\(x_i \in \mathbb{R}\\)
@@ -343,7 +344,7 @@ pub fn weighted_sum(arr: List(#(Float, Float))) -> Result(Float, Nil) {
 /// Calculate the weighted product of the elements in a list:
 ///
 /// \\[
-/// \prod_{i=1}^n x_i^{w_i}
+/// \prod_{i=1}\^n x_i\^{w_i}
 /// \\]
 ///
 /// In the formula, \\(n\\) is the length of the list and \\(x_i \in \mathbb{R}\\) is
@@ -509,7 +510,7 @@ pub fn int_cumulative_sum(arr: List(Int)) -> List(Int) {
 /// In the formula, \\(v_j\\) is the \\(j\\)'th element in the cumulative product
 /// of \\(n\\) elements. That is, \\(n\\) is the length of the list and
 /// \\(x_i \in \mathbb{R}\\) is the value in the input list indexed by \\(i\\).
-/// The value \\(v_j\\) is thus the sum of the \\(1\\) to \\(j\\) first elements
+/// The value \\(v_j\\) is thus the product of the \\(1\\) to \\(j\\) first elements
 /// in the given list.
 ///
 /// <details>
@@ -797,9 +798,8 @@ fn do_acos(a: Float) -> Float
 /// \\]
 ///
 /// The function takes a number \\(x\\) in its domain \\(\[1, +\infty\)\\) as input
-/// and returns a numeric value \\(y\\) that lies in the range \\(\[0, +\infty\)\\)
-/// (an angle in radians). If the input value is outside the domain of the function
-/// an error is returned.
+/// and returns a numeric value \\(y\\) that lies in the range \\(\[0, +\infty\)\\).
+/// If the input value is outside the domain of the function an error is returned.
 ///
 /// <details>
 ///     <summary>Example</summary>
@@ -842,7 +842,7 @@ fn do_acosh(a: Float) -> Float
 /// The inverse sine function:
 ///
 /// \\[
-/// \forall x \in \[-1, 1\],   \\; \sin^{-1}{(x)} = y \in \(-\infty, +\infty\)
+/// \forall x \in \[-1, 1\],   \\; \sin^{-1}{(x)} = y \in \[-\frac{\pi}{2}, \frac{\pi}{2}\]
 /// \\]
 ///
 /// The function takes a number \\(x\\) in its domain \\(\[-1, 1\]\\) as input and returns a numeric
@@ -898,7 +898,7 @@ fn do_asin(a: Float) -> Float
 ///
 /// The function takes a number \\(x\\) in its domain \\(\(-\infty, +\infty\)\\)
 /// as input and returns a numeric value \\(y\\) that lies in the range
-/// \\(\(-\infty, +\infty\)\\) (an angle in radians).
+/// \\(\(-\infty, +\infty\)\\).
 ///
 /// <details>
 ///     <summary>Example</summary>
@@ -984,7 +984,7 @@ fn do_atan(a: Float) -> Float
 ///  \tan^{-1}(\frac y x) - \pi &\text{if } x < 0 \text{ and } y < 0, \\\\
 ///  +\frac{\pi}{2} &\text{if } x = 0 \text{ and } y > 0, \\\\
 ///  -\frac{\pi}{2} &\text{if } x = 0 \text{ and } y < 0, \\\\
-///  \text{undefined} &\text{if } x = 0 \text{ and } y = 0.
+///  0 &\text{if } x = 0 \text{ and } y = 0.
 /// \end{cases}
 /// \\]
 ///
@@ -1032,7 +1032,7 @@ fn do_atan2(a: Float, b: Float) -> Float
 /// \\]
 ///
 /// The function takes a number \\(x\\) in its domain \\(\(-1, 1\)\\) as input and returns
-/// a numeric value \\(y\\) that lies in the range \\(\(-\infty, \infty\)\\) (an angle in radians).
+/// a numeric value \\(y\\) that lies in the range \\(\(-\infty, \infty\)\\).
 /// If the input value is outside the domain of the function an error is returned.
 ///
 /// <details>
@@ -1213,8 +1213,8 @@ fn do_sin(a: Float) -> Float
 /// \\]
 ///
 /// The function takes a number \\(x\\) in its domain \\(\(-\infty, +\infty\)\\) as input
-/// (an angle in radians) and returns a numeric value \\(y\\) that lies in the range
-/// \\(\(-\infty, +\infty\)\\). If the input value is too large an overflow error might occur.
+/// and returns a numeric value \\(y\\) that lies in the range \\(\(-\infty, +\infty\)\\). 
+/// If the input value is too large an overflow error might occur.
 ///
 /// <details>
 ///     <summary>Example</summary>
@@ -1251,12 +1251,13 @@ fn do_sinh(a: Float) -> Float
 /// The tangent function:
 ///
 /// \\[
-/// \forall x \in \(-\infty, +\infty\),   \\; \tan{(x)} = y \in \(-\infty, +\infty\)
+/// \forall x \in \(-\infty, +\infty\) \setminus \\{\frac{\pi}{2} + k \cdot \pi \mid k \in 
+/// \mathbb{Z}\\}, \quad \tan(x) = y \in (-\infty, +\infty)
 /// \\]
 ///
-/// The function takes a number \\(x\\) in its domain \\(\(-\infty, +\infty\)\\) as input
-/// (an angle in radians) and returns a numeric value \\(y\\) that lies in the range
-/// \\(\(-\infty, +\infty\)\\).
+/// The function takes a number \\(x\\) (an angle in radians) as input, provided that 
+/// \\(\cos(x) \neq 0\\), since \\(\tan(x) = \frac{\sin(x)}{\cos(x)}\\). It returns
+/// a numeric value \\(y\\) that lies in the range \\(\(-\infty, +\infty\)\\).
 ///
 /// <details>
 ///     <summary>Example</summary>
@@ -1267,6 +1268,9 @@ fn do_sinh(a: Float) -> Float
 ///     pub fn example() {
 ///       maths.tan(0.0)
 ///       |> should.equal(0.0)
+/// 
+///       maths.tan(maths.pi() /. 4.0)
+///       |> should.equal(1.0)
 ///     }
 /// </details>
 ///
@@ -1755,16 +1759,16 @@ pub fn e() -> Float {
 /// <summary>Details</summary>
 ///
 ///   The rounding mode rounds \\(12.0654\\) to:
-///   - \\(12.0\\) for 0 digits after the decimal point (`digits = 0`)
-///   - \\(12.1\\) for 1 digit after the decimal point (`digits = 1`)
-///   - \\(12.07\\) for 2 digits after the decimal point (`digits = 2`)
-///   - \\(12.065\\) for 3 digits after the decimal point (`digits = 3`)
+///   - \\(12.0\\) for 0 digits after the decimal point (`p = 0`)
+///   - \\(12.1\\) for 1 digit after the decimal point (`p = 1`)
+///   - \\(12.07\\) for 2 digits after the decimal point (`p = 2`)
+///   - \\(12.065\\) for 3 digits after the decimal point (`p = 3`)
 ///
 ///   It is also possible to specify a negative number of digits. In that case, the negative
 ///   number refers to the digits before the decimal point.
-///   - \\(10.0\\) for 1 digit before the decimal point (`digits = -1`)
-///   - \\(0.0\\) for 2 digits before the decimal point (`digits = -2`)
-///   - \\(0.0\\) for 3 digits before the decimal point (`digits = -3`)
+///   - \\(10.0\\) for 1 digit before the decimal point (`p = -1`)
+///   - \\(0.0\\) for 2 digits before the decimal point (`p = -2`)
+///   - \\(0.0\\) for 3 digits before the decimal point (`p = -3`)
 ///
 /// </details>
 ///
@@ -1791,20 +1795,20 @@ pub fn round_to_nearest(x: Float, p: Int) -> Float {
   // 1. The base is negative and the exponent is fractional.
   // 2. If the base is 0 and the exponent is negative.
   // No error will occur since the base is a positive non-zero number.
-  let assert Ok(p) = float.power(10.0, int.to_float(p))
-  let xabs = float.absolute_value(x) *. p
+  let assert Ok(scale) = float.power(10.0, int.to_float(p))
+  let xabs = float.absolute_value(x) *. scale
   let xabs_truncated = truncate_float(xabs)
   let remainder = xabs -. xabs_truncated
   case remainder {
-    _ if remainder >. 0.5 -> sign(x) *. truncate_float(xabs +. 1.0) /. p
+    _ if remainder >. 0.5 -> sign(x) *. truncate_float(xabs +. 1.0) /. scale
     _ if remainder == 0.5 -> {
       let is_even = float.truncate(xabs) % 2
       case is_even == 0 {
-        True -> sign(x) *. xabs_truncated /. p
-        False -> sign(x) *. truncate_float(xabs +. 1.0) /. p
+        True -> sign(x) *. xabs_truncated /. scale
+        False -> sign(x) *. truncate_float(xabs +. 1.0) /. scale
       }
     }
-    _ -> sign(x) *. xabs_truncated /. p
+    _ -> sign(x) *. xabs_truncated /. scale
   }
 }
 
@@ -1823,16 +1827,16 @@ pub fn round_to_nearest(x: Float, p: Int) -> Float {
 /// <summary>Details</summary>
 ///
 ///   The rounding mode rounds \\(12.0654\\) to:
-///   - \\(12.0\\) for 0 digits after the decimal point (`digits = 0`)
-///   - \\(12.1\\) for 1 digit after the decimal point (`digits = 1`)
-///   - \\(12.07\\) for 2 digits after the decimal point (`digits = 2`)
-///   - \\(12.065\\) for 3 digits after the decimal point (`digits = 3`)
+///   - \\(12.0\\) for 0 digits after the decimal point (`p = 0`)
+///   - \\(12.1\\) for 1 digit after the decimal point (`p = 1`)
+///   - \\(12.07\\) for 2 digits after the decimal point (`p = 2`)
+///   - \\(12.065\\) for 3 digits after the decimal point (`p = 3`)
 ///
 ///   It is also possible to specify a negative number of digits. In that case, the negative
 ///   number refers to the digits before the decimal point.
-///   - \\(10.0\\) for 1 digit before the decimal point (`digits = -1`)
-///   - \\(0.0\\) for 2 digits before the decimal point (`digits = -2`)
-///   - \\(0.0\\) for 3 digits before the decimal point (`digits = -3`)
+///   - \\(10.0\\) for 1 digit before the decimal point (`p = -1`)
+///   - \\(0.0\\) for 2 digits before the decimal point (`p = -2`)
+///   - \\(0.0\\) for 3 digits before the decimal point (`p = -3`)
 ///
 /// </details>
 ///
@@ -1859,12 +1863,12 @@ pub fn round_ties_away(x: Float, p: Int) -> Float {
   // 1. The base is negative and the exponent is fractional.
   // 2. If the base is 0 and the exponent is negative.
   // No error will occur since the base is a positive non-zero number.
-  let assert Ok(p) = float.power(10.0, int.to_float(p))
-  let xabs = float.absolute_value(x) *. p
+  let assert Ok(scale) = float.power(10.0, int.to_float(p))
+  let xabs = float.absolute_value(x) *. scale
   let remainder = xabs -. truncate_float(xabs)
   case remainder {
-    _ if remainder >=. 0.5 -> sign(x) *. truncate_float(xabs +. 1.0) /. p
-    _ -> sign(x) *. truncate_float(xabs) /. p
+    _ if remainder >=. 0.5 -> sign(x) *. truncate_float(xabs +. 1.0) /. scale
+    _ -> sign(x) *. truncate_float(xabs) /. scale
   }
 }
 
@@ -1883,16 +1887,16 @@ pub fn round_ties_away(x: Float, p: Int) -> Float {
 /// <summary>Details</summary>
 ///
 ///   The rounding mode rounds \\(12.0654\\) to:
-///   - \\(12.0\\) for 0 digits after the decimal point (`digits = 0`)
-///   - \\(12.1\\) for 1 digits after the decimal point (`digits = 1`)
-///   - \\(12.07\\) for 2 digits after the decimal point (`digits = 2`)
-///   - \\(12.065\\) for 3 digits after the decimal point (`digits = 3`)
+///   - \\(12.0\\) for 0 digits after the decimal point (`p = 0`)
+///   - \\(12.1\\) for 1 digits after the decimal point (`p = 1`)
+///   - \\(12.07\\) for 2 digits after the decimal point (`p = 2`)
+///   - \\(12.065\\) for 3 digits after the decimal point (`p = 3`)
 ///
 ///   It is also possible to specify a negative number of digits. In that case, the negative
 ///    number refers to the digits before the decimal point.
-///   - \\(10.0\\) for 1 digit before the decimal point (`digits = -1`)
-///   - \\(0.0\\) for 2 digits before the decimal point (`digits = -2`)
-///   - \\(0.0\\) for 3 digits before the decimal point (`digits = -3`)
+///   - \\(10.0\\) for 1 digit before the decimal point (`p = -1`)
+///   - \\(0.0\\) for 2 digits before the decimal point (`p = -2`)
+///   - \\(0.0\\) for 3 digits before the decimal point (`p = -3`)
 ///
 /// </details>
 ///
@@ -1919,14 +1923,14 @@ pub fn round_ties_up(x: Float, p: Int) -> Float {
   // 1. The base is negative and the exponent is fractional.
   // 2. If the base is 0 and the exponent is negative.
   // No error will occur since the base is a positive non-zero number.
-  let assert Ok(p) = float.power(10.0, int.to_float(p))
-  let xabs = float.absolute_value(x) *. p
+  let assert Ok(scale) = float.power(10.0, int.to_float(p))
+  let xabs = float.absolute_value(x) *. scale
   let xabs_truncated = truncate_float(xabs)
   let remainder = xabs -. xabs_truncated
   case remainder {
     _ if remainder >=. 0.5 && x >=. 0.0 ->
-      sign(x) *. truncate_float(xabs +. 1.0) /. p
-    _ -> sign(x) *. xabs_truncated /. p
+      sign(x) *. truncate_float(xabs +. 1.0) /. scale
+    _ -> sign(x) *. xabs_truncated /. scale
   }
 }
 
@@ -1937,24 +1941,24 @@ pub fn round_ties_up(x: Float, p: Int) -> Float {
 /// </div>
 ///
 /// The function rounds a float to a specific number of digits (after the decimal place or before
-/// if negative). In particular, the input \\(x\\) is rounded to the nearest integer value (at the
-/// specified digit) that is less than or equal to the absolute value of the input \\(x\\). This
-/// rounding behaviour is similar to behaviour of the Gleam stdlib `truncate` function.
+/// if negative). In particular, the input \\(x\\) is cut off at the specified digit, so the result
+/// always has an absolute value less than or equal to the absolute value of \\(x\\). This rounding
+/// behaviour is similar to the behaviour of the Gleam stdlib `truncate` function.
 ///
 /// <details>
 /// <summary>Details</summary>
 ///
 ///   The rounding mode rounds \\(12.0654\\) to:
-///   - \\(12.0\\) for 0 digits after the decimal point (`digits = 0`)
-///   - \\(12.0\\) for 1 digit after the decimal point (`digits = 1`)
-///   - \\(12.06\\) for 2 digits after the decimal point (`digits = 2`)
-///   - \\(12.065\\) for 3 digits after the decimal point (`digits = 3`)
+///   - \\(12.0\\) for 0 digits after the decimal point (`p = 0`)
+///   - \\(12.0\\) for 1 digit after the decimal point (`p = 1`)
+///   - \\(12.06\\) for 2 digits after the decimal point (`p = 2`)
+///   - \\(12.065\\) for 3 digits after the decimal point (`p = 3`)
 ///
 ///   It is also possible to specify a negative number of digits. In that case, the negative
 ///   number refers to the digits before the decimal point.
-///   - \\(10.0\\) for 1 digit before the decimal point (`digits = -1`)
-///   - \\(0.0\\) for 2 digits before the decimal point (`digits = -2`)
-///   - \\(0.0\\) for 3 digits before the decimal point (`digits = -3`)
+///   - \\(10.0\\) for 1 digit before the decimal point (`p = -1`)
+///   - \\(0.0\\) for 2 digits before the decimal point (`p = -2`)
+///   - \\(0.0\\) for 3 digits before the decimal point (`p = -3`)
 ///
 /// </details>
 ///
@@ -1981,8 +1985,8 @@ pub fn round_to_zero(x: Float, p: Int) -> Float {
   // 1. The base is negative and the exponent is fractional.
   // 2. If the base is 0 and the exponent is negative.
   // No error will occur since the base is a positive non-zero number.
-  let assert Ok(p) = float.power(10.0, int.to_float(p))
-  truncate_float(x *. p) /. p
+  let assert Ok(scale) = float.power(10.0, int.to_float(p))
+  truncate_float(x *. scale) /. scale
 }
 
 fn truncate_float(x: Float) -> Float {
@@ -2008,16 +2012,16 @@ fn do_truncate_float(a: Float) -> Float
 /// <summary>Details</summary>
 ///
 ///   The rounding mode rounds \\(12.0654\\) to:
-///   - \\(12.0\\) for 0 digits after the decimal point (`digits = 0`)
-///   - \\(12.0\\) for 1 digits after the decimal point (`digits = 1`)
-///   - \\(12.06\\) for 2 digits after the decimal point (`digits = 2`)
-///   - \\(12.065\\) for 3 digits after the decimal point (`digits = 3`)
+///   - \\(12.0\\) for 0 digits after the decimal point (`p = 0`)
+///   - \\(12.0\\) for 1 digits after the decimal point (`p = 1`)
+///   - \\(12.06\\) for 2 digits after the decimal point (`p = 2`)
+///   - \\(12.065\\) for 3 digits after the decimal point (`p = 3`)
 ///
 ///   It is also possible to specify a negative number of digits. In that case, the negative
 ///   number refers to the digits before the decimal point.
-///   - \\(10.0\\) for 1 digit before the decimal point (`digits = -1`)
-///   - \\(0.0\\) for 2 digits before the decimal point (`digits = -2`)
-///   - \\(0.0\\) for 3 digits before the decimal point (`digits = -3`)
+///   - \\(10.0\\) for 1 digit before the decimal point (`p = -1`)
+///   - \\(0.0\\) for 2 digits before the decimal point (`p = -2`)
+///   - \\(0.0\\) for 3 digits before the decimal point (`p = -3`)
 ///
 /// </details>
 ///
@@ -2067,16 +2071,16 @@ fn do_floor(a: Float) -> Float
 /// <summary>Details</summary>
 ///
 ///   The rounding mode rounds \\(12.0654\\) to:
-///   - \\(13.0\\) for 0 digits after the decimal point (`digits = 0`)
-///   - \\(12.1\\) for 1 digit after the decimal point (`digits = 1`)
-///   - \\(12.07\\) for 2 digits after the decimal point (`digits = 2`)
-///   - \\(12.066\\) for 3 digits after the decimal point (`digits = 3`)
+///   - \\(13.0\\) for 0 digits after the decimal point (`p = 0`)
+///   - \\(12.1\\) for 1 digit after the decimal point (`p = 1`)
+///   - \\(12.07\\) for 2 digits after the decimal point (`p = 2`)
+///   - \\(12.066\\) for 3 digits after the decimal point (`p = 3`)
 ///
 ///   It is also possible to specify a negative number of digits. In that case, the negative
 ///   number refers to the digits before the decimal point.
-///   - \\(20.0\\) for 1 digit places before the decimal point (`digit = -1`)
-///   - \\(100.0\\) for 2 digits before the decimal point (`digits = -2`)
-///   - \\(1000.0\\) for 3 digits before the decimal point (`digits = -3`)
+///   - \\(20.0\\) for 1 digit places before the decimal point (`p = -1`)
+///   - \\(100.0\\) for 2 digits before the decimal point (`p = -2`)
+///   - \\(1000.0\\) for 3 digits before the decimal point (`p = -3`)
 ///
 /// </details>
 ///
@@ -2198,8 +2202,8 @@ pub fn int_absolute_difference(a: Int, b: Int) -> Int {
 /// </div>
 ///
 /// The function takes an input \\(x \in \mathbb{R}\\) and returns the sign of
-/// the input, indicating whether it is positive (+1.0), negative (-1.0), or
-/// zero (0.0).
+/// the input, indicating whether it is positive (\\(+1.0\\)), negative (\\(-1.0\\)), or
+/// zero (\\(0.0\\)).
 ///
 /// <div style="text-align: right;">
 ///     <a href="#">
@@ -2370,7 +2374,7 @@ pub fn int_flip_sign(x: Int) -> Int {
 ///     </a>
 /// </div>
 ///
-pub fn minmax(x: a, y: a, compare: fn(a, a) -> order.Order) {
+pub fn minmax(x: a, y: a, compare: fn(a, a) -> order.Order) -> #(a, a) {
   case compare(x, y) {
     order.Lt -> #(x, y)
     order.Eq -> #(x, y)
@@ -2660,7 +2664,7 @@ pub fn extrema(
 /// with repetitions:
 ///
 /// \\[
-/// C^*(n, k) = \binom{n + k - 1}{k} = \frac{(n + k - 1)!}{k! (n - 1)!}
+/// C^*(n, k) = \binom{n + k - 1}{k} = \frac{(n + k - 1)!}{k! \cdot (n - 1)!}
 /// \\]
 ///
 /// Also known as the "stars and bars" problem in maths. Furthermore, the implementation uses an
@@ -2715,7 +2719,7 @@ pub fn combination_with_repetitions(n: Int, k: Int) -> Result(Int, Nil) {
 /// without repetitions:
 ///
 /// \\[
-/// C(n, k) = \binom{n}{k} = \frac{n!}{k! (n-k)!}
+/// C(n, k) = \binom{n}{k} = \frac{n!}{k! \cdot (n-k)!}
 /// \\]
 ///
 /// Also known as "\\(n\\) choose \\(k\\)" or the binomial coefficient.
@@ -3302,7 +3306,7 @@ pub fn cartesian_product(xset: set.Set(a), yset: set.Set(b)) -> set.Set(#(a, b))
 /// Calculate the \\(p\\)-norm of a list (representing a vector):
 ///
 /// \\[
-/// \left( \sum_{i=1}^n \left|x_{i}\right|^{p} \right)^{\frac{1}{p}}
+/// \left( \sum_{i=1}\^n \left|x_{i}\right|\^{p} \right)\^{\frac{1}{p}}
 /// \\]
 ///
 /// In the formula, \\(n\\) is the length of the list and \\(x_i\\) is the value in
@@ -3402,7 +3406,7 @@ pub fn norm(arr: List(Float), p: Float) -> Result(Float, Nil) {
 /// Calculate the weighted \\(p\\)-norm of a list (representing a vector):
 ///
 /// \\[
-/// \left( \sum_{i=1}^n w_{i} \left|x_{i}\right|^{p} \right)^{\frac{1}{p}}
+/// \left( \sum_{i=1}\^n w_{i} \cdot \left|x_{i}\right|\^{p} \right)\^{\frac{1}{p}}
 /// \\]
 ///
 /// In the formula, \\(n\\) is the length of the list and \\(x_i\\) is the value in
@@ -3554,7 +3558,7 @@ pub fn manhattan_distance(arr: List(#(Float, Float))) -> Result(Float, Nil) {
 /// vectors):
 ///
 /// \\[
-/// \sum_{i=1}^n w_{i} \left|x_i - y_i \right|
+/// \sum_{i=1}^n w_{i} \cdot \left|x_i - y_i \right|
 /// \\]
 ///
 /// In the formula, \\(n\\) is the length of the two lists and \\(x_i, y_i\\) are the
@@ -3595,7 +3599,7 @@ pub fn manhattan_distance_with_weights(
 /// vectors):
 ///
 /// \\[
-/// \left( \sum_{i=1}^n \left|x_i - y_i \right|^{p} \right)^{\frac{1}{p}}
+/// \left( \sum_{i=1}\^n \left|x_i - y_i \right|\^{p} \right)\^{\frac{1}{p}}
 /// \\]
 ///
 /// In the formula, \\(p >= 1\\) is the order, \\(n\\) is the length of the two lists
@@ -3655,7 +3659,7 @@ pub fn minkowski_distance(
 /// vectors):
 ///
 /// \\[
-/// \left( \sum_{i=1}^n w_{i} \left|x_i - y_i \right|^{p} \right)^{\frac{1}{p}}
+/// \left( \sum_{i=1}\^n w_{i} \cdot \left|x_i - y_i \right|\^{p} \right)\^{\frac{1}{p}}
 /// \\]
 ///
 /// In the formula, \\(p >= 1\\) is the order, \\(n\\) is the length of the two lists
@@ -3722,7 +3726,7 @@ pub fn minkowski_distance_with_weights(
 /// vectors):
 ///
 /// \\[
-/// \left( \sum_{i=1}^n \left|x_i - y_i \right|^{2} \right)^{\frac{1}{2}}
+/// \left( \sum_{i=1}\^n \left|x_i - y_i \right|\^{2} \right)\^{\frac{1}{2}}
 /// \\]
 ///
 /// In the formula, \\(n\\) is the length of the two lists and \\(x_i, y_i\\) are the
@@ -3764,7 +3768,7 @@ pub fn euclidean_distance(arr: List(#(Float, Float))) -> Result(Float, Nil) {
 /// vectors):
 ///
 /// \\[
-/// \left( \sum_{i=1}^n w_{i} \left|x_i - y_i \right|^{2} \right)^{\frac{1}{2}}
+/// \left( \sum_{i=1}\^n w_{i} \cdot \left|x_i - y_i \right|\^{2} \right)\^{\frac{1}{2}}
 /// \\]
 ///
 /// In the formula, \\(n\\) is the length of the two lists and \\(x_i, y_i\\) are the
@@ -3852,7 +3856,7 @@ pub fn chebyshev_distance(arr: List(#(Float, Float))) -> Result(Float, Nil) {
 /// Calculate the weighted Chebyshev distance between two lists (representing vectors):
 ///
 /// \\[
-/// \text{max}_{i=1}^n w_i \left|x_i - y_i \right|
+/// \text{max}_{i=1}^n w_i \cdot \left|x_i - y_i \right|
 /// \\]
 ///
 /// In the formula, \\(n\\) is the length of the two lists and \\(x_i, y_i\\) are the
@@ -3990,7 +3994,7 @@ pub fn moment(arr: List(Float), n: Int) -> Result(Float, Nil) {
 /// Calculate the arithmetic mean of the elements in a list:
 ///
 /// \\[
-/// \bar{x} = \frac{1}{n}\sum_{i=1}^n x_i
+/// \bar{x} = \frac{1}{n} \cdot \sum_{i=1}^n x_i
 /// \\]
 ///
 /// In the formula, \\(n\\) is the sample size (the length of the list) and \\(x_i\\)
@@ -4237,7 +4241,7 @@ fn do_median(
 /// Calculate the sample variance of the elements in a list:
 ///
 /// \\[
-/// s^{2} = \frac{1}{n - d} \sum_{i=1}^{n}(x_i - \bar{x})
+/// s^{2} = \frac{1}{n - d} \cdot \sum_{i=1}\^{n} \left(x_i - \bar{x}\right)\^{2}
 /// \\]
 ///
 /// In the formula, \\(n\\) is the sample size (the length of the list) and \\(x_i\\)
@@ -4272,10 +4276,15 @@ fn do_median(
 /// </div>
 ///
 pub fn variance(arr: List(Float), ddof: Int) -> Result(Float, Nil) {
-  case arr, ddof {
-    [], _ -> Error(Nil)
-    _, _ if ddof < 0 -> Error(Nil)
-    _, _ -> {
+  let length = list.length(arr)
+  case length {
+    0 -> Error(Nil)
+    // Invalid degrees of freedom
+    _ if ddof < 0 -> Error(Nil)
+    // Insufficient data points for the given degrees of freedom
+    _ if length <= ddof -> Error(Nil)
+    // Valid input
+    _ -> {
       // Usage of let assert: No error will occur since we know input 'arr' is non-empty
       let assert Ok(mean) = mean(arr)
       Ok(
@@ -4304,7 +4313,7 @@ pub fn variance(arr: List(Float), ddof: Int) -> Result(Float, Nil) {
 ///
 /// Calculate the sample standard deviation of the elements in a list:
 /// \\[
-/// s = \left(\frac{1}{n - d} \sum_{i=1}^{n}(x_i - \bar{x})\right)^{\frac{1}{2}}
+/// s = \left(\frac{1}{n - d} \cdot \sum_{i=1}\^{n}(x_i - \bar{x})\^{2}\right)\^{\frac{1}{2}}
 /// \\]
 ///
 /// In the formula, \\(n\\) is the sample size (the length of the list) and \\(x_i\\)
@@ -4339,10 +4348,15 @@ pub fn variance(arr: List(Float), ddof: Int) -> Result(Float, Nil) {
 /// </div>
 ///
 pub fn standard_deviation(arr: List(Float), ddof: Int) -> Result(Float, Nil) {
-  case arr, ddof {
-    [], _ -> Error(Nil)
-    _, _ if ddof < 0 -> Error(Nil)
-    _, _ -> {
+  let length = list.length(arr)
+  case length {
+    0 -> Error(Nil)
+    // Invalid degrees of freedom
+    _ if ddof < 0 -> Error(Nil)
+    // Insufficient data points for the given degrees of freedom
+    _ if length <= ddof -> Error(Nil)
+    // Valid input
+    _ -> {
       // Usage of let assert: No error will occur since we know input 'arr' is non-empty and
       // 'ddof' is larger than or equal to zero
       let assert Ok(variance) = variance(arr, ddof)
@@ -4560,14 +4574,14 @@ pub fn percentile(arr: List(Float), n: Int) -> Result(Float, Nil) {
 ///
 pub fn zscore(arr: List(Float), ddof: Int) -> Result(List(Float), Nil) {
   let length = list.length(arr)
-  case arr, ddof {
-    [], _ -> Error(Nil)
+  case length {
+    0 -> Error(Nil)
     // Invalid degrees of freedom
-    _, ddof if ddof < 0 -> Error(Nil)
+    _ if ddof < 0 -> Error(Nil)
     // Insufficient data points for the given degrees of freedom
-    _, ddof if length <= ddof -> Error(Nil)
+    _ if length <= ddof -> Error(Nil)
     // Valid input
-    _, _ -> {
+    _ -> {
       case mean(arr), standard_deviation(arr, ddof) {
         // The mean and standard deviation have been successfully computed
         Ok(mean), Ok(stdev) if stdev != 0.0 ->
@@ -4662,7 +4676,7 @@ pub fn interquartile_range(arr: List(Float)) -> Result(Float, Nil) {
 /// as:
 ///
 /// \\[
-/// r_{xy} =\frac{\sum ^n _{i=1}(x_i - \bar{x})(y_i - \bar{y})}{\sqrt{\sum^n _{i=1}(x_i - \bar{x})^2} \sqrt{\sum^n _{i=1}(y_i - \bar{y})^2}}
+/// r_{xy} =\frac{\sum\^{n}\_{i=1}(x_i - \bar{x}) \cdot (y_i - \bar{y})}{\sqrt{\sum\^{n}\_{i=1}(x_i - \bar{x})\^{2}} \cdot \sqrt{\sum\^{n}\_{i=1}(y_i - \bar{y})\^{2}}}
 /// \\]
 ///
 /// In the formula, \\(n\\) is the sample size (the length of the input lists),
@@ -4806,7 +4820,7 @@ pub fn jaccard_index(xset: set.Set(a), yset: set.Set(a)) -> Float {
 /// Mathematically, the coefficient is defined as:
 ///
 /// \\[
-/// \frac{2 |X \cap Y|}{|X| + |Y|} \\; \in \\; \left[0, 1\right]
+/// \frac{2 \cdot |X \cap Y|}{|X| + |Y|} \\; \in \\; \left[0, 1\right]
 /// \\]
 ///
 /// where:
@@ -4952,7 +4966,7 @@ pub fn tversky_index(
 /// - \\(\min(|X|, |Y|)\\) is the size of the smaller set among \\(X\\) and \\(Y\\)
 ///
 /// The coefficient ranges from 0 to 1, where 0 indicates no overlap and 1
-/// indicates that the smaller set is a suyset of the larger set. This
+/// indicates that the smaller set is a subset of the larger set. This
 /// measure is especially useful in situations where the similarity in terms
 /// of the proportion of overlap is more relevant than the difference in sizes
 /// between the two sets.
@@ -4999,10 +5013,10 @@ pub fn overlap_coefficient(xset: set.Set(a), yset: set.Set(a)) -> Float {
 /// vectors):
 ///
 /// \\[
-/// \frac{\sum_{i=1}^n  x_i \cdot y_i}
-/// {\left(\sum_{i=1}^n x_i^2\right)^{\frac{1}{2}}
+/// \frac{\sum_{i=1}\^n  x_i \cdot y_i}
+/// {\left(\sum_{i=1}\^n x_i\^{2}\right)\^{\frac{1}{2}}
 /// \cdot
-/// \left(\sum_{i=1}^n y_i^2\right)^{\frac{1}{2}}}
+/// \left(\sum_{i=1}\^n y_i\^{2}\right)\^{\frac{1}{2}}}
 /// \\; \in \\; \left[-1, 1\right]
 /// \\]
 ///
@@ -5016,7 +5030,6 @@ pub fn overlap_coefficient(xset: set.Set(a), yset: set.Set(a)) -> Float {
 /// <details>
 ///     <summary>Example:</summary>
 ///
-///     import gleam/option
 ///     import gleeunit/should
 ///     import gleam_community/maths
 ///
@@ -5074,10 +5087,10 @@ pub fn cosine_similarity(arr: List(#(Float, Float))) -> Result(Float, Nil) {
 /// vectors):
 ///
 /// \\[
-/// \frac{\sum_{i=1}^n w_{i} \cdot x_i \cdot y_i}
-/// {\left(\sum_{i=1}^n w_{i} \cdot x_i^2\right)^{\frac{1}{2}}
+/// \frac{\sum_{i=1}\^n w_{i} \cdot x_i \cdot y_i}
+/// {\left(\sum_{i=1}\^n w_{i} \cdot x_i\^{2}\right)\^{\frac{1}{2}}
 /// \cdot
-/// \left(\sum_{i=1}^n w_{i} \cdot y_i^2\right)^{\frac{1}{2}}}
+/// \left(\sum_{i=1}\^n w_{i} \cdot y_i\^{2}\right)\^{\frac{1}{2}}}
 /// \\; \in \\; \left[-1, 1\right]
 /// \\]
 ///
@@ -5092,7 +5105,6 @@ pub fn cosine_similarity(arr: List(#(Float, Float))) -> Result(Float, Nil) {
 /// <details>
 ///     <summary>Example:</summary>
 ///
-///     import gleam/option
 ///     import gleeunit/should
 ///     import gleam_community/maths
 ///
@@ -5224,7 +5236,7 @@ pub fn canberra_distance(arr: List(#(Float, Float))) -> Result(Float, Nil) {
 /// Calculate the weighted Canberra distance between two lists:
 ///
 /// \\[
-/// \sum_{i=1}^n w_{i}\frac{\left| x_i - y_i \right|}
+/// \sum_{i=1}\^n w_{i} \cdot \frac{\left| x_i - y_i \right|}
 /// {\left| x_i \right| + \left| y_i \right|}
 /// \\]
 ///
@@ -5347,8 +5359,8 @@ pub fn braycurtis_distance(arr: List(#(Float, Float))) -> Result(Float, Nil) {
 /// Calculate the weighted Bray-Curtis distance between two lists:
 ///
 /// \\[
-/// \frac{\sum_{i=1}^n w_{i} \left| x_i - y_i \right|}
-/// {\sum_{i=1}^n w_{i}\left| x_i + y_i \right|}
+/// \frac{\sum_{i=1}^n w_{i} \cdot \left| x_i - y_i \right|}
+/// {\sum_{i=1}^n w_{i} \cdot \left| x_i + y_i \right|}
 /// \\]
 ///
 /// In the formula, \\(n\\) is the length of the two lists, and \\(x_i, y_i\\) are the values
@@ -5415,7 +5427,7 @@ pub fn braycurtis_distance_with_weights(
 ///
 /// Determine if a given value \\(x\\) is close to or equivalent to a reference value
 /// \\(y\\) based on supplied relative \\(r_{tol}\\) and absolute \\(a_{tol}\\) tolerance
-/// values. The equivalance of the two given values are then determined based on
+/// values. The equivalence of the two given values are then determined based on
 /// the equation:
 ///
 /// \\[

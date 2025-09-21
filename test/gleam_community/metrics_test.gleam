@@ -393,6 +393,7 @@ pub fn median_test() {
 }
 
 pub fn variance_test() {
+  let assert Ok(tol) = float.power(10.0, -6.0)
   // Degrees of freedom
   let ddof = 1
 
@@ -405,9 +406,38 @@ pub fn variance_test() {
   [1.0, 2.0, 3.0]
   |> maths.variance(ddof)
   |> should.equal(Ok(1.0))
+
+  // Population variance (ddof = 0): The variance of [1, 2, 3] is 2/3
+  let assert Ok(v0) = maths.variance([1.0, 2.0, 3.0], 0)
+  v0
+  |> maths.is_close(0.6666666666666666, 0.0, tol)
+  |> should.be_true()
+
+  // Try a constant list: variance should be 0 for any 0 <= ddof < n
+  maths.variance([5.0, 5.0, 5.0], 0) |> should.equal(Ok(0.0))
+  maths.variance([5.0, 5.0, 5.0], 1) |> should.equal(Ok(0.0))
+  maths.variance([5.0, 5.0, 5.0], 2) |> should.equal(Ok(0.0))
+
+  // Single element, ddof 0: population variance should be 0
+  maths.variance([42.0], 0) |> should.equal(Ok(0.0))
+  // Single element, ddof 1: population variance should be undefined
+  maths.variance([42.0], 1) |> should.be_error()
+  maths.variance([42.0], 2) |> should.be_error()
+
+  // Negative ddof -> Error
+  maths.variance([1.0, 2.0], -1) |> should.be_error()
+
+  // Test if we actually get an error when: ddof == n
+  maths.variance([1.0, 2.0, 3.0], 3) |> should.be_error()
+
+  // Test if we actually get an error when: ddof > n 
+  // (denominator is negative, which is invalid)
+  maths.variance([1.0, 2.0, 3.0], 4) |> should.be_error()
 }
 
 pub fn standard_deviation_test() {
+  let assert Ok(tol) = float.power(10.0, -6.0)
+
   // Degrees of freedom
   let ddof = 1
 
@@ -420,6 +450,38 @@ pub fn standard_deviation_test() {
   [1.0, 2.0, 3.0]
   |> maths.standard_deviation(ddof)
   |> should.equal(Ok(1.0))
+
+  // Population stdev (ddof = 0) is sqrt(2/3)
+  let assert Ok(s0) = maths.standard_deviation([1.0, 2.0, 3.0], 0)
+  s0
+  |> maths.is_close(0.816496580927726, 0.0, tol)
+  |> should.be_true()
+
+  // Population stdev (ddof = 1) is sqrt(1/3)
+  let assert Ok(s1) = maths.standard_deviation([1.0, 1.0, 2.0, 2.0], 1)
+  s1
+  |> maths.is_close(0.5773502691896257, 0.0, tol)
+  |> should.be_true()
+
+  // Try a constant list: standard deviation should be 0 for any 0 <= ddof < n
+  maths.standard_deviation([5.0, 5.0, 5.0], 0) |> should.equal(Ok(0.0))
+  maths.standard_deviation([5.0, 5.0, 5.0], 1) |> should.equal(Ok(0.0))
+
+  // Single element: population stdev 0
+  maths.standard_deviation([42.0], 0) |> should.equal(Ok(0.0))
+  // Single element, ddof 1: population stdev should be undefined
+  maths.standard_deviation([42.0], 1) |> should.be_error()
+  maths.standard_deviation([42.0], 2) |> should.be_error()
+
+  // Negative ddof -> Error
+  maths.standard_deviation([1.0, 2.0], -1) |> should.be_error()
+
+  // Test if we actually get an error when: ddof == n
+  maths.standard_deviation([1.0, 2.0, 3.0], 3) |> should.be_error()
+
+  // Test if we actually get an error when: ddof > n 
+  // (denominator is negative, which is invalid)
+  maths.standard_deviation([1.0, 2.0, 3.0], 4) |> should.be_error()
 }
 
 pub fn kurtosis_test() {
