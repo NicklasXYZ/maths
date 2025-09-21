@@ -1,6 +1,6 @@
-////<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
-////<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
-////<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"></script>
+////<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css" integrity="sha384-5TcZemv2l/9On385z///+d7MSYlvIEw9FuZTIdZ14vJLqWphw7e7ZPuOiCHJcFCP" crossorigin="anonymous">
+////<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js" integrity="sha384-cMkvdD8LoxVzGF/RPUKAcvmm49FQ0oxwDF3BGKtDXcEc+T1b2N+teh/OJfpU0jr6" crossorigin="anonymous"></script>
+////<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js" integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh" crossorigin="anonymous"></script>
 ////<script>
 ////    document.addEventListener("DOMContentLoaded", function() {
 ////        renderMathInElement(document.body, {
@@ -286,7 +286,7 @@ pub fn proper_divisors(n: Int) -> List(Int) {
 /// Calculate the weighted sum of the elements in a list:
 ///
 /// \\[
-/// \sum_{i=1}^n w_i x_i
+/// \sum_{i=1}^n w_i \cdot x_i
 /// \\]
 ///
 /// In the formula, \\(n\\) is the length of the list and \\(x_i \in \mathbb{R}\\)
@@ -344,7 +344,7 @@ pub fn weighted_sum(arr: List(#(Float, Float))) -> Result(Float, Nil) {
 /// Calculate the weighted product of the elements in a list:
 ///
 /// \\[
-/// \prod_{i=1}^n x_i^{w_i}
+/// \prod_{i=1}\^n x_i\^{w_i}
 /// \\]
 ///
 /// In the formula, \\(n\\) is the length of the list and \\(x_i \in \mathbb{R}\\) is
@@ -1251,8 +1251,8 @@ fn do_sinh(a: Float) -> Float
 /// The tangent function:
 ///
 /// \\[
-/// \forall x \in \(-\infty, +\infty\) \setminus \{\frac{\pi}{2} + k\cdot\pi \mid k \in 
-/// \mathbb{Z}\}, \quad \tan(x) = y \in (-\infty, +\infty)
+/// \forall x \in \(-\infty, +\infty\) \setminus \left\{\frac{\pi}{2} + k\cdot\pi \mid k \in 
+/// \mathbb{Z}\right\}, \quad \tan(x) = y \in (-\infty, +\infty)
 /// \\]
 ///
 /// The function takes a number \\(x\\) (an angle in radians) as input, provided that 
@@ -2202,8 +2202,8 @@ pub fn int_absolute_difference(a: Int, b: Int) -> Int {
 /// </div>
 ///
 /// The function takes an input \\(x \in \mathbb{R}\\) and returns the sign of
-/// the input, indicating whether it is positive (+1.0), negative (-1.0), or
-/// zero (0.0).
+/// the input, indicating whether it is positive (\\(+1.0\\)), negative (\\(-1.0\\)), or
+/// zero (\\(0.0\\)).
 ///
 /// <div style="text-align: right;">
 ///     <a href="#">
@@ -2664,7 +2664,7 @@ pub fn extrema(
 /// with repetitions:
 ///
 /// \\[
-/// C^*(n, k) = \binom{n + k - 1}{k} = \frac{(n + k - 1)!}{k! (n - 1)!}
+/// C^*(n, k) = \binom{n + k - 1}{k} = \frac{(n + k - 1)!}{k! \cdot (n - 1)!}
 /// \\]
 ///
 /// Also known as the "stars and bars" problem in maths. Furthermore, the implementation uses an
@@ -2719,7 +2719,7 @@ pub fn combination_with_repetitions(n: Int, k: Int) -> Result(Int, Nil) {
 /// without repetitions:
 ///
 /// \\[
-/// C(n, k) = \binom{n}{k} = \frac{n!}{k! (n-k)!}
+/// C(n, k) = \binom{n}{k} = \frac{n!}{k! \cdot (n-k)!}
 /// \\]
 ///
 /// Also known as "\\(n\\) choose \\(k\\)" or the binomial coefficient.
@@ -3306,7 +3306,7 @@ pub fn cartesian_product(xset: set.Set(a), yset: set.Set(b)) -> set.Set(#(a, b))
 /// Calculate the \\(p\\)-norm of a list (representing a vector):
 ///
 /// \\[
-/// \left( \sum_{i=1}^n \left|x_{i}\right|^{p} \right)^{\frac{1}{p}}
+/// \left( \sum_{i=1}\^n \left|x_{i}\right|\^{p} \right)\^{\frac{1}{p}}
 /// \\]
 ///
 /// In the formula, \\(n\\) is the length of the list and \\(x_i\\) is the value in
@@ -3406,7 +3406,7 @@ pub fn norm(arr: List(Float), p: Float) -> Result(Float, Nil) {
 /// Calculate the weighted \\(p\\)-norm of a list (representing a vector):
 ///
 /// \\[
-/// \left( \sum_{i=1}^n w_{i} \left|x_{i}\right|^{p} \right)^{\frac{1}{p}}
+/// \left( \sum_{i=1}\^n w_{i} \cdot \left|x_{i}\right|\^{p} \right)\^{\frac{1}{p}}
 /// \\]
 ///
 /// In the formula, \\(n\\) is the length of the list and \\(x_i\\) is the value in
@@ -3558,7 +3558,7 @@ pub fn manhattan_distance(arr: List(#(Float, Float))) -> Result(Float, Nil) {
 /// vectors):
 ///
 /// \\[
-/// \sum_{i=1}^n w_{i} \left|x_i - y_i \right|
+/// \sum_{i=1}^n w_{i} \cdot \left|x_i - y_i \right|
 /// \\]
 ///
 /// In the formula, \\(n\\) is the length of the two lists and \\(x_i, y_i\\) are the
@@ -3599,7 +3599,7 @@ pub fn manhattan_distance_with_weights(
 /// vectors):
 ///
 /// \\[
-/// \left( \sum_{i=1}^n \left|x_i - y_i \right|^{p} \right)^{\frac{1}{p}}
+/// \left( \sum_{i=1}\^n \left|x_i - y_i \right|\^{p} \right)\^{\frac{1}{p}}
 /// \\]
 ///
 /// In the formula, \\(p >= 1\\) is the order, \\(n\\) is the length of the two lists
@@ -3659,7 +3659,7 @@ pub fn minkowski_distance(
 /// vectors):
 ///
 /// \\[
-/// \left( \sum_{i=1}^n w_{i} \left|x_i - y_i \right|^{p} \right)^{\frac{1}{p}}
+/// \left( \sum_{i=1}\^n w_{i} \cdot \left|x_i - y_i \right|\^{p} \right)\^{\frac{1}{p}}
 /// \\]
 ///
 /// In the formula, \\(p >= 1\\) is the order, \\(n\\) is the length of the two lists
@@ -3726,7 +3726,7 @@ pub fn minkowski_distance_with_weights(
 /// vectors):
 ///
 /// \\[
-/// \left( \sum_{i=1}^n \left|x_i - y_i \right|^{2} \right)^{\frac{1}{2}}
+/// \left( \sum_{i=1}\^n \left|x_i - y_i \right|\^{2} \right)\^{\frac{1}{2}}
 /// \\]
 ///
 /// In the formula, \\(n\\) is the length of the two lists and \\(x_i, y_i\\) are the
@@ -3768,7 +3768,7 @@ pub fn euclidean_distance(arr: List(#(Float, Float))) -> Result(Float, Nil) {
 /// vectors):
 ///
 /// \\[
-/// \left( \sum_{i=1}^n w_{i} \left|x_i - y_i \right|^{2} \right)^{\frac{1}{2}}
+/// \left( \sum_{i=1}\^n w_{i} \cdot \left|x_i - y_i \right|\^{2} \right)\^{\frac{1}{2}}
 /// \\]
 ///
 /// In the formula, \\(n\\) is the length of the two lists and \\(x_i, y_i\\) are the
@@ -3856,7 +3856,7 @@ pub fn chebyshev_distance(arr: List(#(Float, Float))) -> Result(Float, Nil) {
 /// Calculate the weighted Chebyshev distance between two lists (representing vectors):
 ///
 /// \\[
-/// \text{max}_{i=1}^n w_i \left|x_i - y_i \right|
+/// \text{max}_{i=1}^n w_i \cdot \left|x_i - y_i \right|
 /// \\]
 ///
 /// In the formula, \\(n\\) is the length of the two lists and \\(x_i, y_i\\) are the
@@ -3994,7 +3994,7 @@ pub fn moment(arr: List(Float), n: Int) -> Result(Float, Nil) {
 /// Calculate the arithmetic mean of the elements in a list:
 ///
 /// \\[
-/// \bar{x} = \frac{1}{n}\sum_{i=1}^n x_i
+/// \bar{x} = \frac{1}{n} \cdot \sum_{i=1}^n x_i
 /// \\]
 ///
 /// In the formula, \\(n\\) is the sample size (the length of the list) and \\(x_i\\)
@@ -4241,7 +4241,7 @@ fn do_median(
 /// Calculate the sample variance of the elements in a list:
 ///
 /// \\[
-/// s^{2} = \frac{1}{n - d} \sum_{i=1}^{n}(x_i - \bar{x})^{2}
+/// s^{2} = \frac{1}{n - d} \cdot \sum_{i=1}\^{n} \left(x_i - \bar{x}\right)\^{2}
 /// \\]
 ///
 /// In the formula, \\(n\\) is the sample size (the length of the list) and \\(x_i\\)
@@ -4313,7 +4313,7 @@ pub fn variance(arr: List(Float), ddof: Int) -> Result(Float, Nil) {
 ///
 /// Calculate the sample standard deviation of the elements in a list:
 /// \\[
-/// s = \left(\frac{1}{n - d} \sum_{i=1}^{n}(x_i - \bar{x})^{2}\right)^{\frac{1}{2}}
+/// s = \left(\frac{1}{n - d} \cdot \sum_{i=1}\^{n}(x_i - \bar{x})\^{2}\right)\^{\frac{1}{2}}
 /// \\]
 ///
 /// In the formula, \\(n\\) is the sample size (the length of the list) and \\(x_i\\)
@@ -4676,7 +4676,7 @@ pub fn interquartile_range(arr: List(Float)) -> Result(Float, Nil) {
 /// as:
 ///
 /// \\[
-/// r_{xy} =\frac{\sum ^n _{i=1}(x_i - \bar{x})(y_i - \bar{y})}{\sqrt{\sum^n _{i=1}(x_i - \bar{x})^2} \sqrt{\sum^n _{i=1}(y_i - \bar{y})^2}}
+/// r_{xy} =\frac{\sum\^{n}\_{i=1}(x_i - \bar{x}) \cdot (y_i - \bar{y})}{\sqrt{\sum\^{n}\_{i=1}(x_i - \bar{x})\^{2}} \cdot \sqrt{\sum\^{n}\_{i=1}(y_i - \bar{y})\^{2}}}
 /// \\]
 ///
 /// In the formula, \\(n\\) is the sample size (the length of the input lists),
@@ -4820,7 +4820,7 @@ pub fn jaccard_index(xset: set.Set(a), yset: set.Set(a)) -> Float {
 /// Mathematically, the coefficient is defined as:
 ///
 /// \\[
-/// \frac{2 |X \cap Y|}{|X| + |Y|} \\; \in \\; \left[0, 1\right]
+/// \frac{2 \cdot |X \cap Y|}{|X| + |Y|} \\; \in \\; \left[0, 1\right]
 /// \\]
 ///
 /// where:
@@ -5013,10 +5013,10 @@ pub fn overlap_coefficient(xset: set.Set(a), yset: set.Set(a)) -> Float {
 /// vectors):
 ///
 /// \\[
-/// \frac{\sum_{i=1}^n  x_i \cdot y_i}
-/// {\left(\sum_{i=1}^n x_i^2\right)^{\frac{1}{2}}
+/// \frac{\sum_{i=1}\^n  x_i \cdot y_i}
+/// {\left(\sum_{i=1}\^n x_i\^{2}\right)\^{\frac{1}{2}}
 /// \cdot
-/// \left(\sum_{i=1}^n y_i^2\right)^{\frac{1}{2}}}
+/// \left(\sum_{i=1}\^n y_i\^{2}\right)\^{\frac{1}{2}}}
 /// \\; \in \\; \left[-1, 1\right]
 /// \\]
 ///
@@ -5087,10 +5087,10 @@ pub fn cosine_similarity(arr: List(#(Float, Float))) -> Result(Float, Nil) {
 /// vectors):
 ///
 /// \\[
-/// \frac{\sum_{i=1}^n w_{i} \cdot x_i \cdot y_i}
-/// {\left(\sum_{i=1}^n w_{i} \cdot x_i^2\right)^{\frac{1}{2}}
+/// \frac{\sum_{i=1}\^n w_{i} \cdot x_i \cdot y_i}
+/// {\left(\sum_{i=1}\^n w_{i} \cdot x_i\^{2}\right)\^{\frac{1}{2}}
 /// \cdot
-/// \left(\sum_{i=1}^n w_{i} \cdot y_i^2\right)^{\frac{1}{2}}}
+/// \left(\sum_{i=1}\^n w_{i} \cdot y_i\^{2}\right)\^{\frac{1}{2}}}
 /// \\; \in \\; \left[-1, 1\right]
 /// \\]
 ///
@@ -5236,7 +5236,7 @@ pub fn canberra_distance(arr: List(#(Float, Float))) -> Result(Float, Nil) {
 /// Calculate the weighted Canberra distance between two lists:
 ///
 /// \\[
-/// \sum_{i=1}^n w_{i}\frac{\left| x_i - y_i \right|}
+/// \sum_{i=1}\^n w_{i} \cdot \frac{\left| x_i - y_i \right|}
 /// {\left| x_i \right| + \left| y_i \right|}
 /// \\]
 ///
@@ -5359,8 +5359,8 @@ pub fn braycurtis_distance(arr: List(#(Float, Float))) -> Result(Float, Nil) {
 /// Calculate the weighted Bray-Curtis distance between two lists:
 ///
 /// \\[
-/// \frac{\sum_{i=1}^n w_{i} \left| x_i - y_i \right|}
-/// {\sum_{i=1}^n w_{i}\left| x_i + y_i \right|}
+/// \frac{\sum_{i=1}^n w_{i} \cdot \left| x_i - y_i \right|}
+/// {\sum_{i=1}^n w_{i} \cdot \left| x_i + y_i \right|}
 /// \\]
 ///
 /// In the formula, \\(n\\) is the length of the two lists, and \\(x_i, y_i\\) are the values
