@@ -4241,7 +4241,7 @@ fn do_median(
 /// Calculate the sample variance of the elements in a list:
 ///
 /// \\[
-/// s^{2} = \frac{1}{n - d} \sum_{i=1}^{n}(x_i - \bar{x})
+/// s^{2} = \frac{1}{n - d} \sum_{i=1}^{n}(x_i - \bar{x})^{2}
 /// \\]
 ///
 /// In the formula, \\(n\\) is the sample size (the length of the list) and \\(x_i\\)
@@ -4276,10 +4276,15 @@ fn do_median(
 /// </div>
 ///
 pub fn variance(arr: List(Float), ddof: Int) -> Result(Float, Nil) {
-  case arr, ddof {
-    [], _ -> Error(Nil)
-    _, _ if ddof < 0 -> Error(Nil)
-    _, _ -> {
+  let length = list.length(arr)
+  case length {
+    0 -> Error(Nil)
+    // Invalid degrees of freedom
+    _ if ddof < 0 -> Error(Nil)
+    // Insufficient data points for the given degrees of freedom
+    _ if length <= ddof -> Error(Nil)
+    // Valid input
+    _ -> {
       // Usage of let assert: No error will occur since we know input 'arr' is non-empty
       let assert Ok(mean) = mean(arr)
       Ok(
@@ -4308,7 +4313,7 @@ pub fn variance(arr: List(Float), ddof: Int) -> Result(Float, Nil) {
 ///
 /// Calculate the sample standard deviation of the elements in a list:
 /// \\[
-/// s = \left(\frac{1}{n - d} \sum_{i=1}^{n}(x_i - \bar{x})\right)^{\frac{1}{2}}
+/// s = \left(\frac{1}{n - d} \sum_{i=1}^{n}(x_i - \bar{x})^{2}\right)^{\frac{1}{2}}
 /// \\]
 ///
 /// In the formula, \\(n\\) is the sample size (the length of the list) and \\(x_i\\)
@@ -4343,10 +4348,15 @@ pub fn variance(arr: List(Float), ddof: Int) -> Result(Float, Nil) {
 /// </div>
 ///
 pub fn standard_deviation(arr: List(Float), ddof: Int) -> Result(Float, Nil) {
-  case arr, ddof {
-    [], _ -> Error(Nil)
-    _, _ if ddof < 0 -> Error(Nil)
-    _, _ -> {
+  let length = list.length(arr)
+  case length {
+    0 -> Error(Nil)
+    // Invalid degrees of freedom
+    _ if ddof < 0 -> Error(Nil)
+    // Insufficient data points for the given degrees of freedom
+    _ if length <= ddof -> Error(Nil)
+    // Valid input
+    _ -> {
       // Usage of let assert: No error will occur since we know input 'arr' is non-empty and
       // 'ddof' is larger than or equal to zero
       let assert Ok(variance) = variance(arr, ddof)
@@ -4564,14 +4574,14 @@ pub fn percentile(arr: List(Float), n: Int) -> Result(Float, Nil) {
 ///
 pub fn zscore(arr: List(Float), ddof: Int) -> Result(List(Float), Nil) {
   let length = list.length(arr)
-  case arr, ddof {
-    [], _ -> Error(Nil)
+  case length {
+    0 -> Error(Nil)
     // Invalid degrees of freedom
-    _, ddof if ddof < 0 -> Error(Nil)
+    _ if ddof < 0 -> Error(Nil)
     // Insufficient data points for the given degrees of freedom
-    _, ddof if length <= ddof -> Error(Nil)
+    _ if length <= ddof -> Error(Nil)
     // Valid input
-    _, _ -> {
+    _ -> {
       case mean(arr), standard_deviation(arr, ddof) {
         // The mean and standard deviation have been successfully computed
         Ok(mean), Ok(stdev) if stdev != 0.0 ->
@@ -4956,7 +4966,7 @@ pub fn tversky_index(
 /// - \\(\min(|X|, |Y|)\\) is the size of the smaller set among \\(X\\) and \\(Y\\)
 ///
 /// The coefficient ranges from 0 to 1, where 0 indicates no overlap and 1
-/// indicates that the smaller set is a suyset of the larger set. This
+/// indicates that the smaller set is a subset of the larger set. This
 /// measure is especially useful in situations where the similarity in terms
 /// of the proportion of overlap is more relevant than the difference in sizes
 /// between the two sets.
@@ -5020,7 +5030,6 @@ pub fn overlap_coefficient(xset: set.Set(a), yset: set.Set(a)) -> Float {
 /// <details>
 ///     <summary>Example:</summary>
 ///
-///     import gleam/option
 ///     import gleeunit/should
 ///     import gleam_community/maths
 ///
@@ -5096,7 +5105,6 @@ pub fn cosine_similarity(arr: List(#(Float, Float))) -> Result(Float, Nil) {
 /// <details>
 ///     <summary>Example:</summary>
 ///
-///     import gleam/option
 ///     import gleeunit/should
 ///     import gleam_community/maths
 ///
@@ -5419,7 +5427,7 @@ pub fn braycurtis_distance_with_weights(
 ///
 /// Determine if a given value \\(x\\) is close to or equivalent to a reference value
 /// \\(y\\) based on supplied relative \\(r_{tol}\\) and absolute \\(a_{tol}\\) tolerance
-/// values. The equivalance of the two given values are then determined based on
+/// values. The equivalence of the two given values are then determined based on
 /// the equation:
 ///
 /// \\[
