@@ -1251,8 +1251,8 @@ fn do_sinh(a: Float) -> Float
 /// The tangent function:
 ///
 /// \\[
-/// \forall x \in \(-\infty, +\infty\) \setminus \left\{\frac{\pi}{2} + k\cdot\pi \mid k \in 
-/// \mathbb{Z}\right\}, \quad \tan(x) = y \in (-\infty, +\infty)
+/// \forall x \in \(-\infty, +\infty\) \setminus \\{\frac{\pi}{2} + k \cdot \pi \mid k \in 
+/// \mathbb{Z}\\}, \quad \tan(x) = y \in (-\infty, +\infty)
 /// \\]
 ///
 /// The function takes a number \\(x\\) (an angle in radians) as input, provided that 
