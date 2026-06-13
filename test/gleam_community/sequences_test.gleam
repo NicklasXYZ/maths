@@ -5,7 +5,7 @@ import gleam_community/maths
 import gleeunit/should
 
 pub fn yield_linear_space_test() {
-  let assert Ok(tol) = float.power(10.0, -6.0)
+  let assert Ok(tol) = float.power(10.0, -9.0)
 
   // Check that the function agrees, at some arbitrary input
   // points, with known function values
@@ -137,7 +137,7 @@ pub fn yield_linear_space_test() {
 }
 
 pub fn list_linear_space_test() {
-  let assert Ok(tol) = float.power(10.0, -6.0)
+  let assert Ok(tol) = float.power(10.0, -9.0)
 
   // Check that the function agrees, at some arbitrary input
   // points, with known function values
@@ -263,7 +263,7 @@ pub fn list_linear_space_test() {
 }
 
 pub fn yield_logarithmic_space_test() {
-  let assert Ok(tol) = float.power(10.0, -6.0)
+  let assert Ok(tol) = float.power(10.0, -9.0)
   // Check that the function agrees, at some arbitrary input
   // points, with known function values
   // ---> With endpoint included
@@ -338,7 +338,7 @@ pub fn yield_logarithmic_space_test() {
   maths.all_close(
     logspace
       |> yielder.to_list()
-      |> list.zip([10.0, 46.41588834, 215.443469]),
+      |> list.zip([10.0, 46.41588833612779, 215.44346900318834]),
     0.0,
     tol,
   )
@@ -385,7 +385,7 @@ pub fn yield_logarithmic_space_test() {
 }
 
 pub fn list_logarithmic_space_test() {
-  let assert Ok(tol) = float.power(10.0, -6.0)
+  let assert Ok(tol) = float.power(10.0, -9.0)
   // Check that the function agrees, at some arbitrary input
   // points, with known function values
   // ---> With endpoint included
@@ -432,7 +432,7 @@ pub fn list_logarithmic_space_test() {
   let assert Ok(logspace) = maths.logarithmic_space(1.0, 3.0, 3, False, 10.0)
   maths.all_close(
     logspace
-      |> list.zip([10.0, 46.41588834, 215.443469]),
+      |> list.zip([10.0, 46.41588833612779, 215.44346900318834]),
     0.0,
     tol,
   )
@@ -476,7 +476,7 @@ pub fn list_logarithmic_space_test() {
 }
 
 pub fn yield_geometric_space_test() {
-  let assert Ok(tol) = float.power(10.0, -6.0)
+  let assert Ok(tol) = float.power(10.0, -9.0)
   // Check that the function agrees, at some arbitrary input
   // points, with known function values
   // ---> With endpoint included
@@ -536,7 +536,7 @@ pub fn yield_geometric_space_test() {
   maths.all_close(
     logspace
       |> yielder.to_list()
-      |> list.zip([10.0, 46.41588834, 215.443469]),
+      |> list.zip([10.0, 46.41588833612779, 215.44346900318834]),
     0.0,
     tol,
   )
@@ -587,7 +587,7 @@ pub fn yield_geometric_space_test() {
 }
 
 pub fn list_geometric_space_test() {
-  let assert Ok(tol) = float.power(10.0, -6.0)
+  let assert Ok(tol) = float.power(10.0, -9.0)
   // Check that the function agrees, at some arbitrary input
   // points, with known function values
   // ---> With endpoint included
@@ -630,7 +630,7 @@ pub fn list_geometric_space_test() {
   let assert Ok(logspace) = maths.geometric_space(10.0, 1000.0, 3, False)
   maths.all_close(
     logspace
-      |> list.zip([10.0, 46.41588834, 215.443469]),
+      |> list.zip([10.0, 46.41588833612779, 215.44346900318834]),
     0.0,
     tol,
   )
@@ -679,7 +679,7 @@ pub fn list_geometric_space_test() {
 }
 
 pub fn list_step_range_test() {
-  let assert Ok(tol) = float.power(10.0, -6.0)
+  let assert Ok(tol) = float.power(10.0, -9.0)
 
   // Positive start, stop, step
   maths.step_range(1.0, 5.0, 1.0)
@@ -727,7 +727,7 @@ pub fn list_step_range_test() {
 }
 
 pub fn yield_step_range_test() {
-  let assert Ok(tol) = float.power(10.0, -6.0)
+  let assert Ok(tol) = float.power(10.0, -9.0)
 
   // Positive start, stop, step
   maths.yield_step_range(1.0, 5.0, 1.0)
@@ -787,7 +787,7 @@ pub fn yield_step_range_test() {
 }
 
 pub fn yield_symmetric_space_test() {
-  let assert Ok(tolerance) = float.power(10.0, -6.0)
+  let assert Ok(tolerance) = float.power(10.0, -9.0)
 
   // Check that the function agrees, at some arbitrary input
   // points, with known function values
@@ -844,7 +844,7 @@ pub fn yield_symmetric_space_test() {
 }
 
 pub fn list_symmetric_space_test() {
-  let assert Ok(tolerance) = float.power(10.0, -6.0)
+  let assert Ok(tolerance) = float.power(10.0, -9.0)
 
   // Check that the function agrees, at some arbitrary input
   // points, with known function values

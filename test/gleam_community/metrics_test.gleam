@@ -32,7 +32,7 @@ fn norm_test_cases() {
 }
 
 pub fn list_norm_test() {
-  let assert Ok(tol) = float.power(10.0, -6.0)
+  let assert Ok(tol) = float.power(10.0, -9.0)
 
   norm_test_cases()
   |> list.map(fn(tuple) {
@@ -43,7 +43,7 @@ pub fn list_norm_test() {
 }
 
 pub fn list_norm_with_weights_test() {
-  let assert Ok(tol) = float.power(10.0, -6.0)
+  let assert Ok(tol) = float.power(10.0, -9.0)
 
   // Check that the weighted version of the norm function aligns with the
   // non-weighted version by re-using the test cases for the non-weighted
@@ -89,7 +89,7 @@ pub fn list_norm_with_weights_test() {
 }
 
 pub fn list_manhattan_test() {
-  let assert Ok(tol) = float.power(10.0, -6.0)
+  let assert Ok(tol) = float.power(10.0, -9.0)
 
   maths.manhattan_distance([])
   |> should.be_error()
@@ -135,7 +135,7 @@ pub fn list_manhattan_test() {
 }
 
 pub fn list_minkowski_test() {
-  let assert Ok(tol) = float.power(10.0, -6.0)
+  let assert Ok(tol) = float.power(10.0, -9.0)
 
   // Test order < 1
   maths.minkowski_distance([#(0.0, 0.0), #(0.0, 0.0)], -1.0)
@@ -209,7 +209,7 @@ pub fn list_minkowski_test() {
 }
 
 pub fn list_euclidean_test() {
-  let assert Ok(tol) = float.power(10.0, -6.0)
+  let assert Ok(tol) = float.power(10.0, -9.0)
 
   // Empty lists returns an error
   maths.euclidean_distance([])
@@ -407,7 +407,7 @@ pub fn median_test() {
 }
 
 pub fn variance_test() {
-  let assert Ok(tol) = float.power(10.0, -6.0)
+  let assert Ok(tol) = float.power(10.0, -9.0)
   // Degrees of freedom
   let ddof = 1
 
@@ -450,7 +450,7 @@ pub fn variance_test() {
 }
 
 pub fn standard_deviation_test() {
-  let assert Ok(tol) = float.power(10.0, -6.0)
+  let assert Ok(tol) = float.power(10.0, -9.0)
 
   // Degrees of freedom
   let ddof = 1
@@ -499,7 +499,7 @@ pub fn standard_deviation_test() {
 }
 
 pub fn kurtosis_test() {
-  let assert Ok(tol) = float.power(10.0, -6.0)
+  let assert Ok(tol) = float.power(10.0, -9.0)
 
   // An empty list returns an error
   []
@@ -547,7 +547,7 @@ pub fn kurtosis_test() {
 }
 
 pub fn skewness_test() {
-  let assert Ok(tol) = float.power(10.0, -6.0)
+  let assert Ok(tol) = float.power(10.0, -9.0)
 
   // An empty list returns an error
   []
@@ -697,7 +697,7 @@ pub fn percentile_test() {
 }
 
 pub fn zscore_test() {
-  let assert Ok(tol) = float.power(10.0, -6.0)
+  let assert Ok(tol) = float.power(10.0, -9.0)
 
   // An empty list returns an error
   []
@@ -753,6 +753,48 @@ pub fn zscore_test() {
   [1.5, 2.5, 3.5]
   |> maths.zscore(1)
   |> should.equal(Ok([-1.0, 0.0, 1.0]))
+}
+
+pub fn quartiles_test() {
+  // An empty list returns an error
+  []
+  |> maths.quartiles()
+  |> should.be_error()
+
+  // A single-element list returns the element for all three quartiles
+  [42.0]
+  |> maths.quartiles()
+  |> should.equal(Ok(#(42.0, 42.0, 42.0)))
+
+  // A two-element list interpolates all three quartiles
+  [10.0, 20.0]
+  |> maths.quartiles()
+  |> should.equal(Ok(#(12.5, 15.0, 17.5)))
+
+  // A valid input with an odd number of elements
+  [1.0, 2.0, 3.0, 4.0, 5.0]
+  |> maths.quartiles()
+  |> should.equal(Ok(#(2.0, 3.0, 4.0)))
+
+  // A valid input with an even number of elements
+  [1.0, 2.0, 3.0, 4.0, 5.0, 6.0]
+  |> maths.quartiles()
+  |> should.equal(Ok(#(2.25, 3.5, 4.75)))
+
+  // Make sure an unsorted list is sorted before calculating the quartiles
+  [9.0, 1.0, 4.0, 2.0, 8.0, 3.0, 7.0]
+  |> maths.quartiles()
+  |> should.equal(Ok(#(2.5, 4.0, 7.5)))
+
+  // Quartiles mirror the 25th, 50th, and 75th percentiles
+  let arr = [10.0, 20.0, 30.0, 40.0, 50.0]
+  let assert Ok(q1) = maths.percentile(arr, 25)
+  let assert Ok(q2) = maths.percentile(arr, 50)
+  let assert Ok(q3) = maths.percentile(arr, 75)
+
+  arr
+  |> maths.quartiles()
+  |> should.equal(Ok(#(q1, q2, q3)))
 }
 
 pub fn iqr_test() {
@@ -921,7 +963,7 @@ pub fn overlap_coefficient_test() {
 }
 
 pub fn cosine_similarity_test() {
-  let assert Ok(tol) = float.power(10.0, -6.0)
+  let assert Ok(tol) = float.power(10.0, -9.0)
 
   // An empty list returns an error
   maths.cosine_similarity([])

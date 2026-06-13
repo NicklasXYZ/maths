@@ -229,7 +229,7 @@ pub fn weighted_product_test() {
   |> maths.weighted_product()
   |> should.be_error()
 
-  let assert Ok(tolerance) = float.power(10.0, -6.0)
+  let assert Ok(tolerance) = float.power(10.0, -9.0)
   let assert Ok(result) =
     [#(9.0, 0.5), #(10.0, 0.5), #(10.0, 0.5)]
     |> maths.weighted_product()

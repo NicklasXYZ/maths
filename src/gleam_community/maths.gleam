@@ -3865,11 +3865,45 @@ pub fn zscore(arr: List(Float), ddof: Int) -> Result(List(Float), Nil) {
   }
 }
 
+/// Calculate the first, second, and third quartiles of the elements in a list.
+///
+/// The returned tuple is `#(q1, q2, q3)`. The values are computed using
+/// `percentile(arr, 25)`, `percentile(arr, 50)`, and `percentile(arr, 75)`, so
+/// this function uses the same linear interpolation method as `percentile`.
+///
+/// <details>
+/// <summary>Examples</summary>
+///
+/// ```gleam
+/// import gleeunit/should
+/// import gleam_community/maths
+///
+/// pub fn example () {
+///   // An empty list returns an error
+///   []
+///   |> maths.quartiles()
+///   |> should.be_error()
+///
+///   // Valid input returns the first, second, and third quartiles
+///   [1.0, 2.0, 3.0, 4.0, 5.0]
+///   |> maths.quartiles()
+///   |> should.equal(Ok(#(2.0, 3.0, 4.0)))
+/// }
+/// ```
+///
+/// </details>
+///
+pub fn quartiles(arr: List(Float)) -> Result(#(Float, Float, Float), Nil) {
+  case percentile(arr, 25), percentile(arr, 50), percentile(arr, 75) {
+    Ok(q1), Ok(q2), Ok(q3) -> Ok(#(q1, q2, q3))
+    _, _, _ -> Error(Nil)
+  }
+}
+
 /// Calculate the interquartile range (IQR) of the elements in a list.
 ///
-/// The first and third quartiles are computed using `percentile(arr, 25)` and
-/// `percentile(arr, 75)`, so this function uses the same linear interpolation
-/// method as `percentile`.
+/// The IQR is calculated as the difference between the third and first
+/// quartiles returned by `quartiles(arr)`.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -3894,9 +3928,9 @@ pub fn zscore(arr: List(Float), ddof: Int) -> Result(List(Float), Nil) {
 /// </details>
 ///
 pub fn interquartile_range(arr: List(Float)) -> Result(Float, Nil) {
-  case percentile(arr, 25), percentile(arr, 75) {
-    Ok(q1), Ok(q3) -> Ok(q3 -. q1)
-    _, _ -> Error(Nil)
+  case quartiles(arr) {
+    Ok(#(q1, _, q3)) -> Ok(q3 -. q1)
+    Error(Nil) -> Error(Nil)
   }
 }
 
@@ -5133,14 +5167,22 @@ pub fn is_multiple(m: Int, k: Int) -> Bool {
 /// \text{B}(x, y) = \frac{\Gamma(x) \cdot \Gamma(y)}{\Gamma(x + y)}
 /// \\]
 ///
-/// The beta function is evaluated through the use of the gamma function. The
-/// function returns `Error(Nil)` if \\(x\\), \\(y\\), or \\(x + y\\) is `0` or a
-/// negative integer, since the gamma function is undefined at those values.
+/// The beta function is evaluated through the gamma function. The function
+/// returns `Error(Nil)` if \\(x\\), \\(y\\), or \\(x + y\\) is `0` or a negative
+/// integer, since the gamma function is undefined at those values.
 ///
 pub fn beta(x: Float, y: Float) -> Result(Float, Nil) {
-  case gamma(x), gamma(y), gamma(x +. y) {
-    Ok(gamma_x), Ok(gamma_y), Ok(gamma_sum) ->
-      Ok(gamma_x *. gamma_y /. gamma_sum)
+  case
+    log_gamma_with_sign(x),
+    log_gamma_with_sign(y),
+    log_gamma_with_sign(x +. y)
+  {
+    Ok(#(log_x, sign_x)), Ok(#(log_y, sign_y)), Ok(#(log_sum, sign_sum)) -> {
+      multiply_by_exponential(
+        log_x +. log_y -. log_sum,
+        sign_x *. sign_y *. sign_sum,
+      )
+    }
     _, _, _ -> Error(Nil)
   }
 }
@@ -5148,6 +5190,27 @@ pub fn beta(x: Float, y: Float) -> Result(Float, Nil) {
 /// The error function.
 ///
 pub fn erf(x: Float) -> Float {
+  case x {
+    0.0 -> 0.0
+    _ if x >. 0.0 -> 1.0 -. erfc_positive(x)
+    _ -> erfc_positive(float.absolute_value(x)) -. 1.0
+  }
+}
+
+/// The complementary error function, defined as `1.0 -. erf(x)`.
+///
+/// This function is evaluated directly so that large positive values preserve
+/// the small positive tail of the complementary error function.
+///
+pub fn erfc(x: Float) -> Float {
+  case x {
+    0.0 -> 1.0
+    _ if x >. 0.0 -> erfc_positive(x)
+    _ -> 2.0 -. erfc_positive(float.absolute_value(x))
+  }
+}
+
+fn erfc_positive(x: Float) -> Float {
   let a1 = 0.254829592
   let a2 = -0.284496736
   let a3 = 1.421413741
@@ -5156,17 +5219,26 @@ pub fn erf(x: Float) -> Float {
 
   let p = 0.3275911
 
-  let sign = sign(x)
-  let x = float.absolute_value(x)
-
-  // Formula 7.1.26 given in Abramowitz and Stegun.
   let t = 1.0 /. { 1.0 +. p *. x }
-  let y =
-    1.0
-    -. { { { { a5 *. t +. a4 } *. t +. a3 } *. t +. a2 } *. t +. a1 }
-    *. t
-    *. exponential(-1.0 *. x *. x)
-  sign *. y
+  { { { { a5 *. t +. a4 } *. t +. a3 } *. t +. a2 } *. t +. a1 }
+  *. t
+  *. exponential(-1.0 *. x *. x)
+}
+
+/// The natural logarithm of the absolute value of the gamma function:
+///
+/// \\[
+/// \ln(\left|\Gamma(x)\right|)
+/// \\]
+///
+/// The function returns `Error(Nil)` for `0` and negative integers, where the
+/// gamma function has poles.
+///
+pub fn log_gamma(x: Float) -> Result(Float, Nil) {
+  case log_gamma_with_sign(x) {
+    Ok(#(log_abs_gamma, _)) -> Ok(log_abs_gamma)
+    Error(Nil) -> Error(Nil)
+  }
 }
 
 /// The gamma function over the real numbers. The function is essentially equal to
@@ -5176,17 +5248,25 @@ pub fn erf(x: Float) -> Float {
 /// using the same coefficients used by the GNU Scientific Library.
 ///
 /// The function returns `Error(Nil)` for `0` and negative integers, where the
-/// gamma function has poles.
+/// gamma function has poles. It also returns `Error(Nil)` if the result is too
+/// large to be represented as a finite `Float`.
 ///
 pub fn gamma(x: Float) -> Result(Float, Nil) {
-  case x <=. 0.0 && !is_fractional(x) {
-    True -> Error(Nil)
-    False -> Ok(gamma_lanczos(x))
+  case log_gamma_with_sign(x) {
+    Ok(#(log_abs_gamma, gamma_sign)) ->
+      multiply_by_exponential(log_abs_gamma, gamma_sign)
+    Error(Nil) -> Error(Nil)
   }
 }
 
 /// A constant used in the Lanczos approximation formula.
 const lanczos_g: Float = 7.0
+
+/// The natural logarithm of the square root of \\(2\pi\\).
+const lanczos_log_sqrt_two_pi: Float = 0.9189385332046727
+
+/// The largest exponent that can be safely passed to `exponential`.
+const max_float_log: Float = 709.782712893384
 
 /// Lanczos coefficients for the approximation formula. These coefficients are part of a
 /// polynomial approximation to the Gamma function.
@@ -5196,17 +5276,34 @@ const lanczos_p: List(Float) = [
   -0.13857109526572012, 0.0000099843695780195716, 0.00000015056327351493116,
 ]
 
-/// Compute the Gamma function using an approximation with the same coefficients used by the GNU
-/// Scientific Library. The function handles both the reflection formula for `x < 0.5` and the
-/// standard Lanczos computation for `x >= 0.5`.
-fn gamma_lanczos(x: Float) -> Float {
+fn log_gamma_with_sign(x: Float) -> Result(#(Float, Float), Nil) {
+  case is_gamma_pole(x) {
+    True -> Error(Nil)
+    False -> Ok(#(log_gamma_lanczos(x), gamma_sign_unchecked(x)))
+  }
+}
+
+fn is_gamma_pole(x: Float) -> Bool {
+  x <=. 0.0 && !is_fractional(x)
+}
+
+fn gamma_sign_unchecked(x: Float) -> Float {
+  case x >. 0.0 || sin(pi() *. x) >. 0.0 {
+    True -> 1.0
+    False -> -1.0
+  }
+}
+
+/// Compute the log of the absolute Gamma value using Lanczos approximation.
+fn log_gamma_lanczos(x: Float) -> Float {
   case x <. 0.5 {
-    // Use the reflection formula to compute Gamma for small value of x
-    True -> pi() /. { sin(pi() *. x) *. gamma_lanczos(1.0 -. x) }
-    // Evaluate the polynomial approximation using the coefficients from the GNU Scientific Library
+    True ->
+      do_natural_logarithm(pi())
+      -. do_natural_logarithm(float.absolute_value(sin(pi() *. x)))
+      -. log_gamma_lanczos(1.0 -. x)
     False -> {
       let z = x -. 1.0
-      let x =
+      let series =
         list.index_fold(lanczos_p, 0.0, fn(acc, v, index) {
           case index > 0 {
             True -> acc +. v /. { z +. int.to_float(index) }
@@ -5214,49 +5311,188 @@ fn gamma_lanczos(x: Float) -> Float {
           }
         })
       let t = z +. lanczos_g +. 0.5
-      // These assertions are safe because both bases are positive.
-      let assert Ok(v1) = float.power(2.0 *. pi(), 0.5)
-      let assert Ok(v2) = float.power(t, z +. 0.5)
-      v1 *. v2 *. exponential(-1.0 *. t) *. x
+      lanczos_log_sqrt_two_pi
+      +. { z +. 0.5 }
+      *. do_natural_logarithm(t)
+      -. t
+      +. do_natural_logarithm(series)
+    }
+  }
+}
+
+fn multiply_by_exponential(
+  log_value: Float,
+  multiplier: Float,
+) -> Result(Float, Nil) {
+  case multiplier {
+    0.0 -> Ok(0.0)
+    _ -> {
+      let multiplier_abs = float.absolute_value(multiplier)
+      let total_log = log_value +. do_natural_logarithm(multiplier_abs)
+
+      case total_log >. max_float_log {
+        True -> Error(Nil)
+        False -> {
+          let value = exponential(total_log)
+          case multiplier <. 0.0 {
+            True -> Ok(-1.0 *. value)
+            False -> Ok(value)
+          }
+        }
+      }
     }
   }
 }
 
 /// The lower incomplete gamma function over the real numbers.
 ///
-/// The implemented incomplete gamma function is evaluated through a power series
-/// expansion.
+/// The function is defined for positive `a` and non-negative `x`. It returns
+/// `Error(Nil)` for inputs outside this domain, if the approximation fails to
+/// converge, or if the result is too large to be represented as a finite `Float`.
 ///
 pub fn incomplete_gamma(a: Float, x: Float) -> Result(Float, Nil) {
-  case a >. 0.0 && x >=. 0.0 {
-    True -> {
-      // This assertion is safe because `x` is non-negative and `a` is positive.
-      let assert Ok(v) = float.power(x, a)
-      Ok(
-        v
-        *. exponential(-1.0 *. x)
-        *. incomplete_gamma_sum(a, x, 1.0 /. a, 0.0, 1.0),
-      )
-    }
-
-    False -> Error(Nil)
+  case a <=. 0.0 || x <. 0.0 {
+    True -> Error(Nil)
+    False ->
+      case x {
+        0.0 -> Ok(0.0)
+        _ if x <. a +. 1.0 -> incomplete_gamma_lower_series(a, x)
+        _ -> incomplete_gamma_lower_from_complement(a, x)
+      }
   }
 }
 
-fn incomplete_gamma_sum(
+const incomplete_gamma_tolerance: Float = 0.000000000000001
+
+const incomplete_gamma_max_iterations: Int = 10_000
+
+const incomplete_gamma_tiny: Float = 0.000000000000000000000000000001
+
+fn incomplete_gamma_lower_series(a: Float, x: Float) -> Result(Float, Nil) {
+  let first_term = 1.0 /. a
+
+  case incomplete_gamma_series_sum(a, x, first_term, first_term, 1) {
+    Ok(sum) -> multiply_by_exponential(a *. do_natural_logarithm(x) -. x, sum)
+    Error(Nil) -> Error(Nil)
+  }
+}
+
+fn incomplete_gamma_series_sum(
   a: Float,
   x: Float,
-  t: Float,
-  s: Float,
-  n: Float,
-) -> Float {
-  case t {
-    0.0 -> s
-    _ -> {
-      let ns = s +. t
-      let nt = t *. { x /. { a +. n } }
-      incomplete_gamma_sum(a, x, nt, ns, n +. 1.0)
+  term: Float,
+  sum: Float,
+  iteration: Int,
+) -> Result(Float, Nil) {
+  case iteration > incomplete_gamma_max_iterations {
+    True -> Error(Nil)
+    False -> {
+      let next_term = term *. { x /. { a +. int.to_float(iteration) } }
+      let next_sum = sum +. next_term
+
+      case
+        float.absolute_value(next_term)
+        <=. float.absolute_value(next_sum) *. incomplete_gamma_tolerance
+      {
+        True -> Ok(next_sum)
+        False ->
+          incomplete_gamma_series_sum(a, x, next_term, next_sum, iteration + 1)
+      }
     }
+  }
+}
+
+fn incomplete_gamma_lower_from_complement(
+  a: Float,
+  x: Float,
+) -> Result(Float, Nil) {
+  case log_gamma(a) {
+    Ok(log_gamma_a) -> {
+      case incomplete_gamma_regularized_upper_fraction(a, x, log_gamma_a) {
+        Ok(upper) ->
+          multiply_by_exponential(log_gamma_a, 1.0 -. clamp_unit(upper))
+        Error(Nil) -> Error(Nil)
+      }
+    }
+    Error(Nil) -> Error(Nil)
+  }
+}
+
+fn incomplete_gamma_regularized_upper_fraction(
+  a: Float,
+  x: Float,
+  log_gamma_a: Float,
+) -> Result(Float, Nil) {
+  let b = protect_fraction_denominator(x +. 1.0 -. a)
+  let c = 1.0 /. incomplete_gamma_tiny
+  let d = 1.0 /. b
+
+  incomplete_gamma_fraction_loop(a, x, log_gamma_a, 1, b, c, d, d)
+}
+
+fn incomplete_gamma_fraction_loop(
+  a: Float,
+  x: Float,
+  log_gamma_a: Float,
+  iteration: Int,
+  b: Float,
+  c: Float,
+  d: Float,
+  h: Float,
+) -> Result(Float, Nil) {
+  case iteration > incomplete_gamma_max_iterations {
+    True -> Error(Nil)
+    False -> {
+      let iteration_float = int.to_float(iteration)
+      let an = -1.0 *. iteration_float *. { iteration_float -. a }
+      let next_b = b +. 2.0
+      let next_d = protect_fraction_denominator(an *. d +. next_b)
+      let next_c = protect_fraction_denominator(next_b +. an /. c)
+      let next_d = 1.0 /. next_d
+      let delta = next_d *. next_c
+      let next_h = h *. delta
+
+      case float.absolute_value(delta -. 1.0) <=. incomplete_gamma_tolerance {
+        True ->
+          multiply_by_exponential(
+            a *. do_natural_logarithm(x) -. x -. log_gamma_a,
+            next_h,
+          )
+        False ->
+          incomplete_gamma_fraction_loop(
+            a,
+            x,
+            log_gamma_a,
+            iteration + 1,
+            next_b,
+            next_c,
+            next_d,
+            next_h,
+          )
+      }
+    }
+  }
+}
+
+fn protect_fraction_denominator(x: Float) -> Float {
+  case float.absolute_value(x) <. incomplete_gamma_tiny {
+    True ->
+      case x <. 0.0 {
+        True -> -1.0 *. incomplete_gamma_tiny
+        False -> incomplete_gamma_tiny
+      }
+    False -> x
+  }
+}
+
+fn clamp_unit(x: Float) -> Float {
+  case x <. 0.0 {
+    True -> 0.0
+    False ->
+      case x >. 1.0 {
+        True -> 1.0
+        False -> x
+      }
   }
 }
 
