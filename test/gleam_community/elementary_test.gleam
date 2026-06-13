@@ -331,6 +331,9 @@ pub fn natural_logarithm_test() {
 
   // Check that we get an error when the function is evaluated
   // outside its domain
+  maths.natural_logarithm(0.0)
+  |> should.be_error()
+
   maths.natural_logarithm(-1.0)
   |> should.be_error()
 }
@@ -356,6 +359,12 @@ pub fn logarithm_test() {
   |> should.be_true()
   // Check that we get an error when the function is evaluated
   // outside its domain
+  maths.logarithm(0.0, 10.0)
+  |> should.be_error()
+
+  maths.logarithm(10.0, 0.0)
+  |> should.be_error()
+
   maths.logarithm(1.0, 1.0)
   |> should.be_error()
 
@@ -400,6 +409,9 @@ pub fn logarithm_2_test() {
 
   // Check that we get an error when the function is evaluated
   // outside its domain
+  maths.logarithm_2(0.0)
+  |> should.be_error()
+
   maths.logarithm_2(-1.0)
   |> should.be_error()
 }
@@ -425,6 +437,9 @@ pub fn logarithm_10_test() {
 
   // Check that we get an error when the function is evaluated
   // outside its domain
+  maths.logarithm_10(0.0)
+  |> should.be_error()
+
   maths.logarithm_10(-1.0)
   |> should.be_error()
 }
@@ -445,17 +460,23 @@ pub fn nth_root_test() {
   // Negative input values are outside the documented domain
   maths.nth_root(-1.0, 4)
   |> should.be_error()
+
+  maths.nth_root(4.0, 0)
+  |> should.be_error()
+
+  maths.nth_root(4.0, -2)
+  |> should.be_error()
 }
 
 pub fn constants_test() {
   let assert Ok(tolerance) = float.power(10.0, -12.0)
 
-  // Test that the constant is approximately equal to 2.7128...
+  // Test that the constant is approximately equal to 2.71828...
   maths.e()
   |> maths.is_close(2.7182818284590452353602, 0.0, tolerance)
   |> should.be_true()
 
-  // Test that the constant is approximately equal to 2.7128...
+  // Test that the constant is approximately equal to 3.14159...
   maths.pi()
   |> maths.is_close(3.14159265359, 0.0, tolerance)
   |> should.be_true()

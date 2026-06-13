@@ -59,8 +59,8 @@ pub fn int_combination_with_repetitions_test() {
 
   maths.combination_with_repetitions(7, 5)
   |> should.equal(Ok(462))
-  // NOTE: Tests with the 'combination' function that produce values that exceed
-  // precision of the JavaScript 'Number' primitive will result in errors
+  // NOTE: Tests with the `combination` function that produce values that exceed
+  // precision of the JavaScript `Number` primitive will result in errors
 }
 
 pub fn int_combination_without_repetitions_test() {
@@ -111,6 +111,9 @@ pub fn math_permutation_with_repetitions_test() {
 
   maths.permutation_with_repetitions(6, 3)
   |> should.equal(Ok(216))
+
+  maths.permutation_with_repetitions(3, 10)
+  |> should.equal(Ok(59_049))
 }
 
 pub fn math_permutation_without_repetitions_test() {
@@ -329,10 +332,13 @@ pub fn list_permutation_with_repetitions_test() {
 }
 
 pub fn list_permutation_without_repetitions_test() {
-  // Invalid input: k > n should return an error without repetition
-  [1, 2]
-  |> maths.list_permutation(3)
-  |> should.be_error()
+  // Valid input: k > n without repetition gives no permutations
+  let assert Ok(permutations) =
+    [1, 2]
+    |> maths.list_permutation(3)
+  permutations
+  |> yielder.to_list()
+  |> should.equal([])
 
   // Singleton list returns a single permutation regardless of repetition settings
   let assert Ok(permutations) =
@@ -573,10 +579,13 @@ pub fn list_combination_with_repetitions_test() {
 }
 
 pub fn list_combination_without_repetitions_test() {
-  // Invalid input: k > n should return an error without repetition
-  [1, 2]
-  |> maths.list_combination(3)
-  |> should.be_error()
+  // Valid input: k > n without repetition gives no combinations
+  let assert Ok(combinations) =
+    [1, 2]
+    |> maths.list_combination(3)
+  combinations
+  |> yielder.to_list()
+  |> should.equal([])
 
   // Valid input: Empty list should return a single empty combination
   let assert Ok(combinations) =

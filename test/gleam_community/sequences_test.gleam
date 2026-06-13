@@ -131,7 +131,7 @@ pub fn yield_linear_space_test() {
   |> list.all(fn(x) { x == True })
   |> should.be_true()
 
-  // A negative number of points does not work (-5)
+  // A negative number of points is invalid (-5)
   maths.yield_linear_space(10.0, 50.0, -5, True)
   |> should.be_error()
 }
@@ -257,7 +257,7 @@ pub fn list_linear_space_test() {
   |> list.all(fn(x) { x == True })
   |> should.be_true()
 
-  // A negative number of points does not work (-5)
+  // A negative number of points is invalid (-5)
   maths.linear_space(10.0, 50.0, -5, True)
   |> should.be_error()
 }
@@ -371,15 +371,15 @@ pub fn yield_logarithmic_space_test() {
   |> list.all(fn(x) { x == True })
   |> should.be_true()
 
-  // A negative number of points does not work (-3)
+  // A negative number of points is invalid (-3)
   maths.yield_logarithmic_space(1.0, 3.0, -3, True, 10.0)
   |> should.be_error()
 
-  // A negative base does not work (-10)
+  // A negative base is invalid (-10)
   maths.yield_logarithmic_space(1.0, 3.0, 3, True, -10.0)
   |> should.be_error()
 
-  // A zero base does not work
+  // A zero base is invalid
   maths.yield_logarithmic_space(1.0, 3.0, 3, True, 0.0)
   |> should.be_error()
 }
@@ -439,7 +439,7 @@ pub fn list_logarithmic_space_test() {
   |> list.all(fn(x) { x == True })
   |> should.be_true()
 
-  // Check the special case when 'base' is equal to zero
+  // Check the special case when `base` is equal to zero
   maths.logarithmic_space(-1.0, 3.0, 3, False, 0.0) |> should.be_error()
   maths.logarithmic_space(1.0, -3.0, 3, False, 0.0) |> should.be_error()
   maths.logarithmic_space(-1.0, -3.0, 3, False, 0.0) |> should.be_error()
@@ -466,11 +466,11 @@ pub fn list_logarithmic_space_test() {
   |> list.all(fn(x) { x == True })
   |> should.be_true()
 
-  // A negative number of points does not work (-3)
+  // A negative number of points is invalid (-3)
   maths.logarithmic_space(1.0, 3.0, -3, True, 10.0)
   |> should.be_error()
 
-  // A negative base does not work (-10)
+  // A negative base is invalid (-10)
   maths.logarithmic_space(1.0, 3.0, 3, True, -10.0)
   |> should.be_error()
 }
@@ -581,7 +581,7 @@ pub fn yield_geometric_space_test() {
   maths.yield_geometric_space(10.0, -1000.0, 3, False)
   |> should.be_error()
 
-  // A negative number of points does not work
+  // A negative number of points is invalid
   maths.yield_geometric_space(10.0, 1000.0, -3, False)
   |> should.be_error()
 }
@@ -673,7 +673,7 @@ pub fn list_geometric_space_test() {
   maths.geometric_space(10.0, -1000.0, 3, False)
   |> should.be_error()
 
-  // A negative number of points does not work
+  // A negative number of points is invalid
   maths.geometric_space(10.0, 1000.0, -3, False)
   |> should.be_error()
 }
@@ -838,7 +838,7 @@ pub fn yield_symmetric_space_test() {
   |> yielder.to_list()
   |> should.equal([])
 
-  // A negative number of points does not work (-5)
+  // A negative number of points is invalid (-5)
   maths.yield_symmetric_space(0.0, 5.0, -5)
   |> should.be_error()
 }
@@ -888,7 +888,7 @@ pub fn list_symmetric_space_test() {
   sym_space
   |> should.equal([])
 
-  // A negative number of points does not work (-5)
+  // A negative number of points is invalid (-5)
   maths.symmetric_space(0.0, 5.0, -5)
   |> should.be_error()
 }

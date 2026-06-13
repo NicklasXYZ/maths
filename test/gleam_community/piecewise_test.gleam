@@ -4,91 +4,91 @@ import gleam_community/maths
 import gleeunit/should
 
 pub fn ceiling_test() {
-  // Round 3. digit AFTER decimal point 
+  // Round with precision 3 after the decimal point
   maths.round_up(12.0654, 3)
   |> should.equal(12.066)
 
-  // Round 2. digit AFTER decimal point 
+  // Round with precision 2 after the decimal point
   maths.round_up(12.0654, 2)
   |> should.equal(12.07)
 
-  // Round 1. digit AFTER decimal point 
+  // Round with precision 1 after the decimal point
   maths.round_up(12.0654, 1)
   |> should.equal(12.1)
 
-  // Round 0. digit BEFORE decimal point 
+  // Round to the nearest integer
   maths.round_up(12.0654, 0)
   |> should.equal(13.0)
 
-  // Round 1. digit BEFORE decimal point 
+  // Round with precision 1 before the decimal point
   maths.round_up(12.0654, -1)
   |> should.equal(20.0)
 
-  // Round 2. digit BEFORE decimal point 
+  // Round with precision 2 before the decimal point
   maths.round_up(12.0654, -2)
   |> should.equal(100.0)
 
-  // Round 3. digit BEFORE decimal point 
+  // Round with precision 3 before the decimal point
   maths.round_up(12.0654, -3)
   |> should.equal(1000.0)
 }
 
 pub fn floor_test() {
-  // Round 3. digit AFTER decimal point 
+  // Round with precision 3 after the decimal point
   maths.round_down(12.0654, 3)
   |> should.equal(12.065)
 
-  // Round 2. digit AFTER decimal point 
+  // Round with precision 2 after the decimal point
   maths.round_down(12.0654, 2)
   |> should.equal(12.06)
 
-  // Round 1. digit AFTER decimal point 
+  // Round with precision 1 after the decimal point
   maths.round_down(12.0654, 1)
   |> should.equal(12.0)
 
-  // Round 0. digit BEFORE decimal point 
+  // Round to the nearest integer
   maths.round_down(12.0654, 0)
   |> should.equal(12.0)
 
-  // Round 1. digit BEFORE decimal point 
+  // Round with precision 1 before the decimal point
   maths.round_down(12.0654, -1)
   |> should.equal(10.0)
 
-  // Round 2. digit BEFORE decimal point 
+  // Round with precision 2 before the decimal point
   maths.round_down(12.0654, -2)
   |> should.equal(0.0)
 
-  // Round 2. digit BEFORE decimal point 
+  // Round with precision 3 before the decimal point
   maths.round_down(12.0654, -3)
   |> should.equal(0.0)
 }
 
 pub fn truncate_test() {
-  // Round 3. digit AFTER decimal point 
+  // Round with precision 3 after the decimal point
   maths.round_to_zero(12.0654, 3)
   |> should.equal(12.065)
 
-  // Round 2. digit AFTER decimal point 
+  // Round with precision 2 after the decimal point
   maths.round_to_zero(12.0654, 2)
   |> should.equal(12.06)
 
-  // Round 1. digit AFTER decimal point 
+  // Round with precision 1 after the decimal point
   maths.round_to_zero(12.0654, 1)
   |> should.equal(12.0)
 
-  // Round 0. digit BEFORE decimal point 
+  // Round to the nearest integer
   maths.round_to_zero(12.0654, 0)
   |> should.equal(12.0)
 
-  // Round 1. digit BEFORE decimal point 
+  // Round with precision 1 before the decimal point
   maths.round_to_zero(12.0654, -1)
   |> should.equal(10.0)
 
-  // Round 2. digit BEFORE decimal point 
+  // Round with precision 2 before the decimal point
   maths.round_to_zero(12.0654, -2)
   |> should.equal(0.0)
 
-  // Round 2. digit BEFORE decimal point 
+  // Round with precision 3 before the decimal point
   maths.round_to_zero(12.0654, -3)
   |> should.equal(0.0)
 }
@@ -117,31 +117,31 @@ pub fn math_round_to_nearest_test() {
   maths.round_to_nearest(-4.5, 0)
   |> should.equal(-4.0)
 
-  // // Round 3. digit AFTER decimal point 
+  // Round with precision 3 after the decimal point
   maths.round_to_nearest(12.0654, 3)
   |> should.equal(12.065)
 
-  // Round 2. digit AFTER decimal point 
+  // Round with precision 2 after the decimal point
   maths.round_to_nearest(12.0654, 2)
   |> should.equal(12.07)
 
-  // Round 1. digit AFTER decimal point 
+  // Round with precision 1 after the decimal point
   maths.round_to_nearest(12.0654, 1)
   |> should.equal(12.1)
 
-  // Round 0. digit BEFORE decimal point 
+  // Round to the nearest integer
   maths.round_to_nearest(12.0654, 0)
   |> should.equal(12.0)
 
-  // Round 1. digit BEFORE decimal point 
+  // Round with precision 1 before the decimal point
   maths.round_to_nearest(12.0654, -1)
   |> should.equal(10.0)
 
-  // Round 2. digit BEFORE decimal point 
+  // Round with precision 2 before the decimal point
   maths.round_to_nearest(12.0654, -2)
   |> should.equal(0.0)
 
-  // Round 3. digit BEFORE decimal point 
+  // Round with precision 3 before the decimal point
   maths.round_to_nearest(12.0654, -3)
   |> should.equal(0.0)
 }
@@ -291,31 +291,31 @@ pub fn math_round_ties_away_test() {
   maths.round_ties_away(-2.5, 0)
   |> should.equal(-3.0)
 
-  // Round 3. digit AFTER decimal point 
+  // Round with precision 3 after the decimal point
   maths.round_ties_away(12.0654, 3)
   |> should.equal(12.065)
 
-  // Round 2. digit AFTER decimal point 
+  // Round with precision 2 after the decimal point
   maths.round_ties_away(12.0654, 2)
   |> should.equal(12.07)
 
-  // Round 1. digit AFTER decimal point 
+  // Round with precision 1 after the decimal point
   maths.round_ties_away(12.0654, 1)
   |> should.equal(12.1)
 
-  // Round 0. digit BEFORE decimal point 
+  // Round to the nearest integer
   maths.round_ties_away(12.0654, 0)
   |> should.equal(12.0)
 
-  // Round 1. digit BEFORE decimal point 
+  // Round with precision 1 before the decimal point
   maths.round_ties_away(12.0654, -1)
   |> should.equal(10.0)
 
-  // Round 2. digit BEFORE decimal point 
+  // Round with precision 2 before the decimal point
   maths.round_ties_away(12.0654, -2)
   |> should.equal(0.0)
 
-  // Round 2. digit BEFORE decimal point 
+  // Round with precision 3 before the decimal point
   maths.round_ties_away(12.0654, -3)
   |> should.equal(0.0)
 }
@@ -344,31 +344,31 @@ pub fn math_round_ties_up_test() {
   maths.round_ties_up(-2.5, 0)
   |> should.equal(-2.0)
 
-  // Round 3. digit AFTER decimal point 
+  // Round with precision 3 after the decimal point
   maths.round_ties_up(12.0654, 3)
   |> should.equal(12.065)
 
-  // Round 2. digit AFTER decimal point 
+  // Round with precision 2 after the decimal point
   maths.round_ties_up(12.0654, 2)
   |> should.equal(12.07)
 
-  // Round 1. digit AFTER decimal point 
+  // Round with precision 1 after the decimal point
   maths.round_ties_up(12.0654, 1)
   |> should.equal(12.1)
 
-  // Round 0. digit BEFORE decimal point 
+  // Round to the nearest integer
   maths.round_ties_up(12.0654, 0)
   |> should.equal(12.0)
 
-  // Round 1. digit BEFORE decimal point 
+  // Round with precision 1 before the decimal point
   maths.round_ties_up(12.0654, -1)
   |> should.equal(10.0)
 
-  // Round 2. digit BEFORE decimal point 
+  // Round with precision 2 before the decimal point
   maths.round_ties_up(12.0654, -2)
   |> should.equal(0.0)
 
-  // Round 2. digit BEFORE decimal point 
+  // Round with precision 3 before the decimal point
   maths.round_ties_up(12.0654, -3)
   |> should.equal(0.0)
 }
@@ -459,6 +459,12 @@ pub fn copy_sign_test() {
 
   maths.copy_sign(-100.0, -10.0)
   |> should.equal(-100.0)
+
+  maths.copy_sign(100.0, 0.0)
+  |> should.equal(100.0)
+
+  maths.copy_sign(-100.0, 0.0)
+  |> should.equal(100.0)
 }
 
 pub fn int_sign_test() {
@@ -495,6 +501,12 @@ pub fn int_copy_sign_test() {
 
   maths.int_copy_sign(-100, -10)
   |> should.equal(-100)
+
+  maths.int_copy_sign(100, 0)
+  |> should.equal(100)
+
+  maths.int_copy_sign(-100, 0)
+  |> should.equal(100)
 }
 
 pub fn minmax_test() {
@@ -504,7 +516,7 @@ pub fn minmax_test() {
   maths.minmax(0.5, 0.75, float.compare)
   |> should.equal(#(0.5, 0.75))
 
-  maths.minmax(-0.75, 0.5, float.compare)
+  maths.minmax(0.5, -0.75, float.compare)
   |> should.equal(#(-0.75, 0.5))
 
   maths.minmax(-0.75, 0.5, float.compare)
@@ -521,12 +533,12 @@ pub fn int_minmax_test() {
   maths.minmax(-75, 50, int.compare)
   |> should.equal(#(-75, 50))
 
-  maths.minmax(-75, 50, int.compare)
+  maths.minmax(50, -75, int.compare)
   |> should.equal(#(-75, 50))
 }
 
 pub fn list_minimum_test() {
-  // An empty lists returns an error
+  // An empty list returns an error
   []
   |> maths.list_minimum(float.compare)
   |> should.be_error()
@@ -538,7 +550,7 @@ pub fn list_minimum_test() {
 }
 
 pub fn int_list_minimum_test() {
-  // An empty lists returns an error
+  // An empty list returns an error
   []
   |> maths.list_minimum(int.compare)
   |> should.be_error()
@@ -550,7 +562,7 @@ pub fn int_list_minimum_test() {
 }
 
 pub fn list_maximum_test() {
-  // An empty lists returns an error
+  // An empty list returns an error
   []
   |> maths.list_maximum(float.compare)
   |> should.be_error()
@@ -562,7 +574,7 @@ pub fn list_maximum_test() {
 }
 
 pub fn int_list_maximum_test() {
-  // An empty lists returns an error
+  // An empty list returns an error
   []
   |> maths.list_maximum(int.compare)
   |> should.be_error()
@@ -574,7 +586,7 @@ pub fn int_list_maximum_test() {
 }
 
 pub fn list_arg_maximum_test() {
-  // An empty lists returns an error
+  // An empty list returns an error
   []
   |> maths.arg_maximum(float.compare)
   |> should.be_error()
@@ -586,7 +598,7 @@ pub fn list_arg_maximum_test() {
 }
 
 pub fn int_list_arg_maximum_test() {
-  // An empty lists returns an error
+  // An empty list returns an error
   []
   |> maths.arg_maximum(int.compare)
   |> should.be_error()
@@ -598,7 +610,7 @@ pub fn int_list_arg_maximum_test() {
 }
 
 pub fn list_arg_minimum_test() {
-  // An empty lists returns an error
+  // An empty list returns an error
   []
   |> maths.arg_minimum(float.compare)
   |> should.be_error()
@@ -610,7 +622,7 @@ pub fn list_arg_minimum_test() {
 }
 
 pub fn int_list_arg_minimum_test() {
-  // An empty lists returns an error
+  // An empty list returns an error
   []
   |> maths.arg_minimum(int.compare)
   |> should.be_error()
@@ -622,7 +634,7 @@ pub fn int_list_arg_minimum_test() {
 }
 
 pub fn list_extrema_test() {
-  // An empty lists returns an error
+  // An empty list returns an error
   []
   |> maths.extrema(float.compare)
   |> should.be_error()
@@ -639,7 +651,7 @@ pub fn list_extrema_test() {
 }
 
 pub fn int_list_extrema_test() {
-  // An empty lists returns an error
+  // An empty list returns an error
   []
   |> maths.extrema(int.compare)
   |> should.be_error()

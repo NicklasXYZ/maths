@@ -6,20 +6,35 @@ import gleeunit/should
 pub fn float_beta_function_test() {
   let assert Ok(tol) = float.power(10.0, -6.0)
 
-  // Valid input returns a result
+  // Invalid input gives an error
   maths.beta(-0.5, 0.5)
-  |> maths.is_close(0.0, 0.0, tol)
-  |> should.be_true()
+  |> should.be_error()
 
+  maths.beta(0.5, -0.5)
+  |> should.be_error()
+
+  maths.beta(0.0, 1.0)
+  |> should.be_error()
+
+  maths.beta(1.0, 0.0)
+  |> should.be_error()
+
+  maths.beta(-1.0, 2.0)
+  |> should.be_error()
+
+  // Valid input returns a result
   maths.beta(0.5, 0.5)
+  |> result.unwrap(-999.0)
   |> maths.is_close(3.1415926535897927, 0.0, tol)
   |> should.be_true()
 
-  maths.beta(0.5, -0.5)
-  |> maths.is_close(0.0, 0.0, tol)
+  maths.beta(-0.5, 1.0)
+  |> result.unwrap(-999.0)
+  |> maths.is_close(-2.0, 0.0, tol)
   |> should.be_true()
 
   maths.beta(5.0, 5.0)
+  |> result.unwrap(-999.0)
   |> maths.is_close(0.0015873015873015873, 0.0, tol)
   |> should.be_true()
 }
@@ -52,28 +67,47 @@ pub fn float_error_function_test() {
 pub fn float_gamma_function_test() {
   let assert Ok(tol) = float.power(10.0, -6.0)
 
+  // Invalid input gives an error
+  maths.gamma(-3.0)
+  |> should.be_error()
+
+  maths.gamma(-2.0)
+  |> should.be_error()
+
+  maths.gamma(-1.0)
+  |> should.be_error()
+
+  maths.gamma(0.0)
+  |> should.be_error()
+
   // Valid input returns a result
   maths.gamma(-0.5)
+  |> result.unwrap(-999.0)
   |> maths.is_close(-3.5449077018110318, 0.0, tol)
   |> should.be_true()
 
   maths.gamma(0.5)
+  |> result.unwrap(-999.0)
   |> maths.is_close(1.7724538509055159, 0.0, tol)
   |> should.be_true()
 
   maths.gamma(1.0)
+  |> result.unwrap(-999.0)
   |> maths.is_close(1.0, 0.0, tol)
   |> should.be_true()
 
   maths.gamma(2.0)
+  |> result.unwrap(-999.0)
   |> maths.is_close(1.0, 0.0, tol)
   |> should.be_true()
 
   maths.gamma(3.0)
+  |> result.unwrap(-999.0)
   |> maths.is_close(2.0, 0.0, tol)
   |> should.be_true()
 
   maths.gamma(10.0)
+  |> result.unwrap(-999.0)
   |> maths.is_close(362_880.0, 0.0, tol)
   |> should.be_true()
 }
