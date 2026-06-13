@@ -28,6 +28,26 @@ pub fn yield_linear_space_test() {
   |> list.all(fn(x) { x == True })
   |> should.be_true()
 
+  let assert Ok(linspace) = maths.yield_linear_space(10.0, 20.0, 1, True)
+  linspace
+  |> yielder.to_list()
+  |> should.equal([10.0])
+
+  let assert Ok(linspace) = maths.yield_linear_space(10.0, 20.0, 1, False)
+  linspace
+  |> yielder.to_list()
+  |> should.equal([10.0])
+
+  let assert Ok(linspace) = maths.yield_linear_space(10.0, 20.0, 0, True)
+  linspace
+  |> yielder.to_list()
+  |> should.equal([])
+
+  let assert Ok(linspace) = maths.yield_linear_space(10.0, 20.0, 0, False)
+  linspace
+  |> yielder.to_list()
+  |> should.equal([])
+
   // Try with negative stop
   // ----> Without endpoint included
   let assert Ok(linspace) = maths.yield_linear_space(10.0, 50.0, 5, False)
@@ -140,6 +160,22 @@ pub fn list_linear_space_test() {
   |> list.all(fn(x) { x == True })
   |> should.be_true()
 
+  let assert Ok(linspace) = maths.linear_space(10.0, 20.0, 1, True)
+  linspace
+  |> should.equal([10.0])
+
+  let assert Ok(linspace) = maths.linear_space(10.0, 20.0, 1, False)
+  linspace
+  |> should.equal([10.0])
+
+  let assert Ok(linspace) = maths.linear_space(10.0, 20.0, 0, True)
+  linspace
+  |> should.equal([])
+
+  let assert Ok(linspace) = maths.linear_space(10.0, 20.0, 0, False)
+  linspace
+  |> should.equal([])
+
   // Try with negative stop
   // ----> Without endpoint included
   let assert Ok(linspace) = maths.linear_space(10.0, 50.0, 5, False)
@@ -243,6 +279,36 @@ pub fn yield_logarithmic_space_test() {
   |> list.all(fn(x) { x == True })
   |> should.be_true()
 
+  let assert Ok(logspace) =
+    maths.yield_logarithmic_space(1.0, 3.0, 1, True, 10.0)
+  logspace
+  |> yielder.to_list()
+  |> should.equal([10.0])
+
+  let assert Ok(logspace) =
+    maths.yield_logarithmic_space(1.0, 3.0, 1, False, 10.0)
+  logspace
+  |> yielder.to_list()
+  |> should.equal([10.0])
+
+  let assert Ok(logspace) =
+    maths.yield_logarithmic_space(1.0, 3.0, 0, True, 10.0)
+  logspace
+  |> yielder.to_list()
+  |> should.equal([])
+
+  let assert Ok(logspace) =
+    maths.yield_logarithmic_space(1.0, 3.0, 0, False, 10.0)
+  logspace
+  |> yielder.to_list()
+  |> should.equal([])
+
+  let assert Ok(logspace) =
+    maths.yield_logarithmic_space(1.0, 3.0, 0, True, 0.0)
+  logspace
+  |> yielder.to_list()
+  |> should.equal([])
+
   // - Positive start, negative stop
   let assert Ok(logspace) =
     maths.yield_logarithmic_space(1.0, -3.0, 3, True, 10.0)
@@ -312,6 +378,10 @@ pub fn yield_logarithmic_space_test() {
   // A negative base does not work (-10)
   maths.yield_logarithmic_space(1.0, 3.0, 3, True, -10.0)
   |> should.be_error()
+
+  // A zero base does not work
+  maths.yield_logarithmic_space(1.0, 3.0, 3, True, 0.0)
+  |> should.be_error()
 }
 
 pub fn list_logarithmic_space_test() {
@@ -324,6 +394,26 @@ pub fn list_logarithmic_space_test() {
   maths.all_close(logspace |> list.zip([10.0, 100.0, 1000.0]), 0.0, tol)
   |> list.all(fn(x) { x == True })
   |> should.be_true()
+
+  let assert Ok(logspace) = maths.logarithmic_space(1.0, 3.0, 1, True, 10.0)
+  logspace
+  |> should.equal([10.0])
+
+  let assert Ok(logspace) = maths.logarithmic_space(1.0, 3.0, 1, False, 10.0)
+  logspace
+  |> should.equal([10.0])
+
+  let assert Ok(logspace) = maths.logarithmic_space(1.0, 3.0, 0, True, 10.0)
+  logspace
+  |> should.equal([])
+
+  let assert Ok(logspace) = maths.logarithmic_space(1.0, 3.0, 0, False, 10.0)
+  logspace
+  |> should.equal([])
+
+  let assert Ok(logspace) = maths.logarithmic_space(1.0, 3.0, 0, True, 0.0)
+  logspace
+  |> should.equal([])
 
   // - Positive start, negative stop
   let assert Ok(logspace) = maths.logarithmic_space(1.0, -3.0, 3, True, 10.0)
@@ -400,7 +490,27 @@ pub fn yield_geometric_space_test() {
   |> list.all(fn(x) { x == True })
   |> should.be_true()
 
-  // - Positive start, negative stop
+  let assert Ok(logspace) = maths.yield_geometric_space(10.0, 1000.0, 1, True)
+  logspace
+  |> yielder.to_list()
+  |> should.equal([10.0])
+
+  let assert Ok(logspace) = maths.yield_geometric_space(10.0, 1000.0, 1, False)
+  logspace
+  |> yielder.to_list()
+  |> should.equal([10.0])
+
+  let assert Ok(logspace) = maths.yield_geometric_space(10.0, 1000.0, 0, True)
+  logspace
+  |> yielder.to_list()
+  |> should.equal([])
+
+  let assert Ok(logspace) = maths.yield_geometric_space(10.0, 1000.0, 0, False)
+  logspace
+  |> yielder.to_list()
+  |> should.equal([])
+
+  // - Decreasing positive range
   let assert Ok(logspace) = maths.yield_geometric_space(10.0, 0.001, 3, True)
   maths.all_close(
     logspace |> yielder.to_list() |> list.zip([10.0, 0.1, 0.001]),
@@ -410,7 +520,7 @@ pub fn yield_geometric_space_test() {
   |> list.all(fn(x) { x == True })
   |> should.be_true()
 
-  // - Positive stop, negative start
+  // - Increasing positive range with fractional start
   let assert Ok(logspace) = maths.yield_geometric_space(0.1, 1000.0, 3, True)
   maths.all_close(
     logspace |> yielder.to_list() |> list.zip([0.1, 10.0, 1000.0]),
@@ -458,15 +568,21 @@ pub fn yield_geometric_space_test() {
   |> list.all(fn(x) { x == True })
   |> should.be_true()
 
-  // Test invalid input (start and stop can't be less than or equal to 0.0)
+  // Test invalid input: start and stop must both be greater than 0.0
   maths.yield_geometric_space(0.0, 1000.0, 3, False)
   |> should.be_error()
 
-  maths.yield_geometric_space(-1000.0, 0.0, 3, False)
+  maths.yield_geometric_space(-1000.0, 1000.0, 3, False)
+  |> should.be_error()
+
+  maths.yield_geometric_space(10.0, 0.0, 3, False)
+  |> should.be_error()
+
+  maths.yield_geometric_space(10.0, -1000.0, 3, False)
   |> should.be_error()
 
   // A negative number of points does not work
-  maths.yield_geometric_space(-1000.0, 0.0, -3, False)
+  maths.yield_geometric_space(10.0, 1000.0, -3, False)
   |> should.be_error()
 }
 
@@ -481,13 +597,29 @@ pub fn list_geometric_space_test() {
   |> list.all(fn(x) { x == True })
   |> should.be_true()
 
-  // - Positive start, negative stop
+  let assert Ok(logspace) = maths.geometric_space(10.0, 1000.0, 1, True)
+  logspace
+  |> should.equal([10.0])
+
+  let assert Ok(logspace) = maths.geometric_space(10.0, 1000.0, 1, False)
+  logspace
+  |> should.equal([10.0])
+
+  let assert Ok(logspace) = maths.geometric_space(10.0, 1000.0, 0, True)
+  logspace
+  |> should.equal([])
+
+  let assert Ok(logspace) = maths.geometric_space(10.0, 1000.0, 0, False)
+  logspace
+  |> should.equal([])
+
+  // - Decreasing positive range
   let assert Ok(logspace) = maths.geometric_space(10.0, 0.001, 3, True)
   maths.all_close(logspace |> list.zip([10.0, 0.1, 0.001]), 0.0, tol)
   |> list.all(fn(x) { x == True })
   |> should.be_true()
 
-  // - Positive stop, negative start
+  // - Increasing positive range with fractional start
   let assert Ok(logspace) = maths.geometric_space(0.1, 1000.0, 3, True)
   maths.all_close(logspace |> list.zip([0.1, 10.0, 1000.0]), 0.0, tol)
   |> list.all(fn(x) { x == True })
@@ -528,19 +660,27 @@ pub fn list_geometric_space_test() {
   |> list.all(fn(x) { x == True })
   |> should.be_true()
 
-  // Test invalid input (start and stop can't be less than or equal to 0.0)
+  // Test invalid input: start and stop must both be greater than 0.0
   maths.geometric_space(0.0, 1000.0, 3, False)
   |> should.be_error()
 
-  maths.geometric_space(-1000.0, 0.0, 3, False)
+  maths.geometric_space(-1000.0, 1000.0, 3, False)
+  |> should.be_error()
+
+  maths.geometric_space(10.0, 0.0, 3, False)
+  |> should.be_error()
+
+  maths.geometric_space(10.0, -1000.0, 3, False)
   |> should.be_error()
 
   // A negative number of points does not work
-  maths.geometric_space(-1000.0, 0.0, -3, False)
+  maths.geometric_space(10.0, 1000.0, -3, False)
   |> should.be_error()
 }
 
 pub fn list_step_range_test() {
+  let assert Ok(tol) = float.power(10.0, -6.0)
+
   // Positive start, stop, step
   maths.step_range(1.0, 5.0, 1.0)
   |> should.equal([1.0, 2.0, 3.0, 4.0])
@@ -550,6 +690,17 @@ pub fn list_step_range_test() {
 
   maths.step_range(1.0, 2.0, 0.25)
   |> should.equal([1.0, 1.25, 1.5, 1.75])
+
+  maths.step_range(0.0, 1.0, 0.6)
+  |> should.equal([0.0, 0.6])
+
+  let range = maths.step_range(0.0, 1.0, 0.3)
+  maths.all_close(list.zip(range, [0.0, 0.3, 0.6, 0.9]), 0.0, tol)
+  |> list.all(fn(x) { x == True })
+  |> should.be_true()
+  range
+  |> list.length()
+  |> should.equal(4)
 
   // Reverse (switch start/stop largest/smallest value)
   maths.step_range(5.0, 1.0, 1.0)
@@ -570,9 +721,14 @@ pub fn list_step_range_test() {
   // Negative start, stop, positive step
   maths.step_range(-5.0, -1.0, 1.0)
   |> should.equal([-5.0, -4.0, -3.0, -2.0])
+
+  maths.step_range(0.0, 1.0, 0.0)
+  |> should.equal([])
 }
 
 pub fn yield_step_range_test() {
+  let assert Ok(tol) = float.power(10.0, -6.0)
+
   // Positive start, stop, step
   maths.yield_step_range(1.0, 5.0, 1.0)
   |> yielder.to_list()
@@ -585,6 +741,20 @@ pub fn yield_step_range_test() {
   maths.yield_step_range(1.0, 2.0, 0.25)
   |> yielder.to_list()
   |> should.equal([1.0, 1.25, 1.5, 1.75])
+
+  maths.yield_step_range(0.0, 1.0, 0.6)
+  |> yielder.to_list()
+  |> should.equal([0.0, 0.6])
+
+  let range =
+    maths.yield_step_range(0.0, 1.0, 0.3)
+    |> yielder.to_list()
+  maths.all_close(list.zip(range, [0.0, 0.3, 0.6, 0.9]), 0.0, tol)
+  |> list.all(fn(x) { x == True })
+  |> should.be_true()
+  range
+  |> list.length()
+  |> should.equal(4)
 
   // Reverse (switch start/stop largest/smallest value)
   maths.yield_step_range(5.0, 1.0, 1.0)
@@ -610,6 +780,10 @@ pub fn yield_step_range_test() {
   maths.yield_step_range(-5.0, -1.0, 1.0)
   |> yielder.to_list()
   |> should.equal([-5.0, -4.0, -3.0, -2.0])
+
+  maths.yield_step_range(0.0, 1.0, 0.0)
+  |> yielder.to_list()
+  |> should.equal([])
 }
 
 pub fn yield_symmetric_space_test() {
@@ -659,6 +833,11 @@ pub fn yield_symmetric_space_test() {
   |> yielder.to_list()
   |> should.equal([10.0, 10.0, 10.0, 10.0])
 
+  let assert Ok(sym_space) = maths.yield_symmetric_space(0.0, 5.0, 0)
+  sym_space
+  |> yielder.to_list()
+  |> should.equal([])
+
   // A negative number of points does not work (-5)
   maths.yield_symmetric_space(0.0, 5.0, -5)
   |> should.be_error()
@@ -704,6 +883,10 @@ pub fn list_symmetric_space_test() {
   let assert Ok(sym_space) = maths.symmetric_space(10.0, 0.0, 4)
   sym_space
   |> should.equal([10.0, 10.0, 10.0, 10.0])
+
+  let assert Ok(sym_space) = maths.symmetric_space(0.0, 5.0, 0)
+  sym_space
+  |> should.equal([])
 
   // A negative number of points does not work (-5)
   maths.symmetric_space(0.0, 5.0, -5)

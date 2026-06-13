@@ -185,7 +185,12 @@ fn find_divisors(n: Int) -> set.Set(Int) {
   do_find_divisors(nabs, max, set.new(), 1)
 }
 
-fn do_find_divisors(n: Int, max: Int, acc: set.Set(Int), i: Int) -> set.Set(Int) {
+fn do_find_divisors(
+  n: Int,
+  max: Int,
+  acc: set.Set(Int),
+  i: Int,
+) -> set.Set(Int) {
   case i <= max {
     False -> acc
     True -> {
@@ -2669,7 +2674,10 @@ fn do_list_permutation_with_repetitions(
 ///
 /// </details>
 ///
-pub fn cartesian_product(xset: set.Set(a), yset: set.Set(b)) -> set.Set(#(a, b)) {
+pub fn cartesian_product(
+  xset: set.Set(a),
+  yset: set.Set(b),
+) -> set.Set(#(a, b)) {
   set.fold(xset, set.new(), fn(acc0, element0) {
     set.fold(yset, acc0, fn(acc1, element1) {
       set.insert(acc1, #(element0, element1))
@@ -5049,7 +5057,8 @@ fn incomplete_gamma_sum(
 ///
 pub fn step_range(start: Float, stop: Float, increment: Float) -> List(Float) {
   case
-    { start >=. stop && increment >. 0.0 }
+    increment == 0.0
+    || { start >=. stop && increment >. 0.0 }
     || { start <=. stop && increment <. 0.0 }
   {
     True -> []
@@ -5058,14 +5067,11 @@ pub fn step_range(start: Float, stop: Float, increment: Float) -> List(Float) {
         True -> 1.0
         False -> -1.0
       }
-
       let increment_abs = float.absolute_value(increment)
       let distance = float.absolute_value(start -. stop)
-      let steps = float.round(distance /. increment_abs)
-      let adjusted_stop = stop -. increment_abs *. direction
+      let num = float.ceiling(distance /. increment_abs) |> float.truncate()
 
-      // Generate the sequence from 'adjusted_stop' towards 'start'
-      do_step_range(adjusted_stop, increment_abs *. direction, steps, [])
+      do_step_range(start, increment_abs *. direction, num, [])
     }
   }
 }
@@ -5074,14 +5080,14 @@ fn do_step_range(
   current: Float,
   increment: Float,
   remaining_steps: Int,
-  acc: List(Float),
+  accumulator: List(Float),
 ) -> List(Float) {
-  case remaining_steps {
-    0 -> acc
-    _ ->
-      do_step_range(current -. increment, increment, remaining_steps - 1, [
+  case remaining_steps <= 0 {
+    True -> list.reverse(accumulator)
+    False ->
+      do_step_range(current +. increment, increment, remaining_steps - 1, [
         current,
-        ..acc
+        ..accumulator
       ])
   }
 }
@@ -5125,7 +5131,8 @@ pub fn yield_step_range(
 ) -> Yielder(Float) {
   // Check if the range would be empty due to direction and increment
   case
-    { start >=. stop && increment >. 0.0 }
+    increment == 0.0
+    || { start >=. stop && increment >. 0.0 }
     || { start <=. stop && increment <. 0.0 }
   {
     True -> yielder.empty()
@@ -5136,7 +5143,7 @@ pub fn yield_step_range(
       }
       let increment_abs = float.absolute_value(increment)
       let distance = float.absolute_value(start -. stop)
-      let num = float.round(distance /. increment_abs)
+      let num = float.ceiling(distance /. increment_abs) |> float.truncate()
 
       yielder.map(yielder.range(0, num - 1), fn(index) {
         start +. int.to_float(index) *. increment_abs *. direction
@@ -5148,6 +5155,7 @@ pub fn yield_step_range(
 /// The function returns a list of linearly spaced points over a specified
 /// interval. The endpoint of the interval can optionally be included/excluded. The number of
 /// points and whether the endpoint is included determine the spacing between values.
+/// The number of points (`steps`) must be non-negative; zero points returns an empty list.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -5179,27 +5187,27 @@ pub fn linear_space(
   steps: Int,
   endpoint: Bool,
 ) -> Result(List(Float), Nil) {
-  let direction = case start <=. stop {
-    True -> 1.0
-    False -> -1.0
-  }
+  case steps {
+    _ if steps < 0 -> Error(Nil)
+    0 -> Ok([])
+    1 -> Ok([start])
+    _ -> {
+      let direction = case start <=. stop {
+        True -> 1.0
+        False -> -1.0
+      }
+      let increment_abs = case endpoint {
+        True -> float.absolute_value(start -. stop) /. int.to_float(steps - 1)
+        False -> float.absolute_value(start -. stop) /. int.to_float(steps)
+      }
+      let adjusted_stop = case endpoint {
+        True -> stop
+        False -> stop -. increment_abs *. direction
+      }
 
-  let increment_abs = case endpoint {
-    True -> float.absolute_value(start -. stop) /. int.to_float(steps - 1)
-    False -> float.absolute_value(start -. stop) /. int.to_float(steps)
-  }
-
-  let adjusted_stop = case endpoint {
-    True -> stop
-    False -> stop -. increment_abs *. direction
-  }
-
-  // Generate the sequence from 'adjusted_stop' towards 'start'
-  case steps > 0 {
-    True -> {
+      // Generate the sequence from 'adjusted_stop' towards 'start'
       Ok(do_linear_space(adjusted_stop, increment_abs *. direction, steps, []))
     }
-    False -> Error(Nil)
   }
 }
 
@@ -5262,24 +5270,26 @@ pub fn yield_linear_space(
   steps: Int,
   endpoint: Bool,
 ) -> Result(Yielder(Float), Nil) {
-  let direction = case start <=. stop {
-    True -> 1.0
-    False -> -1.0
-  }
+  case steps {
+    _ if steps < 0 -> Error(Nil)
+    0 -> Ok(yielder.empty())
+    1 -> Ok(yielder.single(start))
+    _ -> {
+      let direction = case start <=. stop {
+        True -> 1.0
+        False -> -1.0
+      }
+      let increment = case endpoint {
+        True -> float.absolute_value(start -. stop) /. int.to_float(steps - 1)
+        False -> float.absolute_value(start -. stop) /. int.to_float(steps)
+      }
 
-  let increment = case endpoint {
-    True -> float.absolute_value(start -. stop) /. int.to_float(steps - 1)
-    False -> float.absolute_value(start -. stop) /. int.to_float(steps)
-  }
-
-  case steps > 0 {
-    False -> Error(Nil)
-    True ->
       Ok({
         use index <- yielder.map(yielder.range(0, steps - 1))
 
         start +. int.to_float(index) *. increment *. direction
       })
+    }
   }
 }
 
@@ -5290,9 +5300,9 @@ pub fn yield_linear_space(
 ///
 /// The values in the sequence are computed as powers of the given base, where
 /// the exponents are evenly spaced between `start` and `stop`. The `base`
-/// parameter must be positive, as negative bases lead to undefined behavior when
-/// computing fractional exponents. Similarly, the number of points (`steps`) must
-/// be positive; specifying zero or a negative value will result in an error.
+/// parameter must be positive when generating values, as negative bases lead to
+/// undefined behavior when computing fractional exponents. The number of points
+/// (`steps`) must be non-negative; zero points returns an empty list.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -5325,10 +5335,12 @@ pub fn logarithmic_space(
   endpoint: Bool,
   base: Float,
 ) -> Result(List(Float), Nil) {
-  case steps > 0 && base >. 0.0 {
-    True -> {
-      // Usage of let assert: No error will occur since 'steps' > 0, i.e., a
-      // non-empty list will actually be returned.
+  case steps {
+    _ if steps < 0 -> Error(Nil)
+    0 -> Ok([])
+    _ if base <=. 0.0 -> Error(Nil)
+    _ -> {
+      // Usage of let assert: No error will occur since 'steps' is non-negative.
       let assert Ok(linspace) = linear_space(start, stop, steps, endpoint)
 
       Ok({
@@ -5346,7 +5358,6 @@ pub fn logarithmic_space(
         result
       })
     }
-    False -> Error(Nil)
   }
 }
 
@@ -5389,11 +5400,12 @@ pub fn yield_logarithmic_space(
   endpoint: Bool,
   base: Float,
 ) -> Result(Yielder(Float), Nil) {
-  case steps > 0 && base >. 0.0 {
-    False -> Error(Nil)
-    True -> {
-      // Usage of let assert: No error will occur since 'steps' > 0, i.e., a
-      // non-empty list will actually be returned.
+  case steps {
+    _ if steps < 0 -> Error(Nil)
+    0 -> Ok(yielder.empty())
+    _ if base <=. 0.0 -> Error(Nil)
+    _ -> {
+      // Usage of let assert: No error will occur since 'steps' is non-negative.
       let assert Ok(linspace) = yield_linear_space(start, stop, steps, endpoint)
 
       Ok({
@@ -5403,7 +5415,7 @@ pub fn yield_logarithmic_space(
         // error if:
         //
         //   1. The base is negative and the exponent is fractional.
-        //    2. If the base is 0 and the exponent is negative.
+        //   2. If the base is 0 and the exponent is negative.
         //
         // No error will occur below since the base is non-zero and positive.
         let assert Ok(result) = float.power(base, value)
@@ -5425,8 +5437,7 @@ pub fn yield_logarithmic_space(
 /// into their original scale to create a sequence of values that grow multiplicatively.
 ///
 /// The `start` and `stop` values must be positive, as logarithms are undefined for non-positive
-/// values. The number of points (`steps`) must also be positive; specifying zero or a negative
-/// value will result in an error.
+/// values. The number of points (`steps`) must be non-negative; zero points returns an empty list.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -5533,6 +5544,7 @@ pub fn yield_geometric_space(
 
 /// Generates evenly spaced points around a center value. The total span (around the center value)
 /// is determined by the `radius` argument of the function.
+/// The number of points (`steps`) must be non-negative; zero points returns an empty list.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -5560,7 +5572,7 @@ pub fn symmetric_space(
   radius: Float,
   steps: Int,
 ) -> Result(List(Float), Nil) {
-  case steps > 0 {
+  case steps >= 0 {
     False -> Error(Nil)
     True -> {
       let start = center -. radius
@@ -5613,7 +5625,7 @@ pub fn yield_symmetric_space(
   radius: Float,
   steps: Int,
 ) -> Result(Yielder(Float), Nil) {
-  case steps > 0 {
+  case steps >= 0 {
     False -> Error(Nil)
     True -> {
       let start = center -. radius
