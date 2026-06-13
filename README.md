@@ -23,7 +23,7 @@ pub fn example() {
   let assert Ok(absolute_tol) = float.power(10.0, -6.0)
   let relative_tol = 0.0
   // Check that the value is very close to 0.0
-  // That is, if 'result' is within +/- 10^(-6)
+  // That is, if `result` is within +/- 10^(-6)
   maths.is_close(result, 0.0, relative_tol, absolute_tol)
   |> should.be_true()
 
