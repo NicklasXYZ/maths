@@ -790,6 +790,10 @@ pub fn correlation_test() {
   maths.correlation([#(1.0, 1.0)])
   |> should.be_error()
 
+  // Constant inputs have zero variance, so correlation is undefined
+  maths.correlation([#(1.0, 1.0), #(2.0, 1.0), #(3.0, 1.0)])
+  |> should.be_error()
+
   // Perfect positive correlation
   let xarr =
     int.range(0, 100, [], list.prepend)
@@ -812,9 +816,9 @@ pub fn correlation_test() {
   |> maths.correlation()
   |> should.equal(Ok(-1.0))
 
-  // No correlation (independent variables)
-  let xarr = [1.0, 2.0, 3.0, 4.0]
-  let yarr = [5.0, 5.0, 5.0, 5.0]
+  // No linear correlation
+  let xarr = [-1.0, 0.0, 1.0]
+  let yarr = [1.0, 0.0, 1.0]
   list.zip(xarr, yarr)
   |> maths.correlation()
   |> should.equal(Ok(0.0))
@@ -822,62 +826,76 @@ pub fn correlation_test() {
 
 pub fn jaccard_index_test() {
   maths.jaccard_index(set.from_list([]), set.from_list([]))
-  |> should.equal(0.0)
+  |> should.equal(Ok(1.0))
 
   let set_a = set.from_list([0, 1, 2, 5, 6, 8, 9])
   let set_b = set.from_list([0, 2, 3, 4, 5, 7, 9])
   maths.jaccard_index(set_a, set_b)
-  |> should.equal(4.0 /. 10.0)
+  |> should.equal(Ok(4.0 /. 10.0))
 
   let set_c = set.from_list([0, 1, 2, 3, 4, 5])
   let set_d = set.from_list([6, 7, 8, 9, 10])
   maths.jaccard_index(set_c, set_d)
-  |> should.equal(0.0 /. 11.0)
+  |> should.equal(Ok(0.0))
 
   let set_e = set.from_list(["cat", "dog", "hippo", "monkey"])
   let set_f = set.from_list(["monkey", "rhino", "ostrich", "salmon"])
   maths.jaccard_index(set_e, set_f)
-  |> should.equal(1.0 /. 7.0)
+  |> should.equal(Ok(1.0 /. 7.0))
 }
 
 pub fn sorensen_dice_coefficient_test() {
   maths.sorensen_dice_coefficient(set.from_list([]), set.from_list([]))
-  |> should.equal(0.0)
+  |> should.equal(Ok(1.0))
 
   let set_a = set.from_list([0, 1, 2, 5, 6, 8, 9])
   let set_b = set.from_list([0, 2, 3, 4, 5, 7, 9])
   maths.sorensen_dice_coefficient(set_a, set_b)
-  |> should.equal(2.0 *. 4.0 /. { 7.0 +. 7.0 })
+  |> should.equal(Ok(2.0 *. 4.0 /. { 7.0 +. 7.0 }))
 
   let set_c = set.from_list([0, 1, 2, 3, 4, 5])
   let set_d = set.from_list([6, 7, 8, 9, 10])
   maths.sorensen_dice_coefficient(set_c, set_d)
-  |> should.equal(2.0 *. 0.0 /. { 6.0 +. 5.0 })
+  |> should.equal(Ok(0.0))
 
   let set_e = set.from_list(["cat", "dog", "hippo", "monkey"])
   let set_f = set.from_list(["monkey", "rhino", "ostrich", "salmon", "spider"])
   maths.sorensen_dice_coefficient(set_e, set_f)
-  |> should.equal(2.0 *. 1.0 /. { 4.0 +. 5.0 })
+  |> should.equal(Ok(2.0 *. 1.0 /. { 4.0 +. 5.0 }))
+}
+
+pub fn tversky_index_test() {
+  maths.tversky_index(set.from_list([]), set.from_list([]), 1.0, 1.0)
+  |> should.equal(Ok(1.0))
+
+  maths.tversky_index(set.from_list([1]), set.from_list([2]), 0.0, 0.0)
+  |> should.be_error()
+
+  maths.tversky_index(set.from_list([1]), set.from_list([2]), -1.0, 1.0)
+  |> should.be_error()
 }
 
 pub fn overlap_coefficient_test() {
   maths.overlap_coefficient(set.from_list([]), set.from_list([]))
-  |> should.equal(0.0)
+  |> should.be_error()
+
+  maths.overlap_coefficient(set.from_list([]), set.from_list([1]))
+  |> should.be_error()
 
   let set_a = set.from_list([0, 1, 2, 5, 6, 8, 9])
   let set_b = set.from_list([0, 2, 3, 4, 5, 7, 9])
   maths.overlap_coefficient(set_a, set_b)
-  |> should.equal(4.0 /. 7.0)
+  |> should.equal(Ok(4.0 /. 7.0))
 
   let set_c = set.from_list([0, 1, 2, 3, 4, 5])
   let set_d = set.from_list([6, 7, 8, 9, 10])
   maths.overlap_coefficient(set_c, set_d)
-  |> should.equal(0.0 /. 5.0)
+  |> should.equal(Ok(0.0))
 
   let set_e = set.from_list(["horse", "dog", "hippo", "monkey", "bird"])
   let set_f = set.from_list(["monkey", "bird", "ostrich", "salmon"])
   maths.overlap_coefficient(set_e, set_f)
-  |> should.equal(2.0 /. 4.0)
+  |> should.equal(Ok(2.0 /. 4.0))
 }
 
 pub fn cosine_similarity_test() {
@@ -885,6 +903,10 @@ pub fn cosine_similarity_test() {
 
   // An empty list returns an error
   maths.cosine_similarity([])
+  |> should.be_error()
+
+  // A zero vector has no direction, so cosine similarity is undefined
+  maths.cosine_similarity([#(0.0, 1.0), #(0.0, 2.0)])
   |> should.be_error()
 
   // Two orthogonal vectors (represented by lists)
@@ -908,6 +930,14 @@ pub fn cosine_similarity_test() {
 
   // An empty list returns an error
   maths.cosine_similarity_with_weights([])
+  |> should.be_error()
+
+  // A zero weighted vector has no direction, so cosine similarity is undefined
+  maths.cosine_similarity_with_weights([#(0.0, 1.0, 1.0), #(0.0, 2.0, 1.0)])
+  |> should.be_error()
+
+  // All-zero weights also make both weighted norms zero
+  maths.cosine_similarity_with_weights([#(1.0, 1.0, 0.0), #(2.0, 2.0, 0.0)])
   |> should.be_error()
 
   // Try valid input with weights
@@ -1017,6 +1047,9 @@ pub fn canberra_distance_test() {
   maths.canberra_distance_with_weights([#(1.0, 0.0, 0.5), #(0.0, 2.0, 0.5)])
   |> should.equal(Ok(1.0))
 
+  maths.canberra_distance_with_weights([#(0.0, 0.0, 1.0), #(0.0, 0.0, 0.5)])
+  |> should.equal(Ok(0.0))
+
   // Try invalid input with weights that are negative
   maths.canberra_distance_with_weights([
     #(1.0, 4.0, -7.0),
@@ -1031,9 +1064,12 @@ pub fn braycurtis_distance_test() {
   maths.braycurtis_distance([])
   |> should.be_error()
 
-  // Try different types of valid input
+  // A zero denominator makes the Bray-Curtis distance undefined
   maths.braycurtis_distance([#(0.0, 0.0), #(0.0, 0.0)])
-  |> should.equal(Ok(0.0))
+  |> should.be_error()
+
+  maths.braycurtis_distance([#(1.0, -1.0)])
+  |> should.be_error()
 
   maths.braycurtis_distance([#(1.0, -2.0), #(2.0, -1.0)])
   |> should.equal(Ok(3.0))
@@ -1052,6 +1088,13 @@ pub fn braycurtis_distance_test() {
 
   maths.braycurtis_distance_with_weights([#(1.0, 3.0, 0.25), #(2.0, 4.0, 0.25)])
   |> should.equal(Ok(0.4))
+
+  maths.braycurtis_distance_with_weights([#(0.0, 0.0, 1.0), #(0.0, 0.0, 0.5)])
+  |> should.be_error()
+
+  maths.braycurtis_distance_with_weights([#(1.0, 3.0, 0.0), #(2.0, 4.0, 0.0)])
+  |> should.be_error()
+
   // Try invalid input with weights that are negative
   maths.braycurtis_distance_with_weights([
     #(1.0, 4.0, -7.0),

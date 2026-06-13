@@ -35,6 +35,14 @@ pub fn int_combination_with_repetitions_test() {
   maths.combination_with_repetitions(-1, 1)
   |> should.be_error()
 
+  // Valid input: the empty selection is the only way to choose 0 elements from 0 elements
+  maths.combination_with_repetitions(0, 0)
+  |> should.equal(Ok(1))
+
+  // Valid input: no non-empty selections can be made from 0 elements
+  maths.combination_with_repetitions(0, 1)
+  |> should.equal(Ok(0))
+
   // Valid input: k > n with repetition allowed
   maths.combination_with_repetitions(2, 3)
   |> should.equal(Ok(4))
@@ -518,11 +526,11 @@ pub fn list_combination_with_repetitions_test() {
     [3, 3, 3],
   ])
 
-  // 3-permutations of [1, 2, 3, 4] with repetition
-  let assert Ok(permutations) =
+  // 3-combinations of [1, 2, 3, 4] with repetition
+  let assert Ok(combinations) =
     maths.list_combination_with_repetitions([1, 2, 3, 4], 3)
 
-  permutations
+  combinations
   |> yielder.to_list()
   |> should.equal([
     [1, 1, 1],

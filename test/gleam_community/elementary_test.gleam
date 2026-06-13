@@ -442,8 +442,7 @@ pub fn nth_root_test() {
   maths.nth_root(256.0, 4)
   |> should.equal(Ok(4.0))
 
-  // An error should be returned as an imaginary number would otherwise
-  // have to be returned
+  // Negative input values are outside the documented domain
   maths.nth_root(-1.0, 4)
   |> should.be_error()
 }

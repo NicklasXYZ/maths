@@ -243,7 +243,7 @@ pub fn proper_divisors(n: Int) -> List(Int) {
 ///
 /// In the formula, \\(n\\) is the length of the list and \\(x_i \in \mathbb{R}\\)
 /// is the value in the input list indexed by \\(i\\), while the \\(w_i \in \mathbb{R}\\)
-/// are corresponding positive weights.
+/// are corresponding non-negative weights.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -292,7 +292,7 @@ pub fn weighted_sum(arr: List(#(Float, Float))) -> Result(Float, Nil) {
 ///
 /// In the formula, \\(n\\) is the length of the list and \\(x_i \in \mathbb{R}\\) is
 /// the value in the input list indexed by \\(i\\), while the \\(w_i \in \mathbb{R}\\)
-/// are corresponding positive weights.
+/// are corresponding non-negative weights.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -1295,8 +1295,8 @@ fn do_logarithm_10(a: Float) -> Float
 
 /// The \\(n\\)'th root function: \\(y = \sqrt[n]{x} = x^{\frac{1}{n}}\\).
 ///
-/// Note that the function is not defined if the input is negative (\\(x < 0\\)). An error will be
-/// returned as an imaginary number will otherwise have to be returned.
+/// Note that this function only accepts non-negative input values (\\(x >= 0\\)).
+/// An error is returned for negative input values.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -1324,8 +1324,7 @@ fn do_logarithm_10(a: Float) -> Float
 ///
 pub fn nth_root(x: Float, n: Int) -> Result(Float, Nil) {
   // In the following check:
-  // 1. If x is negative then return an error as it will otherwise be an
-  // imaginary number
+  // 1. If x is negative then return an error.
   case x >=. 0.0 && n >= 1 {
     True -> float.power(x, 1.0 /. int.to_float(n))
     False -> Error(Nil)
@@ -1367,7 +1366,7 @@ pub fn tau() -> Float {
 ///
 pub fn golden_ratio() -> Float {
   // Calculate the golden ratio: (1 + sqrt(5)) / 2
-  // Usage of let assert: A positive number '5' is given a input so no error should occur, i.e.,
+  // Usage of let assert: A positive number '5' is given as input so no error should occur, i.e.,
   // the function 'float.square_root' will only return an error in case a negative value is
   // given as input.
   let assert Ok(sqrt5) = float.square_root(5.0)
@@ -2136,13 +2135,16 @@ pub fn extrema(
 /// <details>
 /// <summary>Details</summary>
 ///
-/// A \\(k\\)-combination with repetitions is a sequence of \\(k\\) elements selected from
-/// \\(n\\) elements where the order of selection does not matter and elements are allowed to
-/// repeat. For example, consider selecting 2 elements from a list of 3 elements: `["A", "B", "C"]`.
-/// In this case, possible selections are:
+/// A \\(k\\)-combination with repetitions is a selection of \\(k\\) elements from
+/// \\(n\\) elements where order does not matter and the same element may be selected
+/// more than once. For example, consider selecting 2 elements from a list of 3 elements:
+/// `["A", "B", "C"]`. In this case, possible selections are:
 ///
 /// - `["A", "A"], ["A", "B"], ["A", "C"]`
 /// - `["B", "B"], ["B", "C"], ["C", "C"]`
+///
+/// If both \\(n\\) and \\(k\\) are 0, the result is 1: the empty selection.
+/// If \\(n\\) is 0 and \\(k\\) is greater than 0, the result is 0.
 ///
 /// </details>
 ///
@@ -2168,7 +2170,13 @@ pub fn extrema(
 /// </details>
 ///
 pub fn combination_with_repetitions(n: Int, k: Int) -> Result(Int, Nil) {
-  combination(n + k - 1, k)
+  case n, k {
+    _, _ if n < 0 -> Error(Nil)
+    _, _ if k < 0 -> Error(Nil)
+    0, 0 -> Ok(1)
+    0, _ -> Ok(0)
+    _, _ -> combination(n + k - 1, k)
+  }
 }
 
 /// A combinatorial function for computing the number of \\(k\\)-combinations of \\(n\\) elements
@@ -2184,9 +2192,9 @@ pub fn combination_with_repetitions(n: Int, k: Int) -> Result(Int, Nil) {
 /// <details>
 /// <summary>Details</summary>
 ///
-/// A \\(k\\)-combination without repetition is a sequence of \\(k\\) elements selected from
-/// \\(n\\) elements where the order of selection does not matter and elements are not allowed to
-/// repeat. For example, consider selecting  2 elements from a list of 3 elements:
+/// A \\(k\\)-combination without repetitions is a selection of \\(k\\) elements from
+/// \\(n\\) elements where order does not matter and each element may be selected at most
+/// once. For example, consider selecting  2 elements from a list of 3 elements:
 /// `["A", "B", "C"]`. In this case, possible selections are:
 ///
 /// - `["A", "B"]`
@@ -2400,7 +2408,7 @@ pub fn permutation_with_repetitions(n: Int, k: Int) -> Result(Int, Nil) {
       // Usage of let assert: The function 'float.power' will only return an error if:
       // 1. The base is negative and the exponent is fractional.
       // 2. If the base is 0 and the exponent is negative.
-      // No error will occur since the base and exponent are positive numbers.
+      // No error will occur since the base and exponent are non-negative numbers.
       let assert Ok(result) = float.power(n_float, k_float)
       Ok(float.round(result))
     }
@@ -2408,8 +2416,12 @@ pub fn permutation_with_repetitions(n: Int, k: Int) -> Result(Int, Nil) {
 }
 
 /// Generates all possible combinations of \\(k\\) elements selected from a given list of size
-/// \\(n\\). The function handles the case without repetitions, that is, repeated elements
-/// are not treated as distinct.
+/// \\(n\\). In combinations, order does not matter. This function handles the case without
+/// repetitions, meaning each list position can be selected at most once.
+///
+/// Equal values at different positions are treated as distinct choices, so duplicate input values
+/// can produce duplicate output lists. Returned lists use the input order as the canonical
+/// representation of each combination.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -2466,8 +2478,12 @@ fn do_list_combination_without_repetitions(
 }
 
 /// Generates all possible combinations of \\(k\\) elements selected from a given list of size
-/// \\(n\\). The function handles the case when the repetition of elements is allowed, that is,
-/// repeated elements are treated as distinct.
+/// \\(n\\). In combinations, order does not matter. This function handles the case when
+/// repetition is allowed, meaning the same list position can be selected more than once.
+///
+/// Equal values at different positions are treated as distinct choices, so duplicate input values
+/// can produce duplicate output lists. Returned lists use the input order as the canonical
+/// representation of each combination.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -2536,8 +2552,11 @@ fn remove_first_by_index(
 }
 
 /// Generates all possible permutations of \\(k\\) elements selected from a given list of size
-/// \\(n\\). The function handles the case without repetitions, that is, repeated elements are
-/// not treated as distinct.
+/// \\(n\\). The function handles the case without repetitions, meaning each list position can
+/// be selected at most once.
+///
+/// Equal values at different positions are treated as distinct choices, so duplicate input values
+/// can produce duplicate output lists.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -2593,8 +2612,11 @@ fn do_list_permutation_without_repetitions(
 }
 
 /// Generates all possible permutations of \\(k\\) elements selected from a given list of size
-/// \\(n\\). The function handles the case when the repetition of elements is allowed, that is,
-/// repeated elements are treated as distinct.
+/// \\(n\\). The function handles the case when repetition is allowed, meaning the same list
+/// position can be selected more than once.
+///
+/// Equal values at different positions are treated as distinct choices, so duplicate input values
+/// can produce duplicate output lists.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -2761,8 +2783,8 @@ pub fn norm(arr: List(Float), p: Float) -> Result(Float, Nil) {
         }
         // Handle the case when 'p' is positive
         _ -> {
-          // Usage of let assert below: No error will occur, since both the exponent and base
-          // are positive numbers.
+          // Usage of let assert below: No error will occur, since the exponent is positive
+          // and the base is non-negative.
           let aggregate =
             list.fold(arr, 0.0, fn(acc, element) {
               let assert Ok(result) =
@@ -2783,8 +2805,8 @@ pub fn norm(arr: List(Float), p: Float) -> Result(Float, Nil) {
 /// \\]
 ///
 /// In the formula, \\(n\\) is the length of the list and \\(x_i\\) is the value in
-/// the input list indexed by \\(i\\), while \\(w_i \in \mathbb{R}_{+}\\) is
-/// a corresponding positive weight.
+/// the input list indexed by \\(i\\), while \\(w_i >= 0\\) is a corresponding
+/// non-negative weight.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -2863,8 +2885,8 @@ pub fn norm_with_weights(
             }
             // Handle the case when 'p' is positive
             _ -> {
-              // Usage of let assert below: No error will occur, since both the exponent and base
-              // are positive numbers.
+              // Usage of let assert below: No error will occur, since the exponent is positive
+              // and the base is non-negative.
               let aggregate =
                 list.fold(arr, 0.0, fn(acc, tuple) {
                   let assert Ok(result) =
@@ -2918,7 +2940,7 @@ pub fn manhattan_distance(arr: List(#(Float, Float))) -> Result(Float, Nil) {
 ///
 /// In the formula, \\(n\\) is the length of the two lists and \\(x_i, y_i\\) are the
 /// values in the respective input lists indexed by \\(i\\), while the
-/// \\(w_i \in \mathbb{R}_{+}\\) are corresponding positive weights.
+/// \\(w_i >= 0\\) are corresponding non-negative weights.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -3001,7 +3023,7 @@ pub fn minkowski_distance(
 ///
 /// In the formula, \\(p >= 1\\) is the order, \\(n\\) is the length of the two lists
 /// and \\(x_i, y_i\\) are the values in the respective input lists indexed by \\(i\\).
-/// The \\(w_i \in \mathbb{R}_{+}\\) are corresponding positive weights.
+/// The \\(w_i >= 0\\) are corresponding non-negative weights.
 ///
 /// The Minkowski distance is a generalization of the Euclidean distance
 /// (\\(p=2\\)) and the Manhattan distance (\\(p = 1\\)).
@@ -3092,7 +3114,7 @@ pub fn euclidean_distance(arr: List(#(Float, Float))) -> Result(Float, Nil) {
 ///
 /// In the formula, \\(n\\) is the length of the two lists and \\(x_i, y_i\\) are the
 /// values in the respective input lists indexed by \\(i\\), while the
-/// \\(w_i \in \mathbb{R}_{+}\\) are corresponding positive weights.
+/// \\(w_i >= 0\\) are corresponding non-negative weights.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -3162,7 +3184,7 @@ pub fn chebyshev_distance(arr: List(#(Float, Float))) -> Result(Float, Nil) {
 ///
 /// In the formula, \\(n\\) is the length of the two lists and \\(x_i, y_i\\) are the
 /// values in the respective input lists indexed by \\(i\\), while the
-/// \\(w_i \in \mathbb{R}_{+}\\) are corresponding positive weights.
+/// \\(w_i >= 0\\) are corresponding non-negative weights.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -3318,7 +3340,7 @@ pub fn mean(arr: List(Float)) -> Result(Float, Nil) {
 ///
 /// In the formula, \\(n\\) is the sample size (the length of the list) and
 /// \\(x_i\\) is the sample point in the input list indexed by \\(i\\).
-/// Note: The harmonic mean is only defined for positive numbers.
+/// Note: The harmonic mean is only defined for non-negative numbers.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -3378,7 +3400,7 @@ pub fn harmonic_mean(arr: List(Float)) -> Result(Float, Nil) {
 ///
 /// In the formula, \\(n\\) is the sample size (the length of the list) and
 /// \\(x_i\\) is the sample point in the input list indexed by \\(i\\).
-/// Note: The geometric mean is only defined for positive numbers.
+/// Note: The geometric mean is only defined for non-negative numbers.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -3867,6 +3889,9 @@ pub fn interquartile_range(arr: List(Float)) -> Result(Float, Nil) {
 /// \\(x_i\\), \\(y_i\\) are the corresponding sample points indexed by \\(i\\) and
 /// \\(\bar{x}\\), \\(\bar{y}\\) are the sample means.
 ///
+/// This function returns an error if there are fewer than 2 pairs, or if either
+/// sample has zero variance, because the correlation is undefined in those cases.
+///
 /// <details>
 /// <summary>Examples</summary>
 ///
@@ -3878,7 +3903,7 @@ pub fn interquartile_range(arr: List(Float)) -> Result(Float, Nil) {
 ///
 /// pub fn example () {
 ///   // An empty list returns an error
-///   maths.correlation([], [])
+///   maths.correlation([])
 ///   |> should.be_error()
 ///
 ///   // Perfect positive correlation
@@ -3903,9 +3928,9 @@ pub fn interquartile_range(arr: List(Float)) -> Result(Float, Nil) {
 ///   |> maths.correlation()
 ///   |> should.equal(Ok(-1.0))
 ///
-///   // No correlation (independent variables)
-///   let xarr = [1.0, 2.0, 3.0, 4.0]
-///   let yarr = [5.0, 5.0, 5.0, 5.0]
+///   // No linear correlation
+///   let xarr = [-1.0, 0.0, 1.0]
+///   let yarr = [1.0, 0.0, 1.0]
 ///   list.zip(xarr, yarr)
 ///   |> maths.correlation()
 ///   |> should.equal(Ok(0.0))
@@ -3936,8 +3961,15 @@ pub fn correlation(arr: List(#(Float, Float))) -> Result(Float, Nil) {
       // The argument is the product of two sums of squared differences
       // it will never be negative. So just extract it directly:
       let assert Ok(value) = float.square_root(b *. c)
-      Ok(a /. value)
+      divide_or_error(a, value)
     }
+  }
+}
+
+fn divide_or_error(numerator: Float, denominator: Float) -> Result(Float, Nil) {
+  case denominator == 0.0 {
+    True -> Error(Nil)
+    False -> Ok(numerator /. denominator)
   }
 }
 
@@ -3959,6 +3991,9 @@ pub fn correlation(arr: List(#(Float, Float))) -> Result(Float, Nil) {
 /// Jaccard index is a special case of the  [Tversky index](#tversky_index) (with
 /// \\(\alpha=\beta=1\\)).
 ///
+/// Two empty sets return `Ok(1.0)`, treating identical empty sets as perfectly
+/// similar.
+///
 /// <details>
 /// <summary>Examples</summary>
 ///
@@ -3971,17 +4006,14 @@ pub fn correlation(arr: List(#(Float, Float))) -> Result(Float, Nil) {
 ///   let xset = set.from_list(["cat", "dog", "hippo", "monkey"])
 ///   let yset = set.from_list(["monkey", "rhino", "ostrich", "salmon"])
 ///   maths.jaccard_index(xset, yset)
-///   |> should.equal(1.0 /. 7.0)
+///   |> should.equal(Ok(1.0 /. 7.0))
 /// }
 /// ```
 ///
 /// </details>
 ///
-pub fn jaccard_index(xset: set.Set(a), yset: set.Set(a)) -> Float {
-  // Usage of let assert: No error will occur since the input parameters 'alpha' and 'beta'
-  // are larger than or equal to zero
-  let assert Ok(result) = tversky_index(xset, yset, 1.0, 1.0)
-  result
+pub fn jaccard_index(xset: set.Set(a), yset: set.Set(a)) -> Result(Float, Nil) {
+  tversky_index(xset, yset, 1.0, 1.0)
 }
 
 /// The Sørensen-Dice coefficient measures the similarity between two sets of elements.
@@ -4004,6 +4036,9 @@ pub fn jaccard_index(xset: set.Set(a), yset: set.Set(a)) -> Float {
 /// The Sørensen-Dice coefficient is a special case of the
 /// [Tversky index](#tversky_index) (with \\(\alpha=\beta=0.5\\)).
 ///
+/// Two empty sets return `Ok(1.0)`, treating identical empty sets as perfectly
+/// similar.
+///
 /// <details>
 /// <summary>Examples</summary>
 ///
@@ -4016,17 +4051,17 @@ pub fn jaccard_index(xset: set.Set(a), yset: set.Set(a)) -> Float {
 ///   let xset = set.from_list(["cat", "dog", "hippo", "monkey"])
 ///   let yset = set.from_list(["monkey", "rhino", "ostrich", "salmon", "spider"])
 ///   maths.sorensen_dice_coefficient(xset, yset)
-///   |> should.equal(2.0 *. 1.0 /. { 4.0 +. 5.0 })
+///   |> should.equal(Ok(2.0 *. 1.0 /. { 4.0 +. 5.0 }))
 /// }
 /// ```
 ///
 /// </details>
 ///
-pub fn sorensen_dice_coefficient(xset: set.Set(a), yset: set.Set(a)) -> Float {
-  // Usage of let assert: No error will occur since the input parameters 'alpha' and 'beta'
-  // are larger than or equal to zero
-  let assert Ok(result) = tversky_index(xset, yset, 0.5, 0.5)
-  result
+pub fn sorensen_dice_coefficient(
+  xset: set.Set(a),
+  yset: set.Set(a),
+) -> Result(Float, Nil) {
+  tversky_index(xset, yset, 0.5, 0.5)
 }
 
 /// The Tversky index is a generalization of the Jaccard index and Sørensen-Dice
@@ -4051,6 +4086,10 @@ pub fn sorensen_dice_coefficient(xset: set.Set(a), yset: set.Set(a)) -> Float {
 /// Tversky index can take on any non-negative value, including 0. The index equals
 /// 0 when there is no intersection between the two sets, indicating no similarity.
 /// The Tversky index does not have a strict upper limit of 1 when \\(\alpha \neq \beta\\).
+///
+/// This function returns an error if \\(\alpha\\) or \\(\beta\\) is negative, or if
+/// the denominator is zero. As a special case, two empty sets return `Ok(1.0)`,
+/// treating identical empty sets as perfectly similar.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -4091,10 +4130,15 @@ pub fn tversky_index(
         set.difference(yset, xset)
         |> set.size()
         |> int.to_float()
-      Ok(
-        intersection
-        /. { intersection +. alpha *. difference1 +. beta *. difference2 },
-      )
+      let denominator = {
+        intersection +. alpha *. difference1 +. beta *. difference2
+      }
+
+      case denominator == 0.0, set.size(xset) == 0 && set.size(yset) == 0 {
+        _, True -> Ok(1.0)
+        True, False -> Error(Nil)
+        False, False -> Ok(intersection /. denominator)
+      }
     }
     _, _ -> Error(Nil)
   }
@@ -4121,6 +4165,9 @@ pub fn tversky_index(
 /// of the proportion of overlap is more relevant than the difference in sizes
 /// between the two sets.
 ///
+/// This function returns an error if either set is empty, because the denominator
+/// is zero and the coefficient is undefined in that case.
+///
 /// <details>
 /// <summary>Examples</summary>
 ///
@@ -4133,13 +4180,16 @@ pub fn tversky_index(
 ///   let set_a = set.from_list(["horse", "dog", "hippo", "monkey", "bird"])
 ///   let set_b = set.from_list(["monkey", "bird", "ostrich", "salmon"])
 ///   maths.overlap_coefficient(set_a, set_b)
-///   |> should.equal(2.0 /. 4.0)
+///   |> should.equal(Ok(2.0 /. 4.0))
 /// }
 /// ```
 ///
 /// </details>
 ///
-pub fn overlap_coefficient(xset: set.Set(a), yset: set.Set(a)) -> Float {
+pub fn overlap_coefficient(
+  xset: set.Set(a),
+  yset: set.Set(a),
+) -> Result(Float, Nil) {
   let intersection =
     set.intersection(xset, yset)
     |> set.size()
@@ -4147,7 +4197,7 @@ pub fn overlap_coefficient(xset: set.Set(a), yset: set.Set(a)) -> Float {
   let minsize =
     int.min(set.size(xset), set.size(yset))
     |> int.to_float()
-  intersection /. minsize
+  divide_or_error(intersection, minsize)
 }
 
 /// Calculate the cosine similarity between two lists (representing
@@ -4167,6 +4217,9 @@ pub fn overlap_coefficient(xset: set.Set(a), yset: set.Set(a)) -> Float {
 /// The cosine similarity provides a value between -1 and 1, where 1 means the
 /// vectors are in the same direction, -1 means they are in exactly opposite
 /// directions, and 0 indicates orthogonality.
+///
+/// This function returns an error for an empty list, or if either vector has zero
+/// norm, because cosine similarity is undefined for zero vectors.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -4210,7 +4263,7 @@ pub fn cosine_similarity(arr: List(#(Float, Float))) -> Result(Float, Nil) {
       let denominator = {
         xarr_norm *. yarr_norm
       }
-      Ok(numerator /. denominator)
+      divide_or_error(numerator, denominator)
     }
   }
 }
@@ -4228,11 +4281,15 @@ pub fn cosine_similarity(arr: List(#(Float, Float))) -> Result(Float, Nil) {
 ///
 /// In the formula, \\(n\\) is the length of the two lists and \\(x_i\\), \\(y_i\\) are
 /// the values in the respective input lists indexed by \\(i\\), while the
-/// \\(w_i \in \mathbb{R}_{+}\\) are corresponding positive weights.
+/// \\(w_i >= 0\\) are corresponding non-negative weights.
 ///
 /// The cosine similarity provides a value between -1 and 1, where 1 means the
 /// vectors are in the same direction, -1 means they are in exactly opposite
 /// directions, and 0 indicates orthogonality.
+///
+/// This function returns an error for an empty list, negative weights, or if
+/// either weighted vector has zero norm, because cosine similarity is undefined
+/// for zero vectors.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -4294,7 +4351,7 @@ pub fn cosine_similarity_with_weights(
           let denominator = {
             xarr_norm *. yarr_norm
           }
-          Ok(numerator /. denominator)
+          divide_or_error(numerator, denominator)
         }
         True -> Error(Nil)
       }
@@ -4311,6 +4368,10 @@ pub fn cosine_similarity_with_weights(
 ///
 /// In the formula, \\(n\\) is the length of the two lists, and \\(x_i, y_i\\) are the
 /// values in the respective input lists indexed by \\(i\\).
+///
+/// This function returns an error for an empty list. Terms where both coordinates
+/// are zero contribute `0.0`, matching the conventional Canberra distance
+/// definition.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -4340,10 +4401,17 @@ pub fn canberra_distance(arr: List(#(Float, Float))) -> Result(Float, Nil) {
           let denominator = {
             float.absolute_value(tuple.0) +. float.absolute_value(tuple.1)
           }
-          acc +. numerator /. denominator
+          acc +. canberra_term(numerator, denominator)
         }),
       )
     }
+  }
+}
+
+fn canberra_term(numerator: Float, denominator: Float) -> Float {
+  case denominator == 0.0 {
+    True -> 0.0
+    False -> numerator /. denominator
   }
 }
 
@@ -4356,7 +4424,11 @@ pub fn canberra_distance(arr: List(#(Float, Float))) -> Result(Float, Nil) {
 ///
 /// In the formula, \\(n\\) is the length of the two lists, and \\(x_i, y_i\\) are the
 /// values in the respective input lists indexed by \\(i\\), while the
-/// \\(w_i \in \mathbb{R}_{+}\\) are corresponding positive weights.
+/// \\(w_i >= 0\\) are corresponding non-negative weights.
+///
+/// This function returns an error for an empty list or negative weights. Terms
+/// where both coordinates are zero contribute `0.0`, matching the conventional
+/// Canberra distance definition.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -4393,7 +4465,7 @@ pub fn canberra_distance_with_weights(
               let denominator = {
                 float.absolute_value(tuple.0) +. float.absolute_value(tuple.1)
               }
-              acc +. tuple.2 *. numerator /. denominator
+              acc +. tuple.2 *. canberra_term(numerator, denominator)
             }),
           )
         }
@@ -4414,6 +4486,9 @@ pub fn canberra_distance_with_weights(
 ///
 /// The Bray-Curtis distance is in the range \\([0, 1]\\) if all entries \\(x_i, y_i\\) are
 /// positive.
+///
+/// This function returns an error for an empty list, or when the denominator is
+/// zero, because the distance is undefined in that case.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -4447,7 +4522,7 @@ pub fn braycurtis_distance(arr: List(#(Float, Float))) -> Result(Float, Nil) {
           acc +. float.absolute_value({ tuple.0 +. tuple.1 })
         })
 
-      Ok({ numerator /. denominator })
+      divide_or_error(numerator, denominator)
     }
   }
 }
@@ -4461,10 +4536,13 @@ pub fn braycurtis_distance(arr: List(#(Float, Float))) -> Result(Float, Nil) {
 ///
 /// In the formula, \\(n\\) is the length of the two lists, and \\(x_i, y_i\\) are the values
 /// in the respective input lists indexed by \\(i\\), while the
-/// \\(w_i \in \mathbb{R}_{+}\\) are corresponding positive weights.
+/// \\(w_i >= 0\\) are corresponding non-negative weights.
 ///
 /// The Bray-Curtis distance is in the range \\([0, 1]\\) if all entries \\(x_i, y_i\\) are
 /// positive and \\(w_i = 1.0\\;\forall i=1...n\\).
+///
+/// This function returns an error for an empty list, negative weights, or when
+/// the denominator is zero, because the distance is undefined in that case.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -4505,7 +4583,7 @@ pub fn braycurtis_distance_with_weights(
               acc +. tuple.2 *. float.absolute_value({ tuple.0 +. tuple.1 })
             })
 
-          Ok({ numerator /. denominator })
+          divide_or_error(numerator, denominator)
         }
       }
     }
