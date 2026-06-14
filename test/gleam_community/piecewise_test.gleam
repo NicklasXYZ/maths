@@ -373,6 +373,144 @@ pub fn math_round_ties_up_test() {
   |> should.equal(0.0)
 }
 
+pub fn round_to_multiple_test() {
+  let assert Ok(tol) = float.power(10.0, -9.0)
+
+  maths.round_to_multiple(12.0, 5.0)
+  |> should.equal(Ok(10.0))
+
+  maths.round_to_multiple(13.0, 5.0)
+  |> should.equal(Ok(15.0))
+
+  // Ties round to the nearest even multiple
+  maths.round_to_multiple(12.5, 5.0)
+  |> should.equal(Ok(10.0))
+
+  maths.round_to_multiple(-12.5, 5.0)
+  |> should.equal(Ok(-10.0))
+
+  // The sign of `multiple` does not change the spacing
+  maths.round_to_multiple(13.0, -5.0)
+  |> should.equal(Ok(15.0))
+
+  let assert Ok(result) = maths.round_to_multiple(1.37, 0.25)
+  result
+  |> maths.is_close(1.25, 0.0, tol)
+  |> should.be_true()
+
+  maths.round_to_multiple(1.0, 0.0)
+  |> should.be_error()
+}
+
+pub fn wrap_range_test() {
+  maths.wrap_range(5.0, 0.0, 10.0)
+  |> should.equal(Ok(5.0))
+
+  // The upper boundary wraps back to the lower boundary
+  maths.wrap_range(10.0, 0.0, 10.0)
+  |> should.equal(Ok(0.0))
+
+  maths.wrap_range(12.0, 0.0, 10.0)
+  |> should.equal(Ok(2.0))
+
+  maths.wrap_range(-1.0, 0.0, 10.0)
+  |> should.equal(Ok(9.0))
+
+  maths.wrap_range(-6.0, -5.0, -1.0)
+  |> should.equal(Ok(-2.0))
+
+  maths.wrap_range(-1.0, -5.0, -1.0)
+  |> should.equal(Ok(-5.0))
+
+  maths.wrap_range(14.0, 10.0, 13.0)
+  |> should.equal(Ok(11.0))
+
+  maths.wrap_range(1.0, 0.0, 0.0)
+  |> should.be_error()
+
+  maths.wrap_range(1.0, 10.0, 0.0)
+  |> should.be_error()
+}
+
+pub fn wrap_range_with_reflection_test() {
+  maths.wrap_range_with_reflection(5.0, 0.0, 10.0)
+  |> should.equal(Ok(5.0))
+
+  // Both boundaries are included
+  maths.wrap_range_with_reflection(10.0, 0.0, 10.0)
+  |> should.equal(Ok(10.0))
+
+  maths.wrap_range_with_reflection(12.0, 0.0, 10.0)
+  |> should.equal(Ok(8.0))
+
+  maths.wrap_range_with_reflection(-1.0, 0.0, 10.0)
+  |> should.equal(Ok(1.0))
+
+  maths.wrap_range_with_reflection(-3.0, 0.0, 3.0)
+  |> should.equal(Ok(3.0))
+
+  maths.wrap_range_with_reflection(-2.0, 0.0, 3.0)
+  |> should.equal(Ok(2.0))
+
+  maths.wrap_range_with_reflection(-1.0, 0.0, 3.0)
+  |> should.equal(Ok(1.0))
+
+  maths.wrap_range_with_reflection(3.0, 0.0, 3.0)
+  |> should.equal(Ok(3.0))
+
+  maths.wrap_range_with_reflection(4.0, 0.0, 3.0)
+  |> should.equal(Ok(2.0))
+
+  maths.wrap_range_with_reflection(5.0, 0.0, 3.0)
+  |> should.equal(Ok(1.0))
+
+  maths.wrap_range_with_reflection(6.0, 0.0, 3.0)
+  |> should.equal(Ok(0.0))
+
+  maths.wrap_range_with_reflection(20.0, 0.0, 10.0)
+  |> should.equal(Ok(0.0))
+
+  maths.wrap_range_with_reflection(30.0, 0.0, 10.0)
+  |> should.equal(Ok(10.0))
+
+  maths.wrap_range_with_reflection(14.0, 10.0, 13.0)
+  |> should.equal(Ok(12.0))
+
+  maths.wrap_range_with_reflection(1.0, 0.0, 0.0)
+  |> should.be_error()
+
+  maths.wrap_range_with_reflection(1.0, 10.0, 0.0)
+  |> should.be_error()
+}
+
+pub fn move_toward_test() {
+  maths.move_toward(0.0, 10.0, 3.0)
+  |> should.equal(3.0)
+
+  maths.move_toward(10.0, 0.0, 3.0)
+  |> should.equal(7.0)
+
+  // The result does not overshoot the target
+  maths.move_toward(0.0, 2.0, 3.0)
+  |> should.equal(2.0)
+
+  maths.move_toward(2.0, 0.0, 3.0)
+  |> should.equal(0.0)
+
+  maths.move_toward(5.0, 5.0, 1.0)
+  |> should.equal(5.0)
+
+  maths.move_toward(0.0, 10.0, 0.0)
+  |> should.equal(0.0)
+
+  // Negative increments move away from the target
+  maths.move_toward(0.0, 10.0, -1.0)
+  |> should.equal(-1.0)
+
+  maths.move_toward(10.0, 5.0, -1.5)
+  |> should.equal(11.5)
+}
+
 pub fn absolute_difference_test() {
   maths.absolute_difference(20.0, 15.0)
   |> should.equal(5.0)

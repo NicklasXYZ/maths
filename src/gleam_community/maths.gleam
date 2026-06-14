@@ -1751,6 +1751,180 @@ pub fn round_up(x: Float, p: Int) -> Float {
 @external(javascript, "../maths.mjs", "ceiling")
 fn do_ceiling(a: Float) -> Float
 
+/// The function rounds the input `x` to the nearest multiple of `multiple`.
+///
+/// <details>
+/// <summary>Details</summary>
+///
+/// The `multiple` must be non-zero. Its sign does not change the result because
+/// positive and negative multiples describe the same spacing.
+///
+/// Ties are rounded to the nearest even multiple, matching the behaviour of
+/// [`round_to_nearest`](#round_to_nearest).
+///
+/// </details>
+///
+/// <details>
+/// <summary>Examples</summary>
+///
+/// ```gleam
+/// import gleeunit/should
+/// import gleam_community/maths
+///
+/// pub fn example() {
+///   maths.round_to_multiple(13.0, 5.0)
+///   |> should.equal(Ok(15.0))
+///
+///   maths.round_to_multiple(12.5, 5.0)
+///   |> should.equal(Ok(10.0))
+/// }
+/// ```
+///
+/// </details>
+///
+pub fn round_to_multiple(x: Float, multiple: Float) -> Result(Float, Nil) {
+  let spacing = float.absolute_value(multiple)
+  case spacing == 0.0 {
+    True -> Error(Nil)
+    False -> Ok(round_to_nearest(x /. spacing, 0) *. spacing)
+  }
+}
+
+/// The function wraps the input `x` into the half-open interval from `start`
+/// to `stop`.
+///
+/// <details>
+/// <summary>Details</summary>
+///
+/// The interval is half-open: `start` is included and `stop` is excluded. If
+/// `x` is equal to `stop`, the returned value is `start`.
+///
+/// The `start` value must be smaller than `stop`.
+///
+/// </details>
+///
+/// <details>
+/// <summary>Examples</summary>
+///
+/// ```gleam
+/// import gleeunit/should
+/// import gleam_community/maths
+///
+/// pub fn example() {
+///   maths.wrap_range(12.0, 0.0, 10.0)
+///   |> should.equal(Ok(2.0))
+///
+///   maths.wrap_range(-1.0, 0.0, 10.0)
+///   |> should.equal(Ok(9.0))
+/// }
+/// ```
+///
+/// </details>
+///
+pub fn wrap_range(x: Float, start: Float, stop: Float) -> Result(Float, Nil) {
+  let width = stop -. start
+  case width <=. 0.0 {
+    True -> Error(Nil)
+    False -> {
+      case float.modulo(x -. start, by: width) {
+        Ok(offset) -> Ok(start +. offset)
+        Error(Nil) -> Error(Nil)
+      }
+    }
+  }
+}
+
+/// The function wraps the input `x` into the interval from `start` to `stop`
+/// by reflecting at the boundaries.
+///
+/// <details>
+/// <summary>Details</summary>
+///
+/// Both `start` and `stop` are included in the reflected range. Values outside
+/// the range move back and forth between the two boundaries rather than
+/// wrapping directly from one boundary to the other.
+///
+/// The `start` value must be smaller than `stop`.
+///
+/// </details>
+///
+/// <details>
+/// <summary>Examples</summary>
+///
+/// ```gleam
+/// import gleeunit/should
+/// import gleam_community/maths
+///
+/// pub fn example() {
+///   maths.wrap_range_with_reflection(12.0, 0.0, 10.0)
+///   |> should.equal(Ok(8.0))
+///
+///   maths.wrap_range_with_reflection(-1.0, 0.0, 10.0)
+///   |> should.equal(Ok(1.0))
+/// }
+/// ```
+///
+/// </details>
+///
+pub fn wrap_range_with_reflection(
+  x: Float,
+  start: Float,
+  stop: Float,
+) -> Result(Float, Nil) {
+  let width = stop -. start
+  case width <=. 0.0 {
+    True -> Error(Nil)
+    False -> {
+      let period = width *. 2.0
+      case float.modulo(x -. start, by: period) {
+        Ok(offset) if offset <=. width -> Ok(start +. offset)
+        Ok(offset) -> Ok(stop -. { offset -. width })
+        Error(Nil) -> Error(Nil)
+      }
+    }
+  }
+}
+
+/// The function moves `start` toward `stop` by `increment`.
+///
+/// <details>
+/// <summary>Details</summary>
+///
+/// If `increment` is non-negative and the absolute distance between `start` and
+/// `stop` is less than or equal to `increment`, the function returns `stop`.
+/// Otherwise it moves from `start` in the direction of `stop` by exactly
+/// `increment`.
+///
+/// A negative `increment` moves `start` away from `stop`.
+///
+/// </details>
+///
+/// <details>
+/// <summary>Examples</summary>
+///
+/// ```gleam
+/// import gleeunit/should
+/// import gleam_community/maths
+///
+/// pub fn example() {
+///   maths.move_toward(0.0, 10.0, 3.0)
+///   |> should.equal(3.0)
+///
+///   maths.move_toward(0.0, 2.0, 3.0)
+///   |> should.equal(2.0)
+/// }
+/// ```
+///
+/// </details>
+///
+pub fn move_toward(start: Float, stop: Float, increment: Float) -> Float {
+  let distance = absolute_difference(start, stop)
+  case increment >=. 0.0 && distance <=. increment {
+    True -> stop
+    False -> start +. sign(stop -. start) *. increment
+  }
+}
+
 /// The absolute difference:
 ///
 /// \\[
