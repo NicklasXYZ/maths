@@ -243,10 +243,6 @@ pub fn from_float(real: Float) -> Complex {
   Complex(real, 0.0)
 }
 
-fn from_unit_angle(phi: Float) -> Complex {
-  Complex(maths.cos(phi), maths.sin(phi))
-}
-
 /// Create a complex number from polar coordinates:
 ///
 /// \\[
@@ -254,6 +250,8 @@ fn from_unit_angle(phi: Float) -> Complex {
 /// \\]
 ///
 /// The value `r` is the distance from zero and `phi` is the angle in radians.
+/// This function is equivalent to calling `maths.polar_to_cartesian(r, phi)`
+/// and constructing a `Complex` value from the returned coordinates.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -273,7 +271,9 @@ fn from_unit_angle(phi: Float) -> Complex {
 /// </details>
 ///
 pub fn from_polar(r: Float, phi: Float) -> Complex {
-  multiply(from_float(r), from_unit_angle(phi))
+  let #(real, imaginary) = maths.polar_to_cartesian(r, phi)
+
+  Complex(real, imaginary)
 }
 
 /// Convert `z` to polar coordinates:
@@ -283,7 +283,8 @@ pub fn from_polar(r: Float, phi: Float) -> Complex {
 /// \\]
 ///
 /// The returned tuple is `#(r, phi)`, where `r` is the absolute value and `phi`
-/// is the principal argument in radians.
+/// is the principal argument in radians. This function is equivalent to calling
+/// `maths.cartesian_to_polar(z.real, z.imaginary)`.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -307,7 +308,7 @@ pub fn from_polar(r: Float, phi: Float) -> Complex {
 /// </details>
 ///
 pub fn to_polar(z: Complex) -> #(Float, Float) {
-  #(absolute_value(z), argument(z))
+  maths.cartesian_to_polar(z.real, z.imaginary)
 }
 
 /// Return the complex exponential of `z`:
