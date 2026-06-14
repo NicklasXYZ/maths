@@ -3,7 +3,8 @@
 [![Package Version](https://img.shields.io/hexpm/v/gleam_community_maths)](https://hex.pm/packages/gleam_community_maths)
 [![Hex Docs](https://img.shields.io/badge/hex-docs-ffaff3)](https://hexdocs.pm/gleam_community_maths/)
 
-A basic mathematics library that contains some of the most fundamental mathematics functions and utilities.
+A Gleam mathematics library for scalar maths, statistics, metrics,
+combinatorics, numerical sequences, special functions, and complex numbers.
 
 The library supports both targets: Erlang and JavaScript.
 
@@ -14,6 +15,7 @@ import gleam/float
 import gleam/list
 import gleam/yielder
 import gleam_community/maths
+import gleam_community/complex
 import gleeunit/should
 
 pub fn example() {
@@ -53,15 +55,24 @@ pub fn example() {
   maths.cosine_similarity([#(-1.0, 1.0), #(1.0, 1.0), #(0.0, -1.0)])
   |> should.equal(Ok(0.0))
 
-  // Generate a list of 3 logarithmically-spaced points over a specified 
+  // Generate a list of 3 logarithmically-spaced points over a specified
   // interval, i.e., [10^1, 10^3]
   let assert Ok(logspace) = maths.logarithmic_space(1.0, 3.0, 3, True, 10.0)
   let pairs = logspace |> list.zip([10.0, 100.0, 1000.0])
   pairs
   |> list.all(fn(x) { x.0 == x.1 })
   |> should.be_true()
-}
 
+  let z = complex.Complex(3.0, 4.0)
+
+  // Compute the distance from `z` to zero in the complex plane
+  complex.absolute_value(z)
+  |> should.equal(5.0)
+
+  // Complex functions return complex values
+  complex.multiply(z, complex.imaginary_unit())
+  |> should.equal(complex.Complex(-4.0, 3.0))
+}
 ```
 
 ## Installation
