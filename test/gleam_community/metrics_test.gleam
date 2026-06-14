@@ -932,6 +932,11 @@ pub fn tversky_index_test() {
   maths.tversky_index(set.from_list([]), set.from_list([]), 1.0, 1.0)
   |> should.equal(Ok(1.0))
 
+  let set_a = set.from_list([0, 1, 2, 5, 6, 8, 9])
+  let set_b = set.from_list([0, 2, 3, 4, 5, 7, 9])
+  maths.tversky_index(set_a, set_b, 0.5, 0.25)
+  |> should.equal(Ok(4.0 /. 6.25))
+
   maths.tversky_index(set.from_list([1]), set.from_list([2]), 0.0, 0.0)
   |> should.be_error()
 
@@ -1082,6 +1087,23 @@ pub fn chebyshev_distance_test() {
     #(-3.0, -3.0, 1.0),
   ])
   |> should.equal(Ok(2.0))
+
+  maths.chebyshev_distance_with_weights([])
+  |> should.be_error()
+
+  maths.chebyshev_distance_with_weights([
+    #(-5.0, -1.0, 0.5),
+    #(-10.0, -12.0, -1.0),
+    #(-3.0, -3.0, 1.0),
+  ])
+  |> should.be_error()
+
+  maths.chebyshev_distance_with_weights([
+    #(-5.0, -1.0, 0.0),
+    #(-10.0, -12.0, 0.0),
+    #(-3.0, -3.0, 0.0),
+  ])
+  |> should.equal(Ok(0.0))
 }
 
 pub fn canberra_distance_test() {

@@ -34,6 +34,11 @@ pub fn acosh_test() {
   |> maths.is_close(0.0, 0.0, tol)
   |> should.be_true()
 
+  let assert Ok(result) = maths.acosh(2.0)
+  result
+  |> maths.is_close(1.3169578969248166, 0.0, tol)
+  |> should.be_true()
+
   // Check that we get an error when the function is evaluated
   // outside its domain
   maths.acosh(0.0)
@@ -71,6 +76,10 @@ pub fn asinh_test() {
 
   maths.asinh(0.5)
   |> maths.is_close(0.48121182505960347, 0.0, tol)
+  |> should.be_true()
+
+  maths.asinh(-0.5)
+  |> maths.is_close(-0.48121182505960347, 0.0, tol)
   |> should.be_true()
 }
 
@@ -479,6 +488,11 @@ pub fn constants_test() {
   // Test that the constant is approximately equal to 3.14159...
   maths.pi()
   |> maths.is_close(3.141592653589793, 0.0, tolerance)
+  |> should.be_true()
+
+  // Test that tau is equal to 2π.
+  maths.tau()
+  |> maths.is_close(2.0 *. maths.pi(), 0.0, tolerance)
   |> should.be_true()
 
   // Test that the constant is approximately equal to 1.6180...

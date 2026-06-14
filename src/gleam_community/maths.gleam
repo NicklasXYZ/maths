@@ -3153,6 +3153,9 @@ pub fn manhattan_distance(arr: List(#(Float, Float))) -> Result(Float, Nil) {
 /// values in the respective input lists indexed by \\(i\\), while the
 /// \\(w_i >= 0\\) are corresponding non-negative weights.
 ///
+/// This function returns an error for an empty list or negative weights.
+/// Zero weights are allowed.
+///
 /// <details>
 /// <summary>Examples</summary>
 ///
@@ -3186,6 +3189,8 @@ pub fn manhattan_distance_with_weights(
 ///
 /// The Minkowski distance is a generalization of the Euclidean distance
 /// (\\(p=2\\)) and the Manhattan distance (\\(p = 1\\)).
+///
+/// This function returns an error for an empty list or for \\(p < 1\\).
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -3239,6 +3244,9 @@ pub fn minkowski_distance(
 ///
 /// The Minkowski distance is a generalization of the Euclidean distance
 /// (\\(p=2\\)) and the Manhattan distance (\\(p = 1\\)).
+///
+/// This function returns an error for an empty list, for \\(p < 1\\), or for
+/// negative weights. Zero weights are allowed.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -3330,6 +3338,9 @@ pub fn euclidean_distance(arr: List(#(Float, Float))) -> Result(Float, Nil) {
 /// values in the respective input lists indexed by \\(i\\), while the
 /// \\(w_i >= 0\\) are corresponding non-negative weights.
 ///
+/// This function returns an error for an empty list or negative weights.
+/// Zero weights are allowed.
+///
 /// <details>
 /// <summary>Examples</summary>
 ///
@@ -3400,6 +3411,9 @@ pub fn chebyshev_distance(arr: List(#(Float, Float))) -> Result(Float, Nil) {
 /// In the formula, \\(n\\) is the length of the two lists and \\(x_i, y_i\\) are the
 /// values in the respective input lists indexed by \\(i\\), while the
 /// \\(w_i >= 0\\) are corresponding non-negative weights.
+///
+/// This function returns an error for an empty list or negative weights.
+/// Zero weights are allowed.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -4321,8 +4335,8 @@ pub fn sorensen_dice_coefficient(
 /// sets, indicating no similarity.
 ///
 /// This function returns an error if \\(\alpha\\) or \\(\beta\\) is negative, or if
-/// the denominator is zero. As a special case, two empty sets return `Ok(1.0)`,
-/// treating identical empty sets as perfectly similar.
+/// the denominator is zero for non-empty inputs. As a special case, two empty
+/// sets return `Ok(1.0)`, treating identical empty sets as perfectly similar.
 ///
 /// <details>
 /// <summary>Examples</summary>
