@@ -119,7 +119,8 @@ pub fn nth_root(z: Complex, n: Int) -> Result(List(Complex), Nil) {
           // r and n are always positive -> root is defined
           let assert Ok(new_r) = maths.nth_root(r, n)
 
-          list.range(0, n - 1)
+          int.range(0, n, [], list.prepend)
+          |> list.reverse
           |> list.map(fn(k) {
             from_polar(
               new_r,
@@ -168,7 +169,7 @@ pub fn weighted_product(arr: List(#(Complex, Int))) -> Result(Complex, Nil) {
     False ->
       list.fold(arr, Ok(multiplicative_identity()), fn(acc_result, tuple) {
         acc_result
-        |> result.then(fn(acc) {
+        |> result.try(fn(acc) {
           power(tuple.0, tuple.1)
           |> result.map(multiply(acc, _))
         })
