@@ -31,7 +31,9 @@ import gleam/yielder.{type Yielder}
 
 /// The function calculates the greatest common divisor of two integers
 /// \\(x, y \in \mathbb{Z}\\). The greatest common divisor is the largest positive
-/// integer that is divisible by both \\(x\\) and \\(y\\).
+/// integer that divides both \\(x\\) and \\(y\\).
+///
+/// If both inputs are `0`, this function returns `0`.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -279,7 +281,7 @@ pub fn proper_divisors(n: Int) -> Result(List(Int), Nil) {
 /// import gleeunit/should
 /// import gleam_community/maths
 ///
-/// pub fn example () {
+/// pub fn example() {
 ///   []
 ///   |> maths.weighted_sum()
 ///   |> should.equal(Ok(0.0))
@@ -332,7 +334,7 @@ pub fn weighted_sum(arr: List(#(Float, Float))) -> Result(Float, Nil) {
 /// import gleeunit/should
 /// import gleam_community/maths
 ///
-/// pub fn example () {
+/// pub fn example() {
 ///   []
 ///   |> maths.weighted_product()
 ///   |> should.equal(Ok(1.0))
@@ -389,7 +391,7 @@ pub fn weighted_product(arr: List(#(Float, Float))) -> Result(Float, Nil) {
 /// import gleeunit/should
 /// import gleam_community/maths
 ///
-/// pub fn example () {
+/// pub fn example() {
 ///   []
 ///   |> maths.cumulative_sum()
 ///   |> should.equal([])
@@ -427,7 +429,7 @@ pub fn cumulative_sum(arr: List(Float)) -> List(Float) {
 /// import gleeunit/should
 /// import gleam_community/maths
 ///
-/// pub fn example () {
+/// pub fn example() {
 ///   []
 ///   |> maths.int_cumulative_sum()
 ///   |> should.equal([])
@@ -466,7 +468,7 @@ pub fn int_cumulative_sum(arr: List(Int)) -> List(Int) {
 /// import gleeunit/should
 /// import gleam_community/maths
 ///
-/// pub fn example () {
+/// pub fn example() {
 ///   []
 ///   |> maths.cumulative_product()
 ///   |> should.equal([])
@@ -505,7 +507,7 @@ pub fn cumulative_product(arr: List(Float)) -> List(Float) {
 /// import gleeunit/should
 /// import gleam_community/maths
 ///
-/// pub fn example () {
+/// pub fn example() {
 ///   []
 ///   |> maths.int_cumulative_product()
 ///   |> should.equal([])
@@ -526,7 +528,7 @@ pub fn int_cumulative_product(arr: List(Int)) -> List(Int) {
 }
 
 /// Convert a value in degrees to a value measured in radians.
-/// That is, \\(1 \text{ degrees } = \frac{\pi}{180} \text{ radians }\\).
+/// That is, \\(1 \text{ degree } = \frac{\pi}{180} \text{ radians }\\).
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -550,7 +552,7 @@ pub fn degrees_to_radians(x: Float) -> Float {
 }
 
 /// Convert a value in radians to a value measured in degrees.
-/// That is, \\(1 \text{ radians } = \frac{180}{\pi} \text{ degrees }\\).
+/// That is, \\(1 \text{ radian } = \frac{180}{\pi} \text{ degrees }\\).
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -803,11 +805,11 @@ fn do_asinh(a: Float) -> Float
 /// The inverse tangent function:
 ///
 /// \\[
-/// \forall x \in \(-\infty, \infty\),  \\; \tan^{-1}{(x)} = y \in \[-\frac{\pi}{2}, \frac{\pi}{2}\]
+/// \forall x \in \(-\infty, \infty\),  \\; \tan^{-1}{(x)} = y \in \(-\frac{\pi}{2}, \frac{\pi}{2}\)
 /// \\]
 ///
 /// The function takes a number \\(x\\) in its domain \\(\(-\infty, +\infty\)\\) as input and
-/// returns a numeric value \\(y\\) that lies in the range \\(\[-\frac{\pi}{2}, \frac{\pi}{2}\]\\)
+/// returns a numeric value \\(y\\) that lies in the range \\(\(-\frac{\pi}{2}, \frac{\pi}{2}\)\\)
 /// (an angle in radians).
 ///
 /// <details>
@@ -955,12 +957,12 @@ fn do_cos(a: Float) -> Float
 /// The hyperbolic cosine function:
 ///
 /// \\[
-/// \forall x \in \(-\infty, \infty\),   \\; \cosh{(x)} = y \in \(-\infty, +\infty\)
+/// \forall x \in \(-\infty, \infty\),   \\; \cosh{(x)} = y \in \[1, +\infty\)
 /// \\]
 ///
-/// The function takes a number \\(x\\) in its domain \\(\(-\infty, \infty\)\\) as input (an angle
-/// in radians) and returns a numeric value \\(y\\) that lies in the range
-/// \\(\(-\infty, \infty\)\\). If the input value is too large an overflow error might occur.
+/// The function takes a number \\(x\\) in its domain \\(\(-\infty, \infty\)\\) as input
+/// and returns a numeric value \\(y\\) that lies in the range
+/// \\(\[1, +\infty\)\\). If the input value is too large an overflow error might occur.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -1076,7 +1078,8 @@ fn do_sinh(a: Float) -> Float
 ///   |> should.equal(0.0)
 ///
 ///   maths.tan(maths.pi() /. 4.0)
-///   |> should.equal(1.0)
+///   |> maths.is_close(1.0, 0.0, 0.000000000001)
+///   |> should.be_true()
 /// }
 /// ```
 ///
@@ -1093,11 +1096,11 @@ fn do_tan(a: Float) -> Float
 /// The hyperbolic tangent function:
 ///
 /// \\[
-/// \forall x \in \(-\infty, \infty\),   \\; \tanh{(x)} = y \in \[-1, 1\]
+/// \forall x \in \(-\infty, \infty\),   \\; \tanh{(x)} = y \in \(-1, 1\)
 /// \\]
 ///
-/// The function takes a number \\(x\\) in its domain \\(\(-\infty, \infty\)\\) as input (an angle
-/// in radians) and returns a numeric value \\(y\\) that lies in the range \\(\[-1, 1\]\\).
+/// The function takes a number \\(x\\) in its domain \\(\(-\infty, \infty\)\\) as input
+/// and returns a numeric value \\(y\\) that lies in the range \\(\(-1, 1\)\\).
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -1106,7 +1109,7 @@ fn do_tan(a: Float) -> Float
 /// import gleeunit/should
 /// import gleam_community/maths
 ///
-/// pub fn example () {
+/// pub fn example() {
 ///   maths.tanh(0.0)
 ///   |> should.equal(0.0)
 ///
@@ -1134,7 +1137,7 @@ fn do_tanh(a: Float) -> Float
 /// \forall x \in \(-\infty, \infty\),   \\; e^{x} = y \in \(0, +\infty\)
 /// \\]
 ///
-/// where \\(e \approx 2.71828\dots\\) is Eulers' number.
+/// where \\(e \approx 2.71828\dots\\) is Euler's number.
 ///
 /// Note: If the input value \\(x\\) is too large an overflow error might occur.
 ///
@@ -1178,7 +1181,7 @@ fn do_exponential(a: Float) -> Float
 /// import gleeunit/should
 /// import gleam_community/maths
 ///
-/// pub fn example () {
+/// pub fn example() {
 ///   maths.natural_logarithm(1.0)
 ///   |> should.equal(Ok(0.0))
 ///
@@ -1221,7 +1224,7 @@ fn do_natural_logarithm(a: Float) -> Float
 /// import gleeunit/should
 /// import gleam_community/maths
 ///
-/// pub fn example () {
+/// pub fn example() {
 ///   maths.logarithm(1.0, 10.0)
 ///   |> should.equal(Ok(0.0))
 ///
@@ -1268,7 +1271,7 @@ pub fn logarithm(x: Float, base: Float) -> Result(Float, Nil) {
 /// import gleeunit/should
 /// import gleam_community/maths
 ///
-/// pub fn example () {
+/// pub fn example() {
 ///   maths.logarithm_2(1.0)
 ///   |> should.equal(Ok(0.0))
 ///
@@ -1310,7 +1313,7 @@ fn do_logarithm_2(a: Float) -> Float
 /// import gleeunit/should
 /// import gleam_community/maths
 ///
-/// pub fn example () {
+/// pub fn example() {
 ///   maths.logarithm_10(1.0)
 ///   |> should.equal(Ok(0.0))
 ///
@@ -1656,7 +1659,7 @@ fn do_truncate_float(a: Float) -> Float
 /// The function rounds a float to a specific number of digits (after the decimal place or before
 /// if negative). In particular, the input \\(x\\) is rounded to the nearest integer value (at the
 /// specified digit) that is less than or equal to the input \\(x\\). This rounding behaviour is
-/// similar to behaviour of the Gleam stdlib `floor` function.
+/// similar to the behaviour of the Gleam stdlib `floor` function.
 ///
 /// <details>
 /// <summary>Details</summary>
@@ -1705,7 +1708,7 @@ fn do_floor(a: Float) -> Float
 /// The function rounds a float to a specific number of digits (after the decimal place or before
 /// if negative). In particular, the input \\(x\\) is rounded to the nearest integer value (at the
 /// specified digit) that is larger than or equal to the input \\(x\\). This rounding behaviour is
-/// similar to behaviour of the Gleam stdlib `ceiling` function.
+/// similar to the behaviour of the Gleam stdlib `ceiling` function.
 ///
 /// <details>
 /// <summary>Details</summary>
@@ -2101,7 +2104,7 @@ pub fn minmax(x: a, y: a, compare: fn(a, a) -> order.Order) -> #(a, a) {
 /// import gleeunit/should
 /// import gleam_community/maths
 ///
-/// pub fn example () {
+/// pub fn example() {
 ///   []
 ///   |> maths.list_minimum(int.compare)
 ///   |> should.be_error()
@@ -2142,7 +2145,7 @@ pub fn list_minimum(
 /// import gleeunit/should
 /// import gleam_community/maths
 ///
-/// pub fn example () {
+/// pub fn example() {
 ///   []
 ///   |> maths.list_maximum(float.compare)
 ///   |> should.be_error()
@@ -2183,7 +2186,7 @@ pub fn list_maximum(
 /// import gleeunit/should
 /// import gleam_community/maths
 ///
-/// pub fn example () {
+/// pub fn example() {
 ///   []
 ///   |> maths.arg_minimum(float.compare)
 ///   |> should.be_error()
@@ -2233,7 +2236,7 @@ pub fn arg_minimum(
 /// import gleeunit/should
 /// import gleam_community/maths
 ///
-/// pub fn example () {
+/// pub fn example() {
 ///   []
 ///   |> maths.arg_maximum(float.compare)
 ///   |> should.be_error()
@@ -2283,7 +2286,7 @@ pub fn arg_maximum(
 /// import gleeunit/should
 /// import gleam_community/maths
 ///
-/// pub fn example () {
+/// pub fn example() {
 ///   []
 ///   |> maths.extrema(float.compare)
 ///   |> should.be_error()
@@ -2626,7 +2629,7 @@ pub fn permutation_with_repetitions(n: Int, k: Int) -> Result(Int, Nil) {
 /// import gleeunit/should
 /// import gleam_community/maths
 ///
-/// pub fn example () {
+/// pub fn example() {
 ///   // All 2-combinations of [1, 2, 3] without repetition
 ///   let assert Ok(combinations) = maths.list_combination([1, 2, 3], 2)
 ///
@@ -2688,7 +2691,7 @@ fn do_list_combination_without_repetitions(
 /// import gleeunit/should
 /// import gleam_community/maths
 ///
-/// pub fn example () {
+/// pub fn example() {
 ///   // All 2-combinations of [1, 2, 3] with repetition
 ///   let assert Ok(combinations) =
 ///     maths.list_combination_with_repetitions([1, 2, 3], 2)
@@ -2762,7 +2765,7 @@ fn remove_first_by_index(
 /// import gleeunit/should
 /// import gleam_community/maths
 ///
-/// pub fn example () {
+/// pub fn example() {
 ///   // All 2-permutations of [1, 2] without repetition
 ///   let assert Ok(permutations) =
 ///     [1, 2]
@@ -2823,7 +2826,7 @@ fn do_list_permutation_without_repetitions(
 /// import gleeunit/should
 /// import gleam_community/maths
 ///
-/// pub fn example () {
+/// pub fn example() {
 ///   // All 2-permutations of [1, 2] with repetition
 ///   let assert Ok(permutations) =
 ///     [1, 2]
@@ -2878,7 +2881,7 @@ fn do_list_permutation_with_repetitions(
 /// import gleeunit/should
 /// import gleam_community/maths
 ///
-/// pub fn example () {
+/// pub fn example() {
 ///   set.from_list([])
 ///   |> maths.cartesian_product(set.from_list([]))
 ///   |> should.equal(set.from_list([]))
@@ -2966,23 +2969,25 @@ pub fn norm(arr: List(Float), p: Float) -> Result(Float, Nil) {
           )
         // Handle the case when `p` is negative
         _ if p <. 0.0 -> {
-          let aggregate =
-            list.try_fold(arr, 0.0, fn(acc, element) {
+          let result =
+            list.fold(arr, #(0.0, False), fn(acc, element) {
+              let #(aggregate, has_zero) = acc
               case element {
                 // Whenever `p` is negative and an element in the list is zero, then we should
-                // simply stop and return 0.0. Otherwise continue.
-                0.0 -> Error(0.0)
+                // return 0.0. Otherwise continue.
+                0.0 -> #(aggregate, True)
+                _ if has_zero -> acc
                 _ -> {
                   // This assertion is safe because the base is positive.
                   let assert Ok(result) =
                     float.power(float.absolute_value(element), p)
-                  Ok(result +. acc)
+                  #(result +. aggregate, False)
                 }
               }
             })
-          case aggregate {
-            Ok(result) -> float.power(result, 1.0 /. p)
-            Error(_) -> Ok(0.0)
+          case result {
+            #(_, True) -> Ok(0.0)
+            #(aggregate, False) -> float.power(aggregate, 1.0 /. p)
           }
         }
         // Handle the case when `p` is positive
@@ -3074,24 +3079,26 @@ pub fn norm_with_weights(
             }
             _ if p <. 0.0 -> {
               // Handle the case when `p` is negative
-              let aggregate =
-                list.try_fold(arr, 0.0, fn(acc, tuple) {
+              let result =
+                list.fold(arr, #(0.0, False), fn(acc, tuple) {
+                  let #(aggregate, has_zero) = acc
                   // Whenever `p` is negative and an element or weight in the list is zero, then
-                  // we should simply stop and return 0.0. Otherwise continue.
+                  // return 0.0. Otherwise continue.
                   case tuple {
-                    #(0.0, _) -> Error(0.0)
-                    #(_, 0.0) -> Error(0.0)
+                    #(0.0, _) -> #(aggregate, True)
+                    #(_, 0.0) -> #(aggregate, True)
+                    _ if has_zero -> acc
                     _ -> {
                       // This assertion is safe because the base is positive.
                       let assert Ok(result) =
                         float.power(float.absolute_value(tuple.0), p)
-                      Ok(tuple.1 *. result +. acc)
+                      #(tuple.1 *. result +. aggregate, False)
                     }
                   }
                 })
-              case aggregate {
-                Ok(result) -> float.power(result, 1.0 /. p)
-                Error(_) -> Ok(0.0)
+              case result {
+                #(_, True) -> Ok(0.0)
+                #(aggregate, False) -> float.power(aggregate, 1.0 /. p)
               }
             }
             // Handle the case when `p` is positive
@@ -3464,7 +3471,7 @@ pub fn chebyshev_distance_with_weights(
 /// import gleeunit/should
 /// import gleam_community/maths
 ///
-/// pub fn example () {
+/// pub fn example() {
 ///   // An empty list returns an error
 ///   []
 ///   |> maths.moment(0)
@@ -3541,7 +3548,7 @@ pub fn moment(arr: List(Float), n: Int) -> Result(Float, Nil) {
 /// import gleeunit/should
 /// import gleam_community/maths
 ///
-/// pub fn example () {
+/// pub fn example() {
 ///   []
 ///   |> maths.mean()
 ///   |> should.be_error()
@@ -3570,7 +3577,8 @@ pub fn mean(arr: List(Float)) -> Result(Float, Nil) {
 /// In the formula, \\(n\\) is the sample size (the length of the list) and
 /// \\(x_i\\) is the sample point in the input list indexed by \\(i\\).
 /// This function accepts non-negative numbers. Negative values return
-/// `Error(Nil)`. If any value is `0.0`, the function returns `Ok(0.0)`.
+/// `Error(Nil)`. If the list contains no negative values and any value is
+/// `0.0`, the function returns `Ok(0.0)`.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -3579,7 +3587,7 @@ pub fn mean(arr: List(Float)) -> Result(Float, Nil) {
 /// import gleeunit/should
 /// import gleam_community/maths
 ///
-/// pub fn example () {
+/// pub fn example() {
 ///   // An empty list returns an error
 ///   []
 ///   |> maths.harmonic_mean()
@@ -3607,20 +3615,23 @@ pub fn harmonic_mean(arr: List(Float)) -> Result(Float, Nil) {
   case arr {
     [] -> Error(Nil)
     _ -> {
-      let sum =
-        list.try_fold(arr, 0.0, fn(acc, a) {
+      let result =
+        list.try_fold(arr, #(0.0, False, 0), fn(acc, a) {
+          let #(reciprocal_sum, has_zero, count) = acc
           case a {
-            a if a >. 0.0 -> Ok(1.0 /. a +. acc)
-            // If we encounter 0.0, then we can stop, as the harmonic mean will be 0.0
-            a if a == 0.0 -> Error(0.0)
-            _ -> Error(-1.0)
+            a if a <. 0.0 -> Error(Nil)
+            0.0 -> Ok(#(reciprocal_sum, True, count + 1))
+            _ if has_zero -> Ok(#(reciprocal_sum, True, count + 1))
+            _ -> Ok(#(reciprocal_sum +. 1.0 /. a, False, count + 1))
           }
         })
 
-      case sum {
-        Ok(sum) -> Ok(int.to_float(list.length(arr)) /. sum)
-        Error(0.0) -> Ok(0.0)
-        Error(_) -> Error(Nil)
+      case result {
+        Error(Nil) -> Error(Nil)
+        Ok(#(_, True, _)) -> Ok(0.0)
+        Ok(#(reciprocal_sum, False, count)) -> {
+          Ok(int.to_float(count) /. reciprocal_sum)
+        }
       }
     }
   }
@@ -3635,7 +3646,8 @@ pub fn harmonic_mean(arr: List(Float)) -> Result(Float, Nil) {
 /// In the formula, \\(n\\) is the sample size (the length of the list) and
 /// \\(x_i\\) is the sample point in the input list indexed by \\(i\\).
 /// This function accepts non-negative numbers. Negative values return
-/// `Error(Nil)`. If any value is `0.0`, the function returns `Ok(0.0)`.
+/// `Error(Nil)`. If the list contains no negative values and any value is
+/// `0.0`, the function returns `Ok(0.0)`.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -3644,7 +3656,7 @@ pub fn harmonic_mean(arr: List(Float)) -> Result(Float, Nil) {
 /// import gleeunit/should
 /// import gleam_community/maths
 ///
-/// pub fn example () {
+/// pub fn example() {
 ///   // An empty list returns an error
 ///   []
 ///   |> maths.geometric_mean()
@@ -3672,20 +3684,23 @@ pub fn geometric_mean(arr: List(Float)) -> Result(Float, Nil) {
   case arr {
     [] -> Error(Nil)
     _ -> {
-      let product =
-        list.try_fold(arr, 1.0, fn(acc, a) {
+      let result =
+        list.try_fold(arr, #(1.0, False, 0), fn(acc, a) {
+          let #(product, has_zero, count) = acc
           case a {
-            a if a >. 0.0 -> Ok(acc *. a)
-            // If we encounter 0.0, then we can stop, as the geometric mean will be 0.0
-            a if a == 0.0 -> Error(0.0)
-            _ -> Error(-1.0)
+            a if a <. 0.0 -> Error(Nil)
+            0.0 -> Ok(#(product, True, count + 1))
+            _ if has_zero -> Ok(#(product, True, count + 1))
+            _ -> Ok(#(product *. a, False, count + 1))
           }
         })
-      case product {
-        Ok(product) ->
-          float.power(product, 1.0 /. int.to_float(list.length(arr)))
-        Error(0.0) -> Ok(0.0)
-        Error(_) -> Error(Nil)
+
+      case result {
+        Error(Nil) -> Error(Nil)
+        Ok(#(_, True, _)) -> Ok(0.0)
+        Ok(#(product, False, count)) -> {
+          float.power(product, 1.0 /. int.to_float(count))
+        }
       }
     }
   }
@@ -3700,7 +3715,7 @@ pub fn geometric_mean(arr: List(Float)) -> Result(Float, Nil) {
 /// import gleeunit/should
 /// import gleam_community/maths
 ///
-/// pub fn example () {
+/// pub fn example() {
 ///   []
 ///   |> maths.median()
 ///   |> should.be_error()
@@ -3764,7 +3779,7 @@ fn do_median(
 /// import gleeunit/should
 /// import gleam_community/maths
 ///
-/// pub fn example () {
+/// pub fn example() {
 ///   // Degrees of freedom
 ///   let ddof = 1
 ///
@@ -3824,7 +3839,7 @@ pub fn variance(arr: List(Float), ddof: Int) -> Result(Float, Nil) {
 /// import gleeunit/should
 /// import gleam_community/maths
 ///
-/// pub fn example () {
+/// pub fn example() {
 ///   // Degrees of freedom
 ///   let ddof = 1
 ///
@@ -3858,8 +3873,8 @@ pub fn standard_deviation(arr: List(Float), ddof: Int) -> Result(Float, Nil) {
   }
 }
 
-/// Calculate the sample kurtosis of a list of elements using the
-/// definition of Fisher.
+/// Calculate the excess kurtosis of a list of elements using Fisher's
+/// definition.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -3868,7 +3883,7 @@ pub fn standard_deviation(arr: List(Float), ddof: Int) -> Result(Float, Nil) {
 /// import gleeunit/should
 /// import gleam_community/maths
 ///
-/// pub fn example () {
+/// pub fn example() {
 ///   // An empty list returns an error
 ///   []
 ///   |> maths.kurtosis()
@@ -3904,7 +3919,7 @@ pub fn kurtosis(arr: List(Float)) -> Result(Float, Nil) {
   }
 }
 
-/// Calculate the sample skewness of a list of elements using the
+/// Calculate the skewness of a list of elements using the unadjusted
 /// Fisher-Pearson coefficient of skewness.
 ///
 /// <details>
@@ -3914,7 +3929,7 @@ pub fn kurtosis(arr: List(Float)) -> Result(Float, Nil) {
 /// import gleeunit/should
 /// import gleam_community/maths
 ///
-/// pub fn example () {
+/// pub fn example() {
 ///   // An empty list returns an error
 ///   []
 ///   |> maths.skewness()
@@ -3960,7 +3975,7 @@ pub fn skewness(arr: List(Float)) -> Result(Float, Nil) {
 /// import gleeunit/should
 /// import gleam_community/maths
 ///
-/// pub fn example () {
+/// pub fn example() {
 ///   // An empty list returns an error
 ///   []
 ///   |> maths.percentile(40)
@@ -4016,7 +4031,7 @@ pub fn percentile(arr: List(Float), n: Int) -> Result(Float, Nil) {
 /// import gleeunit/should
 /// import gleam_community/maths
 ///
-/// pub fn example () {
+/// pub fn example() {
 ///   // An empty list returns an error
 ///   []
 ///   // Use degrees of freedom = 1
@@ -4066,7 +4081,7 @@ pub fn zscore(arr: List(Float), ddof: Int) -> Result(List(Float), Nil) {
 /// import gleeunit/should
 /// import gleam_community/maths
 ///
-/// pub fn example () {
+/// pub fn example() {
 ///   // An empty list returns an error
 ///   []
 ///   |> maths.quartiles()
@@ -4100,7 +4115,7 @@ pub fn quartiles(arr: List(Float)) -> Result(#(Float, Float, Float), Nil) {
 /// import gleeunit/should
 /// import gleam_community/maths
 ///
-/// pub fn example () {
+/// pub fn example() {
 ///   // An empty list returns an error
 ///   []
 ///   |> maths.interquartile_range()
@@ -4147,7 +4162,7 @@ pub fn interquartile_range(arr: List(Float)) -> Result(Float, Nil) {
 /// import gleeunit/should
 /// import gleam_community/maths
 ///
-/// pub fn example () {
+/// pub fn example() {
 ///   // An empty list returns an error
 ///   maths.correlation([])
 ///   |> should.be_error()
@@ -4249,7 +4264,7 @@ fn divide_or_error(numerator: Float, denominator: Float) -> Result(Float, Nil) {
 /// import gleeunit/should
 /// import gleam_community/maths
 ///
-/// pub fn example () {
+/// pub fn example() {
 ///   let xset = set.from_list(["cat", "dog", "hippo", "monkey"])
 ///   let yset = set.from_list(["monkey", "rhino", "ostrich", "salmon"])
 ///   maths.jaccard_index(xset, yset)
@@ -4294,7 +4309,7 @@ pub fn jaccard_index(xset: set.Set(a), yset: set.Set(a)) -> Result(Float, Nil) {
 /// import gleeunit/should
 /// import gleam_community/maths
 ///
-/// pub fn example () {
+/// pub fn example() {
 ///   let xset = set.from_list(["cat", "dog", "hippo", "monkey"])
 ///   let yset = set.from_list(["monkey", "rhino", "ostrich", "salmon", "spider"])
 ///   maths.sorensen_dice_coefficient(xset, yset)
@@ -4346,7 +4361,7 @@ pub fn sorensen_dice_coefficient(
 /// import gleeunit/should
 /// import gleam_community/maths
 ///
-/// pub fn example () {
+/// pub fn example() {
 ///   let yset = set.from_list(["cat", "dog", "hippo", "monkey"])
 ///   let xset = set.from_list(["monkey", "rhino", "ostrich", "salmon"])
 ///   // Test Jaccard index (alpha = beta = 1)
@@ -4423,7 +4438,7 @@ pub fn tversky_index(
 /// import gleeunit/should
 /// import gleam_community/maths
 ///
-/// pub fn example () {
+/// pub fn example() {
 ///   let set_a = set.from_list(["horse", "dog", "hippo", "monkey", "bird"])
 ///   let set_b = set.from_list(["monkey", "bird", "ostrich", "salmon"])
 ///   maths.overlap_coefficient(set_a, set_b)
@@ -4857,7 +4872,7 @@ pub fn braycurtis_distance_with_weights(
 /// import gleeunit/should
 /// import gleam_community/maths
 ///
-/// pub fn example () {
+/// pub fn example() {
 ///   let value = 99.0
 ///   let reference_value = 100.0
 ///   // We set `absolute_tolerance` and `relative_tolerance` such that the values are
@@ -4903,7 +4918,7 @@ pub fn is_close(x: Float, y: Float, rtol: Float, atol: Float) -> Bool {
 /// import gleeunit/should
 /// import gleam_community/maths
 ///
-/// pub fn example () {
+/// pub fn example() {
 ///   let value = 99.0
 ///   let reference_value = 100.0
 ///   let xarr = list.repeat(value, 42)
@@ -4950,7 +4965,7 @@ pub fn all_close(
 /// import gleeunit/should
 /// import gleam_community/maths
 ///
-/// pub fn example () {
+/// pub fn example() {
 ///   maths.is_fractional(0.3333)
 ///   |> should.equal(True)
 ///
@@ -5697,7 +5712,7 @@ fn clamp_unit(x: Float) -> Float {
 /// import gleeunit/should
 /// import gleam_community/maths
 ///
-/// pub fn example () {
+/// pub fn example() {
 ///   maths.step_range(1.0, 5.0, 1.0)
 ///   |> should.equal([1.0, 2.0, 3.0, 4.0])
 ///
@@ -5764,7 +5779,7 @@ fn do_step_range(
 /// import gleeunit/should
 /// import gleam_community/maths
 ///
-/// pub fn example () {
+/// pub fn example() {
 ///   let range = maths.yield_step_range(1.0, 2.5, 0.5)
 ///
 ///   let assert Next(element, rest) = yielder.step(range)
@@ -5826,7 +5841,7 @@ pub fn yield_step_range(
 /// import gleeunit/should
 /// import gleam_community/maths
 ///
-/// pub fn example () {
+/// pub fn example() {
 ///   let assert Ok(tolerance) = float.power(10.0, -6.0)
 ///   let assert Ok(linspace) = maths.linear_space(10.0, 20.0, 5, True)
 ///   let pairs = linspace |> list.zip([10.0, 12.5, 15.0, 17.5, 20.0])
@@ -5901,7 +5916,7 @@ fn do_linear_space(
 /// import gleeunit/should
 /// import gleam_community/maths
 ///
-/// pub fn example () {
+/// pub fn example() {
 ///   let assert Ok(linspace) = maths.yield_linear_space(10.0, 20.0, 5, True)
 ///
 ///   let assert Next(element, rest) = yielder.step(linspace)
@@ -5975,7 +5990,7 @@ pub fn yield_linear_space(
 /// import gleeunit/should
 /// import gleam_community/maths
 ///
-/// pub fn example () {
+/// pub fn example() {
 ///   let assert Ok(tolerance) = float.power(10.0, -6.0)
 ///   let assert Ok(logspace) = maths.logarithmic_space(1.0, 3.0, 3, True, 10.0)
 ///   let pairs = logspace |> list.zip([10.0, 100.0, 1000.0])
@@ -6031,7 +6046,7 @@ pub fn logarithmic_space(
 /// import gleeunit/should
 /// import gleam_community/maths
 ///
-/// pub fn example () {
+/// pub fn example() {
 ///   let assert Ok(logspace) =
 ///     maths.yield_logarithmic_space(1.0, 3.0, 3, True, 10.0)
 ///
@@ -6100,7 +6115,7 @@ pub fn yield_logarithmic_space(
 /// import gleeunit/should
 /// import gleam_community/maths
 ///
-/// pub fn example () {
+/// pub fn example() {
 ///   let assert Ok(tolerance) = float.power(10.0, -6.0)
 ///   let assert Ok(logspace) = maths.geometric_space(10.0, 1000.0, 3, True)
 ///   let pairs = logspace |> list.zip([10.0, 100.0, 1000.0])
@@ -6109,7 +6124,7 @@ pub fn yield_logarithmic_space(
 ///   |> list.all(fn(x) { x == True })
 ///   |> should.be_true()
 ///
-///   // Input (start and stop can't be less than or equal to 0.0)
+///   // Input (start and stop cannot be less than or equal to 0.0)
 ///   maths.geometric_space(0.0, 1000.0, 3, False)
 ///   |> should.be_error()
 ///
@@ -6154,7 +6169,7 @@ pub fn geometric_space(
 /// import gleeunit/should
 /// import gleam_community/maths
 ///
-/// pub fn example () {
+/// pub fn example() {
 ///   let assert Ok(logspace) = maths.yield_geometric_space(10.0, 1000.0, 3, True)
 ///
 ///   let assert Next(element, rest) = yielder.step(logspace)

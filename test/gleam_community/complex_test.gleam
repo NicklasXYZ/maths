@@ -62,6 +62,11 @@ pub fn divide_by_one_test() {
   |> should.equal(Complex(1.0, 2.0))
 }
 
+pub fn divide_by_zero_test() {
+  complex.divide(Complex(1.0, 2.0), Complex(0.0, 0.0))
+  |> should.equal(Complex(0.0, 0.0))
+}
+
 pub fn absolute_value_test() {
   complex.absolute_value(Complex(-4.0, 6.0))
   |> float.loosely_equals(7.21, 0.05)
@@ -182,6 +187,11 @@ pub fn reciprocal_one_test() {
   |> should.equal(Complex(1.0, 0.0))
 }
 
+pub fn reciprocal_zero_test() {
+  complex.reciprocal(Complex(0.0, 0.0))
+  |> should.equal(Complex(0.0, 0.0))
+}
+
 pub fn power_with_real_exponent_undefined_test() {
   complex.power_with_real_exponent(Complex(0.0, 0.0), 0.0)
   |> should.be_error
@@ -201,7 +211,8 @@ pub fn power_with_real_exponent_to_the_zeroth_test() {
 
 pub fn power_with_real_exponent_zero_to_negative_test() {
   complex.power_with_real_exponent(Complex(0.0, 0.0), -1.0)
-  |> should.be_error
+  |> should.be_ok
+  |> should.equal(Complex(0.0, 0.0))
 }
 
 pub fn power_with_real_exponent_to_a_negative_test() {
@@ -255,7 +266,8 @@ pub fn power_zero_to_zero_complex_exponent_test() {
 
 pub fn power_zero_to_negative_complex_exponent_test() {
   complex.power(Complex(0.0, 0.0), Complex(-1.0, 0.0))
-  |> should.be_error
+  |> should.be_ok
+  |> should.equal(Complex(0.0, 0.0))
 }
 
 pub fn power_zero_to_non_real_complex_exponent_test() {
@@ -323,7 +335,8 @@ pub fn nth_root_default_negative_test() {
 
 pub fn nth_root_zero_to_negative_test() {
   complex.nth_root(Complex(0.0, 0.0), -3)
-  |> should.be_error
+  |> should.be_ok
+  |> should.equal([Complex(0.0, 0.0)])
 }
 
 pub fn nth_root_zero_to_positive_test() {

@@ -40,7 +40,7 @@ import gleam_community/maths
 
 /// A complex number with real and imaginary components.
 ///
-/// The value `Complex(3.0, 4.0)` represents `3.0 + 4.0i`.
+/// The value `Complex(3.0, 4.0)` represents \\(3 + 4i\\).
 ///
 pub type Complex {
   Complex(real: Float, imaginary: Float)
@@ -133,8 +133,8 @@ pub fn multiply(a: Complex, b: Complex) -> Complex {
 /// \end{aligned}
 /// \\]
 ///
-/// Division by zero is undefined. This function does not return a `Result`, so
-/// division by zero may produce infinite or NaN components.
+/// This function follows the library's total division convention: if the
+/// denominator is zero, the result is `zero()`.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -145,28 +145,33 @@ pub fn multiply(a: Complex, b: Complex) -> Complex {
 ///
 /// pub fn example() {
 ///   complex.divide(complex.Complex(1.0, 2.0), complex.Complex(3.0, 4.0))
-///   |> should.equal(complex.Complex(0.44, 0.08))
+///   |> complex.is_close(complex.Complex(0.44, 0.08), 0.0, 0.0000001)
+///   |> should.be_true()
 /// }
 /// ```
 ///
 /// </details>
 ///
 pub fn divide(a: Complex, b: Complex) -> Complex {
-  Complex(
-    { a.real *. b.real +. a.imaginary *. b.imaginary }
-      /. { b.real *. b.real +. b.imaginary *. b.imaginary },
-    { a.imaginary *. b.real -. a.real *. b.imaginary }
-      /. { b.real *. b.real +. b.imaginary *. b.imaginary },
-  )
+  let denominator = b.real *. b.real +. b.imaginary *. b.imaginary
+
+  case denominator == 0.0 {
+    True -> zero()
+    False ->
+      Complex(
+        { a.real *. b.real +. a.imaginary *. b.imaginary } /. denominator,
+        { a.imaginary *. b.real -. a.real *. b.imaginary } /. denominator,
+      )
+  }
 }
 
-/// Return the absolute value of `z`:
+/// Return the absolute value \\(|z|\\):
 ///
 /// \\[
 /// |a + bi| = \sqrt{a^2 + b^2}
 /// \\]
 ///
-/// This is the distance from `z` to zero in the complex plane.
+/// This is the distance from \\(z\\) to zero in the complex plane.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -189,14 +194,14 @@ pub fn absolute_value(z: Complex) -> Float {
   result
 }
 
-/// Return the principal argument of `z` in radians:
+/// Return the principal argument of \\(z\\) in radians:
 ///
 /// \\[
 /// \arg(a + bi) = \operatorname{atan2}(b, a)
 /// \\]
 ///
-/// The result lies in the range `[-pi, pi]`. The argument of zero is returned
-/// as `0.0`.
+/// The result lies in the range \\(\[-\pi, \pi\]\\). The argument of zero is
+/// returned as \\(0\\).
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -249,9 +254,9 @@ pub fn from_float(real: Float) -> Complex {
 /// r(\cos(\phi) + i\sin(\phi))
 /// \\]
 ///
-/// The value `r` is the distance from zero and `phi` is the angle in radians.
+/// The value \\(r\\) is the distance from zero and \\(\phi\\) is the angle in radians.
 /// This function is equivalent to calling `maths.polar_to_cartesian(r, phi)`
-/// and constructing a `Complex` value from the returned coordinates.
+/// and constructing a complex value from the returned coordinates.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -276,14 +281,14 @@ pub fn from_polar(r: Float, phi: Float) -> Complex {
   Complex(real, imaginary)
 }
 
-/// Convert `z` to polar coordinates:
+/// Convert \\(z\\) to polar coordinates:
 ///
 /// \\[
 /// a + bi \mapsto (|a + bi|, \arg(a + bi))
 /// \\]
 ///
-/// The returned tuple is `#(r, phi)`, where `r` is the absolute value and `phi`
-/// is the principal argument in radians. This function is equivalent to calling
+/// The returned tuple is `#(r, phi)`, where \\(r\\) is the absolute value and
+/// \\(\phi\\) is the principal argument in radians. This function is equivalent to calling
 /// `maths.cartesian_to_polar(z.real, z.imaginary)`.
 ///
 /// <details>
@@ -311,7 +316,7 @@ pub fn to_polar(z: Complex) -> #(Float, Float) {
   maths.cartesian_to_polar(z.real, z.imaginary)
 }
 
-/// Return the complex exponential of `z`:
+/// Return the complex exponential of \\(z\\):
 ///
 /// \\[
 /// e^{a + bi} = e^a(\cos(b) + i\sin(b))
@@ -336,14 +341,14 @@ pub fn exponential(z: Complex) -> Complex {
   from_polar(maths.exponential(z.real), z.imaginary)
 }
 
-/// Return the reciprocal of `z`:
+/// Return the reciprocal of \\(z\\):
 ///
 /// \\[
 /// \frac{1}{a + bi} = \frac{a}{a^2 + b^2} - \frac{b}{a^2 + b^2}i
 /// \\]
 ///
-/// The reciprocal of zero is undefined. This function does not return a
-/// `Result`, so the reciprocal of zero may produce infinite or NaN components.
+/// This function follows the library's total division convention: the
+/// reciprocal of zero is `zero()`.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -362,10 +367,14 @@ pub fn exponential(z: Complex) -> Complex {
 ///
 pub fn reciprocal(z: Complex) -> Complex {
   let divisor = z.real *. z.real +. z.imaginary *. z.imaginary
-  Complex(z.real /. divisor, 0.0 -. z.imaginary /. divisor)
+
+  case divisor == 0.0 {
+    True -> zero()
+    False -> Complex(z.real /. divisor, 0.0 -. z.imaginary /. divisor)
+  }
 }
 
-/// Raise `z` to a complex exponent using the principal logarithm:
+/// Raise \\(z\\) to a complex exponent using the principal logarithm:
 ///
 /// \\[
 /// z^w = e^{w \operatorname{Log}(z)}
@@ -374,9 +383,9 @@ pub fn reciprocal(z: Complex) -> Complex {
 /// Complex powers are generally multi-valued. This function returns the
 /// principal value by using the principal natural logarithm.
 ///
-/// If `z` is zero, positive real exponents return `Ok(zero())`. The expressions
-/// `0^0`, `0` raised to a negative real exponent, and `0` raised to an exponent
-/// with a non-zero imaginary part return `Error(Nil)`.
+/// If \\(z = 0\\), non-zero real exponents return `Ok(zero())`. The expression
+/// \\(0^0\\) and \\(0\\) raised to an exponent with a non-zero imaginary part
+/// return `Error(Nil)`.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -402,7 +411,7 @@ pub fn reciprocal(z: Complex) -> Complex {
 pub fn power(z: Complex, exponent: Complex) -> Result(Complex, Nil) {
   case is_zero(z), is_zero(exponent), exponent.imaginary == 0.0 {
     True, True, _ -> Error(Nil)
-    True, False, True if exponent.real >. 0.0 -> Ok(zero())
+    True, False, True -> Ok(zero())
     True, _, _ -> Error(Nil)
     False, _, _ -> {
       use log_z <- result.try(natural_logarithm(z))
@@ -412,7 +421,7 @@ pub fn power(z: Complex, exponent: Complex) -> Result(Complex, Nil) {
   }
 }
 
-/// Raise `z` to a real-valued exponent using the principal argument:
+/// Raise \\(z\\) to a real-valued exponent using the principal argument:
 ///
 /// \\[
 /// z^p = e^{p \operatorname{Log}(z)}
@@ -422,8 +431,8 @@ pub fn power(z: Complex, exponent: Complex) -> Result(Complex, Nil) {
 /// function returns the principal value. This is equivalent to calling
 /// `power(z, from_float(exponent))`.
 ///
-/// If `z` is zero, positive exponents return `Ok(zero())`. The expressions
-/// `0^0` and `0` raised to a negative exponent return `Error(Nil)`.
+/// If \\(z = 0\\), non-zero exponents return `Ok(zero())`. The expression
+/// \\(0^0\\) returns `Error(Nil)`.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -450,20 +459,20 @@ pub fn power_with_real_exponent(
   power(z, from_float(exponent))
 }
 
-/// Return the `n`th roots of `z`.
+/// Return the \\(n\\)th roots of \\(z\\).
 ///
-/// For positive `n` and non-zero \\(z = re^{i\phi}\\), the roots are:
+/// For positive \\(n\\) and non-zero \\(z = re^{i\phi}\\), the roots are:
 ///
 /// \\[
 /// \sqrt[n]{r}e^{i\frac{\phi + 2\pi k}{n}}
 /// \quad \text{for} \quad k = 0, 1, \dots, n - 1
 /// \\]
 ///
-/// Positive `n` values return the `n` complex roots, except that the roots of
-/// zero are returned as `[zero()]`. The zeroth root is undefined and returns
+/// Positive \\(n\\) values return the \\(n\\) complex roots, except that the roots of
+/// zero are returned as `Ok([zero()])`. The zeroth root is undefined and returns
 /// `Error(Nil)`. Negative roots return the reciprocal values of the
-/// corresponding positive roots. Negative roots of zero are undefined and
-/// return `Error(Nil)`.
+/// corresponding positive roots; since the reciprocal of zero is `zero()`,
+/// negative roots of zero return `Ok([zero()])`.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -486,7 +495,7 @@ pub fn power_with_real_exponent(
 pub fn nth_root(z: Complex, n: Int) -> Result(List(Complex), Nil) {
   case int.compare(n, 0), is_zero(z) {
     Eq, _ -> Error(Nil)
-    Lt, True -> Error(Nil)
+    Lt, True -> Ok([zero()])
     Lt, False -> {
       let assert Ok(result_before_reciprocal) = nth_root(z, -n)
       Ok(
@@ -734,7 +743,7 @@ pub fn cumulative_product(arr: List(Complex)) -> List(Complex) {
 ///
 /// </details>
 ///
-pub fn absolute_difference(a: Complex, b: Complex) {
+pub fn absolute_difference(a: Complex, b: Complex) -> Float {
   absolute_value(subtract(a, b))
 }
 
@@ -772,8 +781,8 @@ pub fn mean(arr: List(Complex)) -> Result(Complex, Nil) {
   }
 }
 
-/// Determine if `x` is close to or equivalent to `y`, based on supplied
-/// relative `rtol` and absolute `atol` tolerance values.
+/// Determine if \\(x\\) is close to or equivalent to \\(y\\), based on supplied
+/// relative \\(r_{tol}\\) and absolute \\(a_{tol}\\) tolerance values.
 ///
 /// The equivalence is determined by:
 ///
@@ -820,7 +829,7 @@ pub fn is_close(x: Complex, y: Complex, rtol: Float, atol: Float) -> Bool {
 /// |x_i - y_i| \leq a_{tol} + r_{tol}|y_i|
 /// \\]
 ///
-/// This function returns one boolean result for each pair in `arr`.
+/// This function returns one boolean result for each pair in the input list.
 /// Negative tolerance values make each comparison return `False`.
 ///
 /// <details>
@@ -850,7 +859,7 @@ pub fn all_close(
   list.map(arr, fn(tuple) { is_close(tuple.0, tuple.1, rtol, atol) })
 }
 
-/// Return the principal natural logarithm of `z`:
+/// Return the principal natural logarithm of \\(z\\):
 ///
 /// \\[
 /// \operatorname{Log}(z) = \ln(|z|) + i\arg(z)
@@ -887,7 +896,7 @@ pub fn natural_logarithm(z: Complex) -> Result(Complex, Nil) {
   }
 }
 
-/// Return the logarithm of `z` with the given complex `base`:
+/// Return the logarithm of \\(z\\) with the given complex base:
 ///
 /// \\[
 /// \log_b(z) = \frac{\operatorname{Log}(z)}{\operatorname{Log}(b)}
@@ -925,7 +934,7 @@ pub fn logarithm(z: Complex, base: Complex) -> Result(Complex, Nil) {
   }
 }
 
-/// Return the principal base-10 logarithm of `z`:
+/// Return the principal base-10 logarithm of \\(z\\):
 ///
 /// \\[
 /// \log_{10}(z)
@@ -952,7 +961,7 @@ pub fn logarithm_10(z: Complex) -> Result(Complex, Nil) {
   logarithm(z, from_float(10.0))
 }
 
-/// Return the principal square root of `z`.
+/// Return the principal square root of \\(z\\).
 ///
 /// This function returns the square root whose argument lies in the principal
 /// branch.
@@ -979,7 +988,7 @@ pub fn square_root(z: Complex) -> Complex {
   result
 }
 
-/// Return the sine of `z`:
+/// Return the sine of \\(z\\):
 ///
 /// \\[
 /// \sin(a + bi) = \sin(a)\cosh(b) + i\cos(a)\sinh(b)
@@ -1007,7 +1016,7 @@ pub fn sin(z: Complex) -> Complex {
   )
 }
 
-/// Return the cosine of `z`:
+/// Return the cosine of \\(z\\):
 ///
 /// \\[
 /// \cos(a + bi) = \cos(a)\cosh(b) - i\sin(a)\sinh(b)
@@ -1035,14 +1044,15 @@ pub fn cos(z: Complex) -> Complex {
   )
 }
 
-/// Return the tangent of `z`:
+/// Return the tangent of \\(z\\):
 ///
 /// \\[
 /// \tan(z) = \frac{\sin(z)}{\cos(z)}
 /// \\]
 ///
-/// Tangent is calculated as `sin(z) / cos(z)`. Values where `cos(z)` is zero are
-/// undefined and may produce infinite or NaN components.
+/// Tangent is calculated as \\(\sin(z) / \cos(z)\\). This function follows the
+/// library's total division convention, so values where \\(\cos(z) = 0\\) return
+/// `zero()`.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -1063,7 +1073,7 @@ pub fn tan(z: Complex) -> Complex {
   divide(sin(z), cos(z))
 }
 
-/// Return the principal inverse sine of `z`:
+/// Return the principal inverse sine of \\(z\\):
 ///
 /// \\[
 /// \arcsin(z) = -i\operatorname{Log}(iz + \sqrt{1 - z^2})
@@ -1098,7 +1108,7 @@ pub fn asin(z: Complex) -> Result(Complex, Nil) {
   Ok(multiply(Complex(0.0, -1.0), log_value))
 }
 
-/// Return the principal inverse cosine of `z`:
+/// Return the principal inverse cosine of \\(z\\):
 ///
 /// \\[
 /// \arccos(z) = \frac{\pi}{2} - \arcsin(z)
@@ -1127,7 +1137,7 @@ pub fn acos(z: Complex) -> Result(Complex, Nil) {
   Ok(subtract(Complex(maths.pi() /. 2.0, 0.0), asin_z))
 }
 
-/// Return the principal inverse tangent of `z`:
+/// Return the principal inverse tangent of \\(z\\):
 ///
 /// \\[
 /// \begin{aligned}
@@ -1164,7 +1174,7 @@ pub fn atan(z: Complex) -> Result(Complex, Nil) {
   Ok(multiply(Complex(0.0, -0.5), subtract(log_plus, log_minus)))
 }
 
-/// Return the hyperbolic sine of `z`:
+/// Return the hyperbolic sine of \\(z\\):
 ///
 /// \\[
 /// \sinh(a + bi) = \sinh(a)\cos(b) + i\cosh(a)\sin(b)
@@ -1192,7 +1202,7 @@ pub fn sinh(z: Complex) -> Complex {
   )
 }
 
-/// Return the hyperbolic cosine of `z`:
+/// Return the hyperbolic cosine of \\(z\\):
 ///
 /// \\[
 /// \cosh(a + bi) = \cosh(a)\cos(b) + i\sinh(a)\sin(b)
@@ -1220,14 +1230,15 @@ pub fn cosh(z: Complex) -> Complex {
   )
 }
 
-/// Return the hyperbolic tangent of `z`:
+/// Return the hyperbolic tangent of \\(z\\):
 ///
 /// \\[
 /// \tanh(z) = \frac{\sinh(z)}{\cosh(z)}
 /// \\]
 ///
-/// Hyperbolic tangent is calculated as `sinh(z) / cosh(z)`. Values where
-/// `cosh(z)` is zero are undefined and may produce infinite or NaN components.
+/// Hyperbolic tangent is calculated as \\(\sinh(z) / \cosh(z)\\). This function
+/// follows the library's total division convention, so values where
+/// \\(\cosh(z) = 0\\) return `zero()`.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -1248,7 +1259,7 @@ pub fn tanh(z: Complex) -> Complex {
   divide(sinh(z), cosh(z))
 }
 
-/// Return the principal inverse hyperbolic sine of `z`:
+/// Return the principal inverse hyperbolic sine of \\(z\\):
 ///
 /// \\[
 /// \operatorname{asinh}(z) = \operatorname{Log}(z + \sqrt{z^2 + 1})
@@ -1280,7 +1291,7 @@ pub fn asinh(z: Complex) -> Result(Complex, Nil) {
   natural_logarithm(add(z, sqrt_term))
 }
 
-/// Return the principal inverse hyperbolic cosine of `z`:
+/// Return the principal inverse hyperbolic cosine of \\(z\\):
 ///
 /// \\[
 /// \operatorname{acosh}(z) = \operatorname{Log}(z + \sqrt{z + 1}\sqrt{z - 1})
@@ -1313,7 +1324,7 @@ pub fn acosh(z: Complex) -> Result(Complex, Nil) {
   natural_logarithm(add(z, multiply(sqrt_plus, sqrt_minus)))
 }
 
-/// Return the principal inverse hyperbolic tangent of `z`:
+/// Return the principal inverse hyperbolic tangent of \\(z\\):
 ///
 /// \\[
 /// \begin{aligned}
@@ -1399,7 +1410,7 @@ pub fn compare_imaginary(a: Complex, b: Complex) -> Order {
   float.compare(a.imaginary, b.imaginary)
 }
 
-/// Return the complex conjugate of `z`:
+/// Return the complex conjugate of \\(z\\):
 ///
 /// \\[
 /// \overline{a + bi} = a - bi
@@ -1424,7 +1435,7 @@ pub fn conjugate(z: Complex) -> Complex {
   Complex(z.real, 0.0 -. z.imaginary)
 }
 
-/// Convert `z` to a string.
+/// Convert \\(z\\) to a string.
 ///
 /// The output is formatted as `"a"`, `"a + bi"`, or `"a - bi"` depending on the
 /// sign of the imaginary component.

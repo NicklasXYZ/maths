@@ -83,3 +83,10 @@ with the prefix `gleam_community_`. You can add them to your Gleam projects dire
 ```sh
 gleam add gleam_community_maths
 ```
+
+## Library Conventions
+
+The library follows Gleam's convention that division by zero evaluates to zero.
+Complex division-like operations return `complex.zero()` for zero denominators.
+Higher-level APIs, including statistics and similarity metrics, still return
+`Error(Nil)` when a zero denominator makes the result uninterpretable.

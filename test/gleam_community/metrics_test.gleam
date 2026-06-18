@@ -326,6 +326,14 @@ pub fn harmonic_mean_test() {
   |> maths.harmonic_mean()
   |> should.equal(Ok(0.0))
 
+  [0.0, -1.0]
+  |> maths.harmonic_mean()
+  |> should.be_error()
+
+  [-1.0, 0.0]
+  |> maths.harmonic_mean()
+  |> should.be_error()
+
   // List with negative numbers returns an error
   [-1.0, -3.0, -6.0]
   |> maths.harmonic_mean()
@@ -360,6 +368,14 @@ pub fn geometric_mean_test() {
   [1.0, 2.0, 0.0]
   |> maths.geometric_mean()
   |> should.equal(Ok(0.0))
+
+  [0.0, -1.0]
+  |> maths.geometric_mean()
+  |> should.be_error()
+
+  [-1.0, 0.0]
+  |> maths.geometric_mean()
+  |> should.be_error()
 
   [1.0, 3.0, 9.0]
   |> maths.geometric_mean()
@@ -471,7 +487,7 @@ pub fn standard_deviation_test() {
   |> maths.is_close(0.816496580927726, 0.0, tol)
   |> should.be_true()
 
-  // Population stdev (ddof = 1) is sqrt(1/3)
+  // Corrected stdev (ddof = 1) is sqrt(1/3)
   let assert Ok(s1) = maths.standard_deviation([1.0, 1.0, 2.0, 2.0], 1)
   s1
   |> maths.is_close(0.5773502691896257, 0.0, tol)
@@ -483,7 +499,7 @@ pub fn standard_deviation_test() {
 
   // Single element: population stdev 0
   maths.standard_deviation([42.0], 0) |> should.equal(Ok(0.0))
-  // Single element, ddof 1: population stdev should be undefined
+  // Single element, ddof 1: corrected stdev should be undefined
   maths.standard_deviation([42.0], 1) |> should.be_error()
   maths.standard_deviation([42.0], 2) |> should.be_error()
 
@@ -507,7 +523,7 @@ pub fn kurtosis_test() {
   |> should.be_error()
 
   // To calculate kurtosis at least four values are needed, so
-  // test that we receive an error with list of size 1, 2, 3, 4.
+  // test that we receive an error with list sizes 1, 2, and 3.
   [1.0]
   |> maths.kurtosis()
   |> should.be_error()
@@ -738,8 +754,8 @@ pub fn zscore_test() {
   |> maths.zscore(-1)
   |> should.be_error()
 
-  // A list with all identical values should return an error
-  // (stdev = 0, division by zero not allowed)
+  // A list with all identical values should return an error because
+  // standardized scores are not meaningful when stdev = 0
   [5.0, 5.0, 5.0]
   |> maths.zscore(1)
   |> should.be_error()
