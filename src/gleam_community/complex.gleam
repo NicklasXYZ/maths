@@ -469,10 +469,8 @@ pub fn power_with_real_exponent(
 /// \\]
 ///
 /// Positive \\(n\\) values return the \\(n\\) complex roots, except that the roots of
-/// zero are returned as `Ok([zero()])`. The zeroth root is undefined and returns
-/// `Error(Nil)`. Negative roots return the reciprocal values of the
-/// corresponding positive roots; since the reciprocal of zero is `zero()`,
-/// negative roots of zero return `Ok([zero()])`.
+/// zero are returned as `Ok([zero()])`. Zero or negative root degrees are
+/// undefined and return `Error(Nil)`.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -493,37 +491,25 @@ pub fn power_with_real_exponent(
 /// </details>
 ///
 pub fn nth_root(z: Complex, n: Int) -> Result(List(Complex), Nil) {
-  case int.compare(n, 0), is_zero(z) {
-    Eq, _ -> Error(Nil)
-    Lt, True -> Ok([zero()])
-    Lt, False -> {
-      let assert Ok(result_before_reciprocal) = nth_root(z, -n)
-      Ok(
-        result_before_reciprocal
-        |> list.map(reciprocal),
-      )
-    }
-    Gt, _ ->
-      case is_zero(z) {
-        // any root of 0 = 0
-        True -> Ok([zero()])
-        False -> {
-          let arg = argument(z)
-          let r = absolute_value(z)
-          // r and n are always positive -> root is defined
-          let assert Ok(new_r) = maths.nth_root(r, n)
+  case n <= 0, is_zero(z) {
+    True, _ -> Error(Nil)
+    False, True -> Ok([zero()])
+    False, False -> {
+      let arg = argument(z)
+      let r = absolute_value(z)
+      // r and n are always positive -> root is defined
+      let assert Ok(new_r) = maths.nth_root(r, n)
 
-          int.range(0, n, [], list.prepend)
-          |> list.reverse
-          |> list.map(fn(k) {
-            from_polar(
-              new_r,
-              { arg +. 2.0 *. int.to_float(k) *. maths.pi() } /. int.to_float(n),
-            )
-          })
-          |> Ok
-        }
-      }
+      int.range(0, n, [], list.prepend)
+      |> list.reverse
+      |> list.map(fn(k) {
+        from_polar(
+          new_r,
+          { arg +. 2.0 *. int.to_float(k) *. maths.pi() } /. int.to_float(n),
+        )
+      })
+      |> Ok
+    }
   }
 }
 

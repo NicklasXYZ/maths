@@ -1760,7 +1760,8 @@ fn do_ceiling(a: Float) -> Float
 /// <summary>Details</summary>
 ///
 /// The `multiple` must be non-zero. Its sign does not change the result because
-/// positive and negative multiples describe the same spacing.
+/// positive and negative multiples describe the same spacing. A zero multiple
+/// returns `Error(Nil)`.
 ///
 /// Ties are rounded to the nearest even multiple, matching the behaviour of
 /// [`round_to_nearest`](#round_to_nearest).
@@ -1803,6 +1804,7 @@ pub fn round_to_multiple(x: Float, multiple: Float) -> Result(Float, Nil) {
 /// `x` is equal to `stop`, the returned value is `start`.
 ///
 /// The `start` value must be smaller than `stop`.
+/// Otherwise this function returns `Error(Nil)`.
 ///
 /// </details>
 ///
@@ -1848,6 +1850,7 @@ pub fn wrap_range(x: Float, start: Float, stop: Float) -> Result(Float, Nil) {
 /// wrapping directly from one boundary to the other.
 ///
 /// The `start` value must be smaller than `stop`.
+/// Otherwise this function returns `Error(Nil)`.
 ///
 /// </details>
 ///
@@ -3771,6 +3774,8 @@ fn do_median(
 /// is the sample point in the input list indexed by \\(i\\).
 /// Furthermore, \\(\bar{x}\\) is the sample mean and \\(d\\) is the "Delta
 /// Degrees of Freedom". It is typically set to \\(d = 1\\), which gives an unbiased estimate.
+/// This function returns `Error(Nil)` for empty input, negative \\(d\\), or when
+/// \\(n \le d\\), because the denominator is not positive.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -3831,6 +3836,8 @@ pub fn variance(arr: List(Float), ddof: Int) -> Result(Float, Nil) {
 /// is the sample point in the input list indexed by \\(i\\).
 /// Furthermore, \\(\bar{x}\\) is the sample mean and \\(d\\) is the "Delta
 /// Degrees of Freedom", and is typically set to \\(d = 1\\), which gives an unbiased estimate.
+/// This function returns `Error(Nil)` for empty input, negative \\(d\\), or when
+/// \\(n \le d\\), because the denominator is not positive.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -4023,6 +4030,10 @@ pub fn percentile(arr: List(Float), n: Int) -> Result(Float, Nil) {
 
 /// Calculate the z-score of each value in the list relative to the sample
 /// mean and standard deviation.
+///
+/// This function returns `Error(Nil)` for empty input, negative degrees of
+/// freedom, insufficient data for the requested degrees of freedom, or zero
+/// standard deviation.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -5704,6 +5715,7 @@ fn clamp_unit(x: Float) -> Float {
 ///
 /// Note that if `increment > 0`, the sequence progresses from `start`  towards `stop`, while if
 /// `increment < 0`, the sequence progresses from `start` towards `stop` in reverse.
+/// A zero increment returns an empty list.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -5770,6 +5782,7 @@ fn do_step_range(
 /// The function is similar to [`step_range`](#step_range) but instead returns a yielder
 /// (lazily evaluated sequence of elements). This function can be used whenever there is a need
 /// to generate a larger-than-usual sequence of elements.
+/// A zero increment returns an empty yielder.
 ///
 /// <details>
 /// <summary>Examples</summary>

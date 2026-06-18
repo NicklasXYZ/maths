@@ -86,7 +86,10 @@ gleam add gleam_community_maths
 
 ## Library Conventions
 
-The library follows Gleam's convention that division by zero evaluates to zero.
-Complex division-like operations return `complex.zero()` for zero denominators.
-Higher-level APIs, including statistics and similarity metrics, still return
-`Error(Nil)` when a zero denominator makes the result uninterpretable.
+The library follows Gleam's convention that direct division by zero evaluates to
+zero. Complex division-like operations return `complex.zero()` for zero
+denominators. APIs that model undefined or uninterpretable results with
+`Result`, such as Euclidean modulo with a zero divisor, statistics, and
+similarity metrics, return `Error(Nil)`. Predicates return `False` for
+undefined divisibility checks, and step ranges with a zero increment return
+empty sequences.

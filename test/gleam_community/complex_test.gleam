@@ -311,32 +311,14 @@ pub fn nth_root_default_positive_test() {
   |> should.be_true
 }
 
-pub fn nth_root_default_negative_test() {
-  let roots =
-    complex.nth_root(Complex(13.4, -16.4), -3)
-    |> should.be_ok
-
-  roots
-  |> list.length
-  |> should.equal(3)
-
-  roots
-  |> list.zip([
-    Complex(0.346, 0.105),
-    Complex(-0.08, -0.35),
-    Complex(-0.26, 0.247),
-  ])
-  |> list.all(fn(tuple) {
-    let #(actual, expected) = tuple
-    complex.is_close(actual, expected, 0.0, 0.01)
-  })
-  |> should.be_true
+pub fn nth_root_negative_test() {
+  complex.nth_root(Complex(13.4, -16.4), -3)
+  |> should.be_error
 }
 
 pub fn nth_root_zero_to_negative_test() {
   complex.nth_root(Complex(0.0, 0.0), -3)
-  |> should.be_ok
-  |> should.equal([Complex(0.0, 0.0)])
+  |> should.be_error
 }
 
 pub fn nth_root_zero_to_positive_test() {
