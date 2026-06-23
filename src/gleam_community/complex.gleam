@@ -374,18 +374,21 @@ pub fn reciprocal(z: Complex) -> Complex {
   }
 }
 
-/// Raise \\(z\\) to a complex exponent using the principal logarithm:
+/// Raise \\(z\\) to a complex exponent.
+///
+/// For non-zero \\(z\\), this function uses the principal logarithm:
 ///
 /// \\[
 /// z^w = e^{w \operatorname{Log}(z)}
 /// \\]
 ///
 /// Complex powers are generally multi-valued. This function returns the
-/// principal value by using the principal natural logarithm.
+/// principal value for non-zero bases.
 ///
-/// If \\(z = 0\\), non-zero real exponents return `Ok(zero())`. The expression
-/// \\(0^0\\) and \\(0\\) raised to an exponent with a non-zero imaginary part
-/// return `Error(Nil)`.
+/// If \\(z = 0\\), the logarithm is not evaluated. Zero bases follow Gleam's
+/// division-by-zero rule: non-zero real exponents return `Ok(zero())`, while
+/// \\(0^0\\) and zero raised to an exponent with a non-zero imaginary part return
+/// `Error(Nil)`.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -421,7 +424,9 @@ pub fn power(z: Complex, exponent: Complex) -> Result(Complex, Nil) {
   }
 }
 
-/// Raise \\(z\\) to a real-valued exponent using the principal argument:
+/// Raise \\(z\\) to a real-valued exponent.
+///
+/// For non-zero \\(z\\), this function uses the principal logarithm:
 ///
 /// \\[
 /// z^p = e^{p \operatorname{Log}(z)}
@@ -431,7 +436,8 @@ pub fn power(z: Complex, exponent: Complex) -> Result(Complex, Nil) {
 /// function returns the principal value. This is equivalent to calling
 /// `power(z, from_float(exponent))`.
 ///
-/// If \\(z = 0\\), non-zero exponents return `Ok(zero())`. The expression
+/// If \\(z = 0\\), the logarithm is not evaluated. Non-zero exponents return
+/// `Ok(zero())`, following Gleam's division-by-zero rule. The expression
 /// \\(0^0\\) returns `Error(Nil)`.
 ///
 /// <details>

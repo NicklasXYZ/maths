@@ -335,6 +335,9 @@ pub fn math_round_ties_up_test() {
   maths.round_ties_up(-1.4, 0)
   |> should.equal(-1.0)
 
+  maths.round_ties_up(-1.6, 0)
+  |> should.equal(-2.0)
+
   maths.round_ties_up(-1.5, 0)
   |> should.equal(-1.0)
 

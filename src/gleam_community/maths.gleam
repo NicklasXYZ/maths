@@ -1597,7 +1597,7 @@ pub fn round_ties_up(x: Float, p: Int) -> Float {
   let xabs_truncated = truncate_float(xabs)
   let remainder = xabs -. xabs_truncated
   case remainder {
-    _ if remainder >=. 0.5 && x >=. 0.0 ->
+    _ if remainder >. 0.5 || { remainder == 0.5 && x >=. 0.0 } ->
       sign(x) *. truncate_float(xabs +. 1.0) /. scale
     _ -> sign(x) *. xabs_truncated /. scale
   }
