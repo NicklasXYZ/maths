@@ -63,6 +63,8 @@ pub fn divide_by_one_test() {
 }
 
 pub fn divide_by_zero_test() {
+  // Plain complex division follows the library convention: division by zero
+  // returns zero rather than an error.
   complex.divide(Complex(1.0, 2.0), Complex(0.0, 0.0))
   |> should.equal(Complex(0.0, 0.0))
 }
@@ -188,22 +190,26 @@ pub fn reciprocal_one_test() {
 }
 
 pub fn reciprocal_zero_test() {
+  // Reciprocals use the same plain-value division convention as divide/2.
   complex.reciprocal(Complex(0.0, 0.0))
   |> should.equal(Complex(0.0, 0.0))
 }
 
 pub fn power_with_real_exponent_undefined_test() {
+  // Zero to the zeroth power is undefined for Result-returning powers.
   complex.power_with_real_exponent(Complex(0.0, 0.0), 0.0)
   |> should.be_error
 }
 
 pub fn power_with_real_exponent_of_zero_test() {
+  // Zero to a positive real exponent returns zero.
   complex.power_with_real_exponent(Complex(0.0, 0.0), 4.0)
   |> should.be_ok
   |> should.equal(Complex(0.0, 0.0))
 }
 
 pub fn power_with_real_exponent_zero_to_positive_fractional_test() {
+  // Positive fractional real exponents follow the same zero-base convention.
   complex.power_with_real_exponent(Complex(0.0, 0.0), 0.5)
   |> should.be_ok
   |> should.equal(Complex(0.0, 0.0))
@@ -216,6 +222,7 @@ pub fn power_with_real_exponent_to_the_zeroth_test() {
 }
 
 pub fn power_with_real_exponent_zero_to_negative_test() {
+  // Zero to a negative exponent would require a reciprocal of zero.
   complex.power_with_real_exponent(Complex(0.0, 0.0), -1.0)
   |> should.be_error
 }
@@ -259,22 +266,26 @@ pub fn power_to_zero_complex_exponent_test() {
 }
 
 pub fn power_zero_to_complex_exponent_test() {
+  // A zero base only succeeds when the complex exponent is positive and real.
   complex.power(Complex(0.0, 0.0), Complex(1.0, 0.0))
   |> should.be_ok
   |> should.equal(Complex(0.0, 0.0))
 }
 
 pub fn power_zero_to_zero_complex_exponent_test() {
+  // Zero to the zeroth power is undefined for complex exponents too.
   complex.power(Complex(0.0, 0.0), Complex(0.0, 0.0))
   |> should.be_error
 }
 
 pub fn power_zero_to_negative_complex_exponent_test() {
+  // Negative real exponents are undefined for a zero base.
   complex.power(Complex(0.0, 0.0), Complex(-1.0, 0.0))
   |> should.be_error
 }
 
 pub fn power_zero_to_non_real_complex_exponent_test() {
+  // Non-real exponents would require evaluating the logarithm of zero.
   complex.power(Complex(0.0, 0.0), Complex(1.0, 1.0))
   |> should.be_error
 }
@@ -326,6 +337,7 @@ pub fn nth_root_zero_to_negative_test() {
 }
 
 pub fn nth_root_zero_to_positive_test() {
+  // All roots of zero collapse to the single zero root.
   complex.nth_root(Complex(0.0, 0.0), 3)
   |> should.be_ok
   |> should.equal([Complex(0.0, 0.0)])
@@ -516,6 +528,7 @@ pub fn all_close_empty_test() {
 }
 
 pub fn all_close_negative_tolerance_test() {
+  // Negative tolerances are invalid and make the comparison fail.
   complex.all_close([#(Complex(1.0, 1.0), Complex(1.0, 1.0))], -0.01, 0.0)
   |> should.equal([False])
 }
@@ -623,6 +636,8 @@ pub fn tan_zero_test() {
 }
 
 pub fn tan_singularity_test() {
+  // Lock in exact pole detection at pi / 2, not tolerance-based near-pole
+  // behavior.
   complex.tan(Complex(maths.pi() /. 2.0, 0.0))
   |> should.be_error
 }
@@ -730,6 +745,7 @@ pub fn tanh_zero_test() {
 }
 
 pub fn tanh_singularity_test() {
+  // Lock in exact pole detection at i*pi/2 for the hyperbolic tangent.
   complex.tanh(Complex(0.0, maths.pi() /. 2.0))
   |> should.be_error
 }

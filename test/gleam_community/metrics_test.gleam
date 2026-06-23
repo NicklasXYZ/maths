@@ -12,7 +12,7 @@ fn norm_test_cases() {
     #([], 1.0, 0.0),
     #([1.0, 1.0, 1.0], 1.0, 3.0),
     // Check the special case:
-    // The pseudo-norm when p = 0 (we count the number of non-zero elements in the given list)
+    // The pseudo-norm when p = 0 counts non-zero values in the given list.
     #([1.0, 1.0, 1.0], 0.0, 3.0),
     #([1.0, 1.0, 1.0], -1.0, 0.3333333333333333),
     #([-1.0, -1.0, -1.0], -1.0, 0.3333333333333333),
@@ -79,14 +79,17 @@ pub fn list_norm_with_weights_test() {
   |> maths.is_close(2.6457513110645907, 0.0, tol)
   |> should.be_true()
 
+  // Negative weights are invalid for weighted norms.
   [#(1.0, -1.0)]
   |> maths.norm_with_weights(2.0)
   |> should.be_error()
 
+  // With p < 0, an input with no positive weights returns zero.
   [#(1.0, 0.0)]
   |> maths.norm_with_weights(-1.0)
   |> should.equal(Ok(0.0))
 
+  // With p < 0, zero-weighted values are ignored.
   let assert Ok(result) =
     [#(2.0, 0.0), #(4.0, 1.0)]
     |> maths.norm_with_weights(-1.0)
@@ -94,6 +97,7 @@ pub fn list_norm_with_weights_test() {
   |> maths.is_close(4.0, 0.0, tol)
   |> should.be_true()
 
+  // A zero value with zero weight is ignored rather than forcing Ok(0.0).
   let assert Ok(result) =
     [#(0.0, 0.0), #(4.0, 1.0)]
     |> maths.norm_with_weights(-1.0)
@@ -101,6 +105,7 @@ pub fn list_norm_with_weights_test() {
   |> maths.is_close(4.0, 0.0, tol)
   |> should.be_true()
 
+  // All-zero weights mean there are no positive-weighted terms to aggregate.
   [#(2.0, 0.0), #(4.0, 0.0)]
   |> maths.norm_with_weights(-1.0)
   |> should.equal(Ok(0.0))
@@ -923,6 +928,7 @@ pub fn correlation_test() {
 }
 
 pub fn jaccard_index_test() {
+  // Identical empty sets are treated as perfectly similar for Jaccard.
   maths.jaccard_index(set.from_list([]), set.from_list([]))
   |> should.equal(Ok(1.0))
 
@@ -943,6 +949,7 @@ pub fn jaccard_index_test() {
 }
 
 pub fn sorensen_dice_coefficient_test() {
+  // Identical empty sets are treated as perfectly similar for Sorensen-Dice.
   maths.sorensen_dice_coefficient(set.from_list([]), set.from_list([]))
   |> should.equal(Ok(1.0))
 
@@ -963,6 +970,7 @@ pub fn sorensen_dice_coefficient_test() {
 }
 
 pub fn tversky_index_test() {
+  // Identical empty sets are treated as perfectly similar for Tversky.
   maths.tversky_index(set.from_list([]), set.from_list([]), 1.0, 1.0)
   |> should.equal(Ok(1.0))
 
@@ -971,14 +979,17 @@ pub fn tversky_index_test() {
   maths.tversky_index(set_a, set_b, 0.5, 0.25)
   |> should.equal(Ok(4.0 /. 6.25))
 
+  // With disjoint non-empty sets and zero alpha/beta, the denominator is zero.
   maths.tversky_index(set.from_list([1]), set.from_list([2]), 0.0, 0.0)
   |> should.be_error()
 
+  // Negative alpha or beta weights are invalid.
   maths.tversky_index(set.from_list([1]), set.from_list([2]), -1.0, 1.0)
   |> should.be_error()
 }
 
 pub fn overlap_coefficient_test() {
+  // The denominator is the smaller set size, so any empty set is undefined.
   maths.overlap_coefficient(set.from_list([]), set.from_list([]))
   |> should.be_error()
 
@@ -1212,6 +1223,7 @@ pub fn braycurtis_distance_test() {
   maths.braycurtis_distance_with_weights([#(0.0, 0.0, 1.0), #(0.0, 0.0, 0.5)])
   |> should.be_error()
 
+  // All-zero weights leave a zero denominator, so the distance is undefined.
   maths.braycurtis_distance_with_weights([#(1.0, 3.0, 0.0), #(2.0, 4.0, 0.0)])
   |> should.be_error()
 

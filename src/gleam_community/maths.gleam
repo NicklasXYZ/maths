@@ -2995,7 +2995,7 @@ pub fn norm(arr: List(Float), p: Float) -> Result(Float, Nil) {
     _ -> {
       case p {
         // Handle the special case when `p` is equal to zero. In this case, we compute a
-        // pseudo-norm, which is the number of non-zero elements in the given list `arr`
+        // pseudo-norm, which is the number of non-zero values in `arr`.
         0.0 ->
           Ok(
             list.fold(arr, 0.0, fn(acc, element) {
@@ -3106,7 +3106,7 @@ pub fn norm_with_weights(
           case p {
             0.0 -> {
               // Handle the special case when `p` is equal to zero. In this case, we compute
-              // a pseudo-norm, which is the number of non-zero elements in the given list `arr`
+              // a pseudo-norm, which is the number of non-zero values in `arr`.
               Ok(
                 list.fold(arr, 0.0, fn(acc, tuple) {
                   case tuple {
@@ -3548,7 +3548,7 @@ pub fn moment(arr: List(Float), n: Int) -> Result(Float, Nil) {
   case arr, n {
     // Handle empty list: no moments can be calculated
     [], _ -> Error(Nil)
-    // 0th moment is always 1.0, regardless of the dataset
+    // 0th moment is always 1.0 for any non-empty dataset
     _, 0 -> Ok(1.0)
     // 1st moment (about the mean) is always 0.0 by definition
     _, 1 -> Ok(0.0)

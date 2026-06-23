@@ -278,6 +278,8 @@ pub fn math_tan_test() {
   |> maths.is_close(-1.0 *. tan_positive, 0.0, tol)
   |> should.be_true()
 
+  // Exact poles return Error(Nil); nearby values remain finite and are
+  // checked below.
   maths.tan(maths.pi() /. 2.0)
   |> should.be_error()
 
@@ -293,8 +295,8 @@ pub fn math_tan_test() {
   let result = tan_near_left >. large_number
   should.be_true(result)
 
-  // Near asymptote: pi/2 from above so the result 
-  // should be a large negative number 
+  // Near asymptote: pi/2 from above so the result
+  // should be a large negative number
   let assert Ok(tan_near_right) =
     maths.tan(maths.pi() /. 2.0 +. 1.0 *. small_number)
   let result = tan_near_right <. -1.0 *. large_number

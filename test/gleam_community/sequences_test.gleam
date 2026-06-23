@@ -38,6 +38,7 @@ pub fn yield_linear_space_test() {
   |> yielder.to_list()
   |> should.equal([10.0])
 
+  // Zero steps return an empty yielder.
   let assert Ok(linspace) = maths.yield_linear_space(10.0, 20.0, 0, True)
   linspace
   |> yielder.to_list()
@@ -48,8 +49,7 @@ pub fn yield_linear_space_test() {
   |> yielder.to_list()
   |> should.equal([])
 
-  // Try with negative stop
-  // ----> Without endpoint included
+  // Without endpoint included
   let assert Ok(linspace) = maths.yield_linear_space(10.0, 50.0, 5, False)
   maths.all_close(
     linspace |> yielder.to_list() |> list.zip([10.0, 18.0, 26.0, 34.0, 42.0]),
@@ -168,6 +168,7 @@ pub fn list_linear_space_test() {
   linspace
   |> should.equal([10.0])
 
+  // Zero steps return an empty list.
   let assert Ok(linspace) = maths.linear_space(10.0, 20.0, 0, True)
   linspace
   |> should.equal([])
@@ -176,8 +177,7 @@ pub fn list_linear_space_test() {
   linspace
   |> should.equal([])
 
-  // Try with negative stop
-  // ----> Without endpoint included
+  // Without endpoint included
   let assert Ok(linspace) = maths.linear_space(10.0, 50.0, 5, False)
   maths.all_close(
     linspace |> list.zip([10.0, 18.0, 26.0, 34.0, 42.0]),
@@ -303,6 +303,7 @@ pub fn yield_logarithmic_space_test() {
   |> yielder.to_list()
   |> should.equal([])
 
+  // With zero steps, no values are generated, so the base is not validated.
   let assert Ok(logspace) =
     maths.yield_logarithmic_space(1.0, 3.0, 0, True, 0.0)
   logspace
@@ -411,6 +412,7 @@ pub fn list_logarithmic_space_test() {
   logspace
   |> should.equal([])
 
+  // With zero steps, no values are generated, so the base is not validated.
   let assert Ok(logspace) = maths.logarithmic_space(1.0, 3.0, 0, True, 0.0)
   logspace
   |> should.equal([])
@@ -510,6 +512,7 @@ pub fn yield_geometric_space_test() {
   |> yielder.to_list()
   |> should.equal([])
 
+  // With zero steps, non-positive bounds are not validated.
   let assert Ok(logspace) = maths.yield_geometric_space(0.0, 1000.0, 0, True)
   logspace
   |> yielder.to_list()
@@ -618,6 +621,7 @@ pub fn list_geometric_space_test() {
   logspace
   |> should.equal([])
 
+  // With zero steps, non-positive bounds are not validated.
   let assert Ok(logspace) = maths.geometric_space(0.0, 1000.0, 0, True)
   logspace
   |> should.equal([])
@@ -719,11 +723,11 @@ pub fn list_step_range_test() {
   maths.step_range(5.0, 1.0, -1.0)
   |> should.equal([5.0, 4.0, 3.0, 2.0])
 
-  // Positive start, negative stop, step
+  // Positive start, negative stop, negative step
   maths.step_range(5.0, -1.0, -1.0)
   |> should.equal([5.0, 4.0, 3.0, 2.0, 1.0, 0.0])
 
-  // Negative start, stop, step
+  // Negative start and stop with a negative step cannot advance toward stop
   maths.step_range(-5.0, -1.0, -1.0)
   |> should.equal([])
 
@@ -731,6 +735,7 @@ pub fn list_step_range_test() {
   maths.step_range(-5.0, -1.0, 1.0)
   |> should.equal([-5.0, -4.0, -3.0, -2.0])
 
+  // A zero step cannot advance, so it returns an empty range.
   maths.step_range(0.0, 1.0, 0.0)
   |> should.equal([])
 }
@@ -775,12 +780,12 @@ pub fn yield_step_range_test() {
   |> yielder.to_list()
   |> should.equal([5.0, 4.0, 3.0, 2.0])
 
-  // Positive start, negative stop, step
+  // Positive start, negative stop, negative step
   maths.yield_step_range(5.0, -1.0, -1.0)
   |> yielder.to_list()
   |> should.equal([5.0, 4.0, 3.0, 2.0, 1.0, 0.0])
 
-  // Negative start, stop, step
+  // Negative start and stop with a negative step cannot advance toward stop
   maths.yield_step_range(-5.0, -1.0, -1.0)
   |> yielder.to_list()
   |> should.equal([])
@@ -790,6 +795,7 @@ pub fn yield_step_range_test() {
   |> yielder.to_list()
   |> should.equal([-5.0, -4.0, -3.0, -2.0])
 
+  // A zero step cannot advance, so it returns an empty yielder.
   maths.yield_step_range(0.0, 1.0, 0.0)
   |> yielder.to_list()
   |> should.equal([])
@@ -822,7 +828,7 @@ pub fn yield_symmetric_space_test() {
   |> yielder.to_list()
   |> should.equal([5.0, 2.5, 0.0, -2.5, -5.0])
 
-  // Uneven number of points
+  // Even number of points
   let assert Ok(sym_space) = maths.yield_symmetric_space(0.0, 2.0, 4)
   maths.all_close(
     sym_space
@@ -835,7 +841,7 @@ pub fn yield_symmetric_space_test() {
   |> should.be_true()
 
   // Check that when radius == 0 and steps > 0, then
-  // the value center value is just repeated, since the
+  // the center value is just repeated, since the
   // step increment will be 0
   let assert Ok(sym_space) = maths.yield_symmetric_space(10.0, 0.0, 4)
   sym_space
@@ -875,7 +881,7 @@ pub fn list_symmetric_space_test() {
   sym_space
   |> should.equal([5.0, 2.5, 0.0, -2.5, -5.0])
 
-  // Uneven number of points
+  // Even number of points
   let assert Ok(sym_space) = maths.symmetric_space(0.0, 2.0, 4)
   maths.all_close(
     sym_space
@@ -887,7 +893,7 @@ pub fn list_symmetric_space_test() {
   |> should.be_true()
 
   // Check that when radius == 0 and steps > 0, then
-  // the value center value is just repeated, since the
+  // the center value is just repeated, since the
   // step increment will be 0
   let assert Ok(sym_space) = maths.symmetric_space(10.0, 0.0, 4)
   sym_space

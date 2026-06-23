@@ -205,14 +205,17 @@ pub fn int_list_cumulative_product_test() {
 }
 
 pub fn weighted_product_test() {
+  // Empty weighted products use the multiplicative identity.
   []
   |> maths.weighted_product()
   |> should.equal(Ok(1.0))
 
+  // Negative weights are invalid.
   [#(1.0, -1.0), #(2.0, -1.0), #(3.0, -1.0)]
   |> maths.weighted_product()
   |> should.equal(Error(Nil))
 
+  // Zero weights are ignored, leaving the multiplicative identity.
   [#(1.0, 0.0), #(2.0, 0.0), #(3.0, 0.0)]
   |> maths.weighted_product()
   |> should.equal(Ok(1.0))
@@ -239,14 +242,17 @@ pub fn weighted_product_test() {
 }
 
 pub fn weighted_sum_test() {
+  // Empty weighted sums use the additive identity.
   []
   |> maths.weighted_sum()
   |> should.equal(Ok(0.0))
 
+  // Negative weights are invalid.
   [#(1.0, -1.0), #(2.0, -1.0), #(3.0, -1.0)]
   |> maths.weighted_sum()
   |> should.equal(Error(Nil))
 
+  // Zero weights are ignored, leaving the additive identity.
   [#(1.0, 0.0), #(2.0, 0.0), #(3.0, 0.0)]
   |> maths.weighted_sum()
   |> should.equal(Ok(0.0))
