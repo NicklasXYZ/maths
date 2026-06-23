@@ -505,15 +505,16 @@ pub fn nth_root(z: Complex, n: Int) -> Result(List(Complex), Nil) {
       // r and n are always positive -> root is defined
       let assert Ok(new_r) = maths.nth_root(r, n)
 
-      int.range(0, n, [], list.prepend)
-      |> list.reverse
-      |> list.map(fn(k) {
-        from_polar(
-          new_r,
-          { arg +. 2.0 *. int.to_float(k) *. maths.pi() } /. int.to_float(n),
-        )
-      })
-      |> Ok
+      Ok(
+        int.range(0, n, [], list.prepend)
+        |> list.reverse
+        |> list.map(fn(k) {
+          from_polar(
+            new_r,
+            { arg +. 2.0 *. int.to_float(k) *. maths.pi() } /. int.to_float(n),
+          )
+        }),
+      )
     }
   }
 }
@@ -779,9 +780,7 @@ pub fn mean(arr: List(Complex)) -> Result(Complex, Nil) {
   case arr {
     [] -> Error(Nil)
     _ ->
-      sum(arr)
-      |> divide(arr |> list.length |> int.to_float |> from_float)
-      |> Ok
+      Ok(sum(arr) |> divide(arr |> list.length |> int.to_float |> from_float))
   }
 }
 
