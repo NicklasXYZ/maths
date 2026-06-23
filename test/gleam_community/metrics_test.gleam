@@ -86,6 +86,24 @@ pub fn list_norm_with_weights_test() {
   [#(1.0, 0.0)]
   |> maths.norm_with_weights(-1.0)
   |> should.equal(Ok(0.0))
+
+  let assert Ok(result) =
+    [#(2.0, 0.0), #(4.0, 1.0)]
+    |> maths.norm_with_weights(-1.0)
+  result
+  |> maths.is_close(4.0, 0.0, tol)
+  |> should.be_true()
+
+  let assert Ok(result) =
+    [#(0.0, 0.0), #(4.0, 1.0)]
+    |> maths.norm_with_weights(-1.0)
+  result
+  |> maths.is_close(4.0, 0.0, tol)
+  |> should.be_true()
+
+  [#(2.0, 0.0), #(4.0, 0.0)]
+  |> maths.norm_with_weights(-1.0)
+  |> should.equal(Ok(0.0))
 }
 
 pub fn list_manhattan_test() {

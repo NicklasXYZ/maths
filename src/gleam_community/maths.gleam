@@ -274,6 +274,9 @@ pub fn proper_divisors(n: Int) -> Result(List(Int), Nil) {
 /// is the value in the input list indexed by \\(i\\), while the \\(w_i \in \mathbb{R}\\)
 /// are corresponding non-negative weights.
 ///
+/// This function returns an error for negative weights. Zero weights are
+/// allowed.
+///
 /// <details>
 /// <summary>Examples</summary>
 ///
@@ -1075,23 +1078,35 @@ fn do_sinh(a: Float) -> Float
 ///
 /// pub fn example() {
 ///   maths.tan(0.0)
-///   |> should.equal(0.0)
+///   |> should.equal(Ok(0.0))
 ///
-///   maths.tan(maths.pi() /. 4.0)
+///   let assert Ok(result) = maths.tan(maths.pi() /. 4.0)
+///   result
 ///   |> maths.is_close(1.0, 0.0, 0.000000000001)
 ///   |> should.be_true()
+///
+///   maths.tan(maths.pi() /. 2.0)
+///   |> should.be_error()
 /// }
 /// ```
 ///
 /// </details>
 ///
-pub fn tan(x: Float) -> Float {
-  do_tan(x)
+pub fn tan(x: Float) -> Result(Float, Nil) {
+  case is_tangent_pole(x) {
+    True -> Error(Nil)
+    False -> Ok(do_tan(x))
+  }
 }
 
 @external(erlang, "math", "tan")
 @external(javascript, "../maths.mjs", "tan")
 fn do_tan(a: Float) -> Float
+
+fn is_tangent_pole(x: Float) -> Bool {
+  let periods_from_first_pole = x /. pi() -. 0.5
+  !is_fractional(periods_from_first_pole)
+}
 
 /// The hyperbolic tangent function:
 ///
@@ -1100,24 +1115,32 @@ fn do_tan(a: Float) -> Float
 /// \\]
 ///
 /// The function takes a number \\(x\\) in its domain \\(\(-\infty, \infty\)\\) as input
-/// and returns a numeric value \\(y\\) that lies in the range \\(\(-1, 1\)\\).
+/// and mathematically returns a numeric value \\(y\\) that lies in the range
+/// \\(\(-1, 1\)\\). Because this function returns floating-point values, very
+/// large positive or negative inputs may round to `1.0` or `-1.0`.
 ///
 /// <details>
 /// <summary>Examples</summary>
 ///
 /// ```gleam
+/// import gleam/float
 /// import gleeunit/should
 /// import gleam_community/maths
 ///
 /// pub fn example() {
+///   let assert Ok(tolerance) = float.power(10.0, -9.0)
+///
 ///   maths.tanh(0.0)
-///   |> should.equal(0.0)
+///   |> maths.is_close(0.0, 0.0, tolerance)
+///   |> should.be_true()
 ///
 ///   maths.tanh(25.0)
-///   |> should.equal(1.0)
+///   |> maths.is_close(1.0, 0.0, tolerance)
+///   |> should.be_true()
 ///
 ///   maths.tanh(-25.0)
-///   |> should.equal(-1.0)
+///   |> maths.is_close(-1.0, 0.0, tolerance)
+///   |> should.be_true()
 /// }
 /// ```
 ///
@@ -1340,9 +1363,11 @@ fn do_logarithm_10(a: Float) -> Float
 
 /// The nth root function: \\(y = \sqrt[n]{x} = x^{\frac{1}{n}}\\).
 ///
-/// Note that this function only accepts non-negative input values (\\(x >= 0\\))
-/// and positive root degrees (\\(n >= 1\\)). An error is returned for negative
-/// input values or non-positive root degrees.
+/// This function accepts positive root degrees (\\(n >= 1\\)). Negative input
+/// values are accepted for odd root degrees and return the real negative root.
+/// Negative input values with even root degrees would require returning complex
+/// numbers, so this real-valued function returns an error for those inputs.
+/// Non-positive root degrees also return an error.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -1361,6 +1386,9 @@ fn do_logarithm_10(a: Float) -> Float
 ///   maths.nth_root(27.0, 3)
 ///   |> should.equal(Ok(3.0))
 ///
+///   maths.nth_root(-27.0, 3)
+///   |> should.equal(Ok(-3.0))
+///
 ///   maths.nth_root(256.0, 4)
 ///   |> should.equal(Ok(4.0))
 /// }
@@ -1369,11 +1397,16 @@ fn do_logarithm_10(a: Float) -> Float
 /// </details>
 ///
 pub fn nth_root(x: Float, n: Int) -> Result(Float, Nil) {
-  // In the following check:
-  // 1. If x is negative then return an error.
-  case x >=. 0.0 && n >= 1 {
-    True -> float.power(x, 1.0 /. int.to_float(n))
-    False -> Error(Nil)
+  case x, n {
+    _, _ if n < 1 -> Error(Nil)
+    _, _ if x <. 0.0 && n % 2 == 0 -> Error(Nil)
+    _, _ if x <. 0.0 -> {
+      case float.power(float.absolute_value(x), 1.0 /. int.to_float(n)) {
+        Ok(result) -> Ok(0.0 -. result)
+        Error(Nil) -> Error(Nil)
+      }
+    }
+    _, _ -> float.power(x, 1.0 /. int.to_float(n))
   }
 }
 
@@ -2622,7 +2655,8 @@ pub fn permutation_with_repetitions(n: Int, k: Int) -> Result(Int, Nil) {
 /// Equal values at different positions are treated as distinct choices, so duplicate input values
 /// can produce duplicate output lists. Returned lists use the input order as the canonical
 /// representation of each combination. If `k` is greater than the list length, there are no valid
-/// combinations and this function returns an empty yielder.
+/// combinations and this function returns an empty yielder. Negative `k` returns
+/// `Error(Nil)`.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -2684,7 +2718,7 @@ fn do_list_combination_without_repetitions(
 ///
 /// Equal values at different positions are treated as distinct choices, so duplicate input values
 /// can produce duplicate output lists. Returned lists use the input order as the canonical
-/// representation of each combination.
+/// representation of each combination. Negative `k` returns `Error(Nil)`.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -2758,7 +2792,8 @@ fn remove_first_by_index(
 ///
 /// Equal values at different positions are treated as distinct choices, so duplicate input values
 /// can produce duplicate output lists. If `k` is greater than the list length, there are no valid
-/// permutations and this function returns an empty yielder.
+/// permutations and this function returns an empty yielder. Negative `k` returns
+/// `Error(Nil)`.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -2818,7 +2853,7 @@ fn do_list_permutation_without_repetitions(
 /// position can be selected more than once.
 ///
 /// Equal values at different positions are treated as distinct choices, so duplicate input values
-/// can produce duplicate output lists.
+/// can produce duplicate output lists. Negative `k` returns `Error(Nil)`.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -3026,8 +3061,9 @@ pub fn norm(arr: List(Float), p: Float) -> Result(Float, Nil) {
 /// Negative weights return `Error(Nil)`. For \\(p > 0\\), this computes the usual
 /// weighted \\(p\\)-norm. For `p = 0`, it returns the number of non-zero values;
 /// the weights are checked for validity but do not affect the count. For
-/// \\(p < 0\\), any zero value or zero weight makes the result `Ok(0.0)`. Empty
-/// lists return `Ok(0.0)`.
+/// \\(p < 0\\), zero weights are ignored, while a zero value with a positive
+/// weight makes the result `Ok(0.0)`. Empty lists, or inputs with no positive
+/// weights, return `Ok(0.0)`.
 ///
 /// </details>
 ///
@@ -3085,11 +3121,11 @@ pub fn norm_with_weights(
               let result =
                 list.fold(arr, #(0.0, False), fn(acc, tuple) {
                   let #(aggregate, has_zero) = acc
-                  // Whenever `p` is negative and an element or weight in the list is zero, then
-                  // return 0.0. Otherwise continue.
+                  // Whenever `p` is negative and a positive-weighted element is zero,
+                  // return 0.0. Zero weights do not contribute to the aggregate.
                   case tuple {
+                    #(_, 0.0) -> acc
                     #(0.0, _) -> #(aggregate, True)
-                    #(_, 0.0) -> #(aggregate, True)
                     _ if has_zero -> acc
                     _ -> {
                       // This assertion is safe because the base is positive.
@@ -3101,6 +3137,7 @@ pub fn norm_with_weights(
                 })
               case result {
                 #(_, True) -> Ok(0.0)
+                #(0.0, False) -> Ok(0.0)
                 #(aggregate, False) -> float.power(aggregate, 1.0 /. p)
               }
             }
@@ -3132,6 +3169,8 @@ pub fn norm_with_weights(
 ///
 /// In the formula, \\(n\\) is the length of the two lists and \\(x_i, y_i\\) are the
 /// values in the respective input lists indexed by \\(i\\).
+///
+/// This function returns an error for an empty list.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -3313,6 +3352,8 @@ pub fn minkowski_distance_with_weights(
 /// In the formula, \\(n\\) is the length of the two lists and \\(x_i, y_i\\) are the
 /// values in the respective input lists indexed by \\(i\\).
 ///
+/// This function returns an error for an empty list.
+///
 /// <details>
 /// <summary>Examples</summary>
 ///
@@ -3386,6 +3427,8 @@ pub fn euclidean_distance_with_weights(
 ///
 /// In the formula, \\(n\\) is the length of the two lists and \\(x_i, y_i\\) are the
 /// values in the respective input lists indexed by \\(i\\).
+///
+/// This function returns an error for an empty list.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -3467,6 +3510,8 @@ pub fn chebyshev_distance_with_weights(
 
 /// Calculate the nth moment about the mean of a list of elements.
 ///
+/// This function returns an error for an empty list or a negative moment order.
+///
 /// <details>
 /// <summary>Examples</summary>
 ///
@@ -3543,6 +3588,8 @@ pub fn moment(arr: List(Float), n: Int) -> Result(Float, Nil) {
 ///
 /// In the formula, \\(n\\) is the sample size (the length of the list) and \\(x_i\\)
 /// is the sample point in the input list indexed by \\(i\\).
+///
+/// This function returns an error for an empty list.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -3710,6 +3757,8 @@ pub fn geometric_mean(arr: List(Float)) -> Result(Float, Nil) {
 }
 
 /// Calculate the median of the elements in a list.
+///
+/// This function returns an error for an empty list.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -3883,6 +3932,9 @@ pub fn standard_deviation(arr: List(Float), ddof: Int) -> Result(Float, Nil) {
 /// Calculate the excess kurtosis of a list of elements using Fisher's
 /// definition.
 ///
+/// This function returns an error for an empty list, fewer than four values, or
+/// a list with zero variance, because kurtosis is undefined in those cases.
+///
 /// <details>
 /// <summary>Examples</summary>
 ///
@@ -3898,6 +3950,11 @@ pub fn standard_deviation(arr: List(Float), ddof: Int) -> Result(Float, Nil) {
 ///
 ///   // To calculate kurtosis at least four values are needed
 ///   [1.0, 2.0, 3.0]
+///   |> maths.kurtosis()
+///   |> should.be_error()
+///
+///   // A list with zero variance returns an error
+///   [1.0, 1.0, 1.0, 1.0]
 ///   |> maths.kurtosis()
 ///   |> should.be_error()
 ///
@@ -3929,6 +3986,9 @@ pub fn kurtosis(arr: List(Float)) -> Result(Float, Nil) {
 /// Calculate the skewness of a list of elements using the unadjusted
 /// Fisher-Pearson coefficient of skewness.
 ///
+/// This function returns an error for an empty list, fewer than three values, or
+/// a list with zero variance, because skewness is undefined in those cases.
+///
 /// <details>
 /// <summary>Examples</summary>
 ///
@@ -3946,6 +4006,11 @@ pub fn kurtosis(arr: List(Float)) -> Result(Float, Nil) {
 ///   [1.0, 2.0, 3.0]
 ///   |> maths.skewness()
 ///   |> should.equal(Ok(0.0))
+///
+///   // A list with zero variance returns an error
+///   [1.0, 1.0, 1.0]
+///   |> maths.skewness()
+///   |> should.be_error()
 ///
 ///   [1.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 3.0, 3.0, 4.0]
 ///   |> maths.skewness()
@@ -3974,6 +4039,9 @@ pub fn skewness(arr: List(Float)) -> Result(Float, Nil) {
 
 /// Calculate the nth percentile of the elements in a list using
 /// linear interpolation between closest ranks.
+///
+/// The percentile `n` must be between `0` and `100` inclusive. Values outside
+/// this range return an error.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -5920,6 +5988,8 @@ fn do_linear_space(
 /// The function is similar to [`linear_space`](#linear_space) but instead returns a yielder
 /// (lazily evaluated sequence of elements). This function can be used whenever there is a need
 /// to generate a larger-than-usual sequence of elements.
+/// Parameter validation and edge-case behavior match [`linear_space`](#linear_space),
+/// with empty results returned as an empty yielder.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -6050,6 +6120,8 @@ pub fn logarithmic_space(
 /// The function is similar to [`logarithmic_space`](#logarithmic_space) but instead returns a yielder
 /// (lazily evaluated sequence of elements). This function can be used whenever there is a need
 /// to generate a larger-than-usual sequence of elements.
+/// Parameter validation and edge-case behavior match [`logarithmic_space`](#logarithmic_space),
+/// with empty results returned as an empty yielder.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -6114,10 +6186,11 @@ pub fn yield_logarithmic_space(
 ///
 /// Internally, the function computes the logarithms of `start` and `stop` and generates evenly
 /// spaced points in the logarithmic domain (using base 10). These points are then transformed back
-/// into their original scale to create a sequence of values that grow multiplicatively.
+/// into their original scale to create a sequence of values that change multiplicatively.
 ///
-/// The `start` and `stop` values must be positive, as logarithms are undefined for non-positive
-/// values. The number of points (`steps`) must be non-negative; zero points returns an empty list.
+/// When generating values, `start` and `stop` must be positive because logarithms
+/// are undefined for non-positive values. The number of points (`steps`) must be
+/// non-negative; zero points returns an empty list.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -6158,9 +6231,12 @@ pub fn geometric_space(
   steps: Int,
   endpoint: Bool,
 ) -> Result(List(Float), Nil) {
-  case start <=. 0.0 || stop <=. 0.0 || steps < 0 {
-    True -> Error(Nil)
-    False -> {
+  case steps {
+    _ if steps < 0 -> Error(Nil)
+    0 -> Ok([])
+    _ -> {
+      use <- bool.guard(start <=. 0.0 || stop <=. 0.0, Error(Nil))
+
       // These assertions are safe because `start` and `stop` are positive.
       let assert Ok(log_start) = logarithm_10(start)
       let assert Ok(log_stop) = logarithm_10(stop)
@@ -6173,6 +6249,8 @@ pub fn geometric_space(
 /// The function is similar to [`geometric_space`](#geometric_space) but instead returns a yielder
 /// (lazily evaluated sequence of elements). This function can be used whenever there is a need
 /// to generate a larger-than-usual sequence of elements.
+/// Parameter validation and edge-case behavior match [`geometric_space`](#geometric_space),
+/// with empty results returned as an empty yielder.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -6207,9 +6285,12 @@ pub fn yield_geometric_space(
   steps: Int,
   endpoint: Bool,
 ) -> Result(Yielder(Float), Nil) {
-  case start <=. 0.0 || stop <=. 0.0 || steps < 0 {
-    True -> Error(Nil)
-    False -> {
+  case steps {
+    _ if steps < 0 -> Error(Nil)
+    0 -> Ok(yielder.empty())
+    _ -> {
+      use <- bool.guard(start <=. 0.0 || stop <=. 0.0, Error(Nil))
+
       // These assertions are safe because `start` and `stop` are positive.
       let assert Ok(log_start) = logarithm_10(start)
       let assert Ok(log_stop) = logarithm_10(stop)
@@ -6263,6 +6344,8 @@ pub fn symmetric_space(
 /// The function is similar to [`symmetric_space`](#symmetric_space) but instead returns a yielder
 /// (lazily evaluated sequence of elements). This function can be used whenever there is a need
 /// to generate a larger-than-usual sequence of elements.
+/// Parameter validation and edge-case behavior match [`symmetric_space`](#symmetric_space),
+/// with empty results returned as an empty yielder.
 ///
 /// <details>
 /// <summary>Examples</summary>

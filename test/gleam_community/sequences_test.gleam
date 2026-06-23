@@ -510,6 +510,11 @@ pub fn yield_geometric_space_test() {
   |> yielder.to_list()
   |> should.equal([])
 
+  let assert Ok(logspace) = maths.yield_geometric_space(0.0, 1000.0, 0, True)
+  logspace
+  |> yielder.to_list()
+  |> should.equal([])
+
   // - Decreasing positive range
   let assert Ok(logspace) = maths.yield_geometric_space(10.0, 0.001, 3, True)
   maths.all_close(
@@ -610,6 +615,10 @@ pub fn list_geometric_space_test() {
   |> should.equal([])
 
   let assert Ok(logspace) = maths.geometric_space(10.0, 1000.0, 0, False)
+  logspace
+  |> should.equal([])
+
+  let assert Ok(logspace) = maths.geometric_space(0.0, 1000.0, 0, True)
   logspace
   |> should.equal([])
 

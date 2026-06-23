@@ -189,6 +189,7 @@ pub fn divide(a: Complex, b: Complex) -> Complex {
 /// </details>
 ///
 pub fn absolute_value(z: Complex) -> Float {
+  // This assertion is safe because a sum of squares is non-negative.
   let assert Ok(result) =
     float.square_root(z.real *. z.real +. z.imaginary *. z.imaginary)
   result
@@ -385,10 +386,9 @@ pub fn reciprocal(z: Complex) -> Complex {
 /// Complex powers are generally multi-valued. This function returns the
 /// principal value for non-zero bases.
 ///
-/// If \\(z = 0\\), the logarithm is not evaluated. Zero bases follow Gleam's
-/// division-by-zero rule: non-zero real exponents return `Ok(zero())`, while
-/// \\(0^0\\) and zero raised to an exponent with a non-zero imaginary part return
-/// `Error(Nil)`.
+/// If \\(z = 0\\), the logarithm is not evaluated. Zero raised to a positive
+/// real exponent returns `Ok(zero())`. Zero raised to a zero, negative, or
+/// non-real exponent is undefined and returns `Error(Nil)`.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -412,9 +412,8 @@ pub fn reciprocal(z: Complex) -> Complex {
 /// </details>
 ///
 pub fn power(z: Complex, exponent: Complex) -> Result(Complex, Nil) {
-  case is_zero(z), is_zero(exponent), exponent.imaginary == 0.0 {
-    True, True, _ -> Error(Nil)
-    True, False, True -> Ok(zero())
+  case is_zero(z), exponent.imaginary == 0.0, exponent.real >. 0.0 {
+    True, True, True -> Ok(zero())
     True, _, _ -> Error(Nil)
     False, _, _ -> {
       use log_z <- result.try(natural_logarithm(z))
@@ -436,9 +435,9 @@ pub fn power(z: Complex, exponent: Complex) -> Result(Complex, Nil) {
 /// function returns the principal value. This is equivalent to calling
 /// `power(z, from_float(exponent))`.
 ///
-/// If \\(z = 0\\), the logarithm is not evaluated. Non-zero exponents return
-/// `Ok(zero())`, following Gleam's division-by-zero rule. The expression
-/// \\(0^0\\) returns `Error(Nil)`.
+/// If \\(z = 0\\), the logarithm is not evaluated. Positive exponents return
+/// `Ok(zero())`. Zero or negative exponents are undefined and return
+/// `Error(Nil)`.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -600,6 +599,19 @@ fn multiplicative_identity() -> Complex {
 
 fn is_zero(z: Complex) -> Bool {
   z.real == 0.0 && z.imaginary == 0.0
+}
+
+fn is_real_tangent_pole(x: Float) -> Bool {
+  let periods_from_first_pole = x /. maths.pi() -. 0.5
+  !maths.is_fractional(periods_from_first_pole)
+}
+
+fn is_complex_tangent_pole(z: Complex) -> Bool {
+  z.imaginary == 0.0 && is_real_tangent_pole(z.real)
+}
+
+fn is_complex_hyperbolic_tangent_pole(z: Complex) -> Bool {
+  z.real == 0.0 && is_real_tangent_pole(z.imaginary)
 }
 
 /// Calculate the sum of the elements in a list:
@@ -881,6 +893,8 @@ pub fn natural_logarithm(z: Complex) -> Result(Complex, Nil) {
   case is_zero(z) {
     True -> Error(Nil)
     False -> {
+      // This assertion is safe because non-zero complex values have positive
+      // absolute value.
       let assert Ok(log_r) = maths.natural_logarithm(absolute_value(z))
 
       Ok(Complex(log_r, argument(z)))
@@ -975,6 +989,7 @@ pub fn logarithm_10(z: Complex) -> Result(Complex, Nil) {
 /// </details>
 ///
 pub fn square_root(z: Complex) -> Complex {
+  // This assertion is safe because square roots use a positive real exponent.
   let assert Ok(result) = power_with_real_exponent(z, 0.5)
 
   result
@@ -985,6 +1000,10 @@ pub fn square_root(z: Complex) -> Complex {
 /// \\[
 /// \sin(a + bi) = \sin(a)\cosh(b) + i\cos(a)\sinh(b)
 /// \\]
+///
+/// The function takes a complex number \\(z\\) in its domain \\(\mathbb{C}\\) as
+/// input and returns a complex number in the codomain \\(\mathbb{C}\\). The range
+/// is all complex numbers.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -1014,6 +1033,10 @@ pub fn sin(z: Complex) -> Complex {
 /// \cos(a + bi) = \cos(a)\cosh(b) - i\sin(a)\sinh(b)
 /// \\]
 ///
+/// The function takes a complex number \\(z\\) in its domain \\(\mathbb{C}\\) as
+/// input and returns a complex number in the codomain \\(\mathbb{C}\\). The range
+/// is all complex numbers.
+///
 /// <details>
 /// <summary>Examples</summary>
 ///
@@ -1042,9 +1065,13 @@ pub fn cos(z: Complex) -> Complex {
 /// \tan(z) = \frac{\sin(z)}{\cos(z)}
 /// \\]
 ///
-/// Tangent is calculated as \\(\sin(z) / \cos(z)\\). This function follows the
-/// library's total division convention, so values where \\(\cos(z) = 0\\) return
-/// `zero()`.
+/// The function takes a complex number \\(z\\) in its domain
+/// \\(\mathbb{C} \setminus \{\frac{\pi}{2} + k\pi \mid k \in \mathbb{Z}\}\\)
+/// as input and returns a complex number in the codomain \\(\mathbb{C}\\). The
+/// range is \\(\mathbb{C} \setminus \{-i, i\}\\).
+///
+/// Tangent is calculated as \\(\sin(z) / \cos(z)\\). Values outside the domain,
+/// where \\(\cos(z) = 0\\), are undefined and return `Error(Nil)`.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -1054,15 +1081,21 @@ pub fn cos(z: Complex) -> Complex {
 /// import gleam_community/complex
 ///
 /// pub fn example() {
-///   complex.tan(complex.zero())
+///   let assert Ok(result) = complex.tan(complex.zero())
+///   result
 ///   |> should.equal(complex.zero())
 /// }
 /// ```
 ///
 /// </details>
 ///
-pub fn tan(z: Complex) -> Complex {
-  divide(sin(z), cos(z))
+pub fn tan(z: Complex) -> Result(Complex, Nil) {
+  let denominator = cos(z)
+
+  case is_complex_tangent_pole(z) || is_zero(denominator) {
+    True -> Error(Nil)
+    False -> Ok(divide(sin(z), denominator))
+  }
 }
 
 /// Return the principal inverse sine of \\(z\\):
@@ -1071,7 +1104,12 @@ pub fn tan(z: Complex) -> Complex {
 /// \arcsin(z) = -i\operatorname{Log}(iz + \sqrt{1 - z^2})
 /// \\]
 ///
-/// This function returns `Error(Nil)` when the value inside the principal
+/// The function takes a complex number \\(z\\) in its domain \\(\mathbb{C}\\) as
+/// input and returns the principal value in the codomain \\(\mathbb{C}\\). Its
+/// principal values lie in the vertical strip
+/// \\(-\frac{\pi}{2} \le \operatorname{Re}(y) \le \frac{\pi}{2}\\).
+///
+/// This function returns `Error(Nil)` if the value inside the principal
 /// logarithm is zero.
 ///
 /// <details>
@@ -1106,6 +1144,11 @@ pub fn asin(z: Complex) -> Result(Complex, Nil) {
 /// \arccos(z) = \frac{\pi}{2} - \arcsin(z)
 /// \\]
 ///
+/// The function takes a complex number \\(z\\) in its domain \\(\mathbb{C}\\) as
+/// input and returns the principal value in the codomain \\(\mathbb{C}\\). Its
+/// principal values lie in the vertical strip
+/// \\(0 \le \operatorname{Re}(y) \le \pi\\).
+///
 /// <details>
 /// <summary>Examples</summary>
 ///
@@ -1138,8 +1181,13 @@ pub fn acos(z: Complex) -> Result(Complex, Nil) {
 /// \end{aligned}
 /// \\]
 ///
+/// The function takes a complex number \\(z\\) in its domain
+/// \\(\mathbb{C} \setminus \{-i, i\}\\) as input and returns the principal value
+/// in the codomain \\(\mathbb{C}\\). Its principal values lie in the vertical
+/// strip \\(-\frac{\pi}{2} \le \operatorname{Re}(y) \le \frac{\pi}{2}\\).
+///
 /// This function returns `Error(Nil)` when either value inside the principal
-/// logarithms is zero.
+/// logarithms is zero, which occurs at \\(z = -i\\) and \\(z = i\\).
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -1172,6 +1220,10 @@ pub fn atan(z: Complex) -> Result(Complex, Nil) {
 /// \sinh(a + bi) = \sinh(a)\cos(b) + i\cosh(a)\sin(b)
 /// \\]
 ///
+/// The function takes a complex number \\(z\\) in its domain \\(\mathbb{C}\\) as
+/// input and returns a complex number in the codomain \\(\mathbb{C}\\). The range
+/// is all complex numbers.
+///
 /// <details>
 /// <summary>Examples</summary>
 ///
@@ -1199,6 +1251,10 @@ pub fn sinh(z: Complex) -> Complex {
 /// \\[
 /// \cosh(a + bi) = \cosh(a)\cos(b) + i\sinh(a)\sin(b)
 /// \\]
+///
+/// The function takes a complex number \\(z\\) in its domain \\(\mathbb{C}\\) as
+/// input and returns a complex number in the codomain \\(\mathbb{C}\\). The range
+/// is all complex numbers.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -1228,9 +1284,13 @@ pub fn cosh(z: Complex) -> Complex {
 /// \tanh(z) = \frac{\sinh(z)}{\cosh(z)}
 /// \\]
 ///
-/// Hyperbolic tangent is calculated as \\(\sinh(z) / \cosh(z)\\). This function
-/// follows the library's total division convention, so values where
-/// \\(\cosh(z) = 0\\) return `zero()`.
+/// The function takes a complex number \\(z\\) in its domain
+/// \\(\mathbb{C} \setminus \{i(\frac{\pi}{2} + k\pi) \mid k \in \mathbb{Z}\}\\)
+/// as input and returns a complex number in the codomain \\(\mathbb{C}\\). The
+/// range is \\(\mathbb{C} \setminus \{-1, 1\}\\).
+///
+/// Hyperbolic tangent is calculated as \\(\sinh(z) / \cosh(z)\\). Values outside
+/// the domain, where \\(\cosh(z) = 0\\), are undefined and return `Error(Nil)`.
 ///
 /// <details>
 /// <summary>Examples</summary>
@@ -1240,15 +1300,21 @@ pub fn cosh(z: Complex) -> Complex {
 /// import gleam_community/complex
 ///
 /// pub fn example() {
-///   complex.tanh(complex.zero())
+///   let assert Ok(result) = complex.tanh(complex.zero())
+///   result
 ///   |> should.equal(complex.zero())
 /// }
 /// ```
 ///
 /// </details>
 ///
-pub fn tanh(z: Complex) -> Complex {
-  divide(sinh(z), cosh(z))
+pub fn tanh(z: Complex) -> Result(Complex, Nil) {
+  let denominator = cosh(z)
+
+  case is_complex_hyperbolic_tangent_pole(z) || is_zero(denominator) {
+    True -> Error(Nil)
+    False -> Ok(divide(sinh(z), denominator))
+  }
 }
 
 /// Return the principal inverse hyperbolic sine of \\(z\\):
@@ -1257,7 +1323,12 @@ pub fn tanh(z: Complex) -> Complex {
 /// \operatorname{asinh}(z) = \operatorname{Log}(z + \sqrt{z^2 + 1})
 /// \\]
 ///
-/// This function returns `Error(Nil)` when the value inside the principal
+/// The function takes a complex number \\(z\\) in its domain \\(\mathbb{C}\\) as
+/// input and returns the principal value in the codomain \\(\mathbb{C}\\). Its
+/// principal values lie in the horizontal strip
+/// \\(-\frac{\pi}{2} \le \operatorname{Im}(y) \le \frac{\pi}{2}\\).
+///
+/// This function returns `Error(Nil)` if the value inside the principal
 /// logarithm is zero.
 ///
 /// <details>
@@ -1289,7 +1360,12 @@ pub fn asinh(z: Complex) -> Result(Complex, Nil) {
 /// \operatorname{acosh}(z) = \operatorname{Log}(z + \sqrt{z + 1}\sqrt{z - 1})
 /// \\]
 ///
-/// This function returns `Error(Nil)` when the value inside the principal
+/// The function takes a complex number \\(z\\) in its domain \\(\mathbb{C}\\) as
+/// input and returns the principal value in the codomain \\(\mathbb{C}\\). Its
+/// principal values satisfy \\(\operatorname{Re}(y) \ge 0\\) and
+/// \\(-\pi < \operatorname{Im}(y) \le \pi\\).
+///
+/// This function returns `Error(Nil)` if the value inside the principal
 /// logarithm is zero.
 ///
 /// <details>
@@ -1325,8 +1401,13 @@ pub fn acosh(z: Complex) -> Result(Complex, Nil) {
 /// \end{aligned}
 /// \\]
 ///
+/// The function takes a complex number \\(z\\) in its domain
+/// \\(\mathbb{C} \setminus \{-1, 1\}\\) as input and returns the principal value
+/// in the codomain \\(\mathbb{C}\\). Its principal values lie in the horizontal
+/// strip \\(-\frac{\pi}{2} \le \operatorname{Im}(y) \le \frac{\pi}{2}\\).
+///
 /// This function returns `Error(Nil)` when either value inside the principal
-/// logarithms is zero.
+/// logarithms is zero, which occurs at \\(z = -1\\) and \\(z = 1\\).
 ///
 /// <details>
 /// <summary>Examples</summary>

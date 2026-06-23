@@ -98,6 +98,7 @@ The library uses a few rules of thumb for edge cases:
   when returning zero would be misleading, when the calculation cannot be
   meaningfully carried forward, or when there is no meaningful value to return.
   Examples include `maths.euclidean_modulo` when the divisor is zero,
+  `maths.tan` at values where the tangent is undefined,
   `maths.cosine_similarity` when one vector has zero length,
   `maths.natural_logarithm` for values outside the logarithm's domain, and
   `maths.standard_deviation` when there is not enough data.

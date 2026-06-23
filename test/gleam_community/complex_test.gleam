@@ -203,6 +203,12 @@ pub fn power_with_real_exponent_of_zero_test() {
   |> should.equal(Complex(0.0, 0.0))
 }
 
+pub fn power_with_real_exponent_zero_to_positive_fractional_test() {
+  complex.power_with_real_exponent(Complex(0.0, 0.0), 0.5)
+  |> should.be_ok
+  |> should.equal(Complex(0.0, 0.0))
+}
+
 pub fn power_with_real_exponent_to_the_zeroth_test() {
   complex.power_with_real_exponent(Complex(42.0, 42.0), 0.0)
   |> should.be_ok
@@ -211,8 +217,7 @@ pub fn power_with_real_exponent_to_the_zeroth_test() {
 
 pub fn power_with_real_exponent_zero_to_negative_test() {
   complex.power_with_real_exponent(Complex(0.0, 0.0), -1.0)
-  |> should.be_ok
-  |> should.equal(Complex(0.0, 0.0))
+  |> should.be_error
 }
 
 pub fn power_with_real_exponent_to_a_negative_test() {
@@ -266,8 +271,7 @@ pub fn power_zero_to_zero_complex_exponent_test() {
 
 pub fn power_zero_to_negative_complex_exponent_test() {
   complex.power(Complex(0.0, 0.0), Complex(-1.0, 0.0))
-  |> should.be_ok
-  |> should.equal(Complex(0.0, 0.0))
+  |> should.be_error
 }
 
 pub fn power_zero_to_non_real_complex_exponent_test() {
@@ -614,11 +618,18 @@ pub fn cos_default_test() {
 
 pub fn tan_zero_test() {
   complex.tan(Complex(0.0, 0.0))
+  |> should.be_ok
   |> should.equal(Complex(0.0, 0.0))
+}
+
+pub fn tan_singularity_test() {
+  complex.tan(Complex(maths.pi() /. 2.0, 0.0))
+  |> should.be_error
 }
 
 pub fn tan_default_test() {
   complex.tan(Complex(1.0, 2.0))
+  |> should.be_ok
   |> complex.is_close(
     Complex(0.0338128260798967, 1.0147936161466335),
     0.0,
@@ -714,11 +725,18 @@ pub fn cosh_default_test() {
 
 pub fn tanh_zero_test() {
   complex.tanh(Complex(0.0, 0.0))
+  |> should.be_ok
   |> should.equal(Complex(0.0, 0.0))
+}
+
+pub fn tanh_singularity_test() {
+  complex.tanh(Complex(0.0, maths.pi() /. 2.0))
+  |> should.be_error
 }
 
 pub fn tanh_default_test() {
   complex.tanh(Complex(1.0, 2.0))
+  |> should.be_ok
   |> complex.is_close(
     Complex(1.16673625724092, -0.24345820118572534),
     0.0,
